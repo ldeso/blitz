@@ -4,7 +4,6 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="Blitz"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.Blitz"
         tools:targetApi="31">
         <activity

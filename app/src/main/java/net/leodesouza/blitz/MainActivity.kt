@@ -104,7 +104,7 @@ fun ChessClock(whiteTime: Long, blackTime: Long, onClick: () -> Unit) {
         Row {
             Time(
                 whiteTime,
-                color = if (whiteTime == 0L) Color.Red else Color.Black,
+                color = if (whiteTime > 0L)  Color.Black else Color.Red,
                 modifier = Modifier
                     .background(Color.White)
                     .weight(1F)
@@ -113,7 +113,7 @@ fun ChessClock(whiteTime: Long, blackTime: Long, onClick: () -> Unit) {
             )
             Time(
                 blackTime,
-                color = if (blackTime == 0L) Color.Red else Color.White,
+                color = if (blackTime > 0L) Color.White else Color.Red,
                 modifier = Modifier
                     .background(Color.Black)
                     .weight(1F)

@@ -1,17 +1,17 @@
 package net.leodesouza.blitz
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
-import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
 import android.text.format.DateUtils.formatElapsedTime
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
@@ -25,7 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,13 +35,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
+            navigationBarStyle = SystemBarStyle.light(Color.Transparent.toArgb(), Color.Black.toArgb())
+        )
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onCreate(savedInstanceState)
         setContent {
             CountDown(303_000L, 3_000L) { whiteTime, blackTime, onClick ->
@@ -105,21 +107,23 @@ fun CountDown(
 @Composable
 fun ChessClock(whiteTime: Long, blackTime: Long, onClick: () -> Unit) {
     Surface(onClick) {
-        Row {
-            Time(
-                whiteTime,
-                color = if (whiteTime > 0L)  Color.Black else Color.Red,
-                modifier = Modifier
-                    .background(Color.White)
-                    .weight(1F)
-                    .fillMaxSize()
-                    .wrapContentSize()
-            )
+        Column {
             Time(
                 blackTime,
                 color = if (blackTime > 0L) Color.White else Color.Red,
                 modifier = Modifier
                     .background(Color.Black)
+                    .rotate(-90F)
+                    .weight(1F)
+                    .fillMaxSize()
+                    .wrapContentSize()
+            )
+            Time(
+                whiteTime,
+                color = if (whiteTime > 0L) Color.Black else Color.Red,
+                modifier = Modifier
+                    .background(Color.White)
+                    .rotate(-90F)
                     .weight(1F)
                     .fillMaxSize()
                     .wrapContentSize()
@@ -138,7 +142,7 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
         modifier = modifier,
         color = color,
         fontSize = with(LocalDensity.current) {
-            (LocalConfiguration.current.screenWidthDp / 8).dp.toSp()
+            (LocalConfiguration.current.screenHeightDp / 8).dp.toSp()
         },
     )
 }

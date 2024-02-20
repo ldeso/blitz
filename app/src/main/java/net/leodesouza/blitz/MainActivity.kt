@@ -75,9 +75,13 @@ fun CountDown(
         if (isPressed) {
             if (isRunning) {
                 if (isBlackTurn) {
-                    whiteTime += increment
+                    if (whiteTime > 0L) {
+                        whiteTime += increment
+                    }
                 } else {
-                    blackTime += increment
+                    if (blackTime > 0L) {
+                        blackTime += increment
+                    }
                 }
             } else {
                 isRunning = true

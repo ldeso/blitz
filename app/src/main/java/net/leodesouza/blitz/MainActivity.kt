@@ -11,11 +11,12 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -41,7 +43,7 @@ class MainActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
             navigationBarStyle = SystemBarStyle.light(
                 Color.Transparent.toArgb(), Color.Black.toArgb()
-            )
+            ),
         )
         super.onCreate(savedInstanceState)
         setContent {
@@ -103,29 +105,33 @@ fun CountDown(
 
 @Composable
 fun ChessClock(whiteTime: Long, blackTime: Long, onClick: () -> Unit) {
-    Surface(onClick) {
-        Column {
-            Time(
-                blackTime,
-                color = if (blackTime > 0L) Color.White else Color.Red,
-                modifier = Modifier
-                    .background(Color.Black)
-                    .rotate(-90F)
-                    .weight(1F)
-                    .fillMaxSize()
-                    .wrapContentSize()
-            )
-            Time(
-                whiteTime,
-                color = if (whiteTime > 0L) Color.Black else Color.Red,
-                modifier = Modifier
-                    .background(Color.White)
-                    .rotate(-90F)
-                    .weight(1F)
-                    .fillMaxSize()
-                    .wrapContentSize()
-            )
-        }
+    Column(
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick,
+        )
+    ) {
+        Time(
+            blackTime,
+            color = if (blackTime > 0L) Color.White else Color.Red,
+            modifier = Modifier
+                .background(Color.Black)
+                .rotate(-90F)
+                .weight(1F)
+                .fillMaxSize()
+                .wrapContentSize(),
+        )
+        Time(
+            whiteTime,
+            color = if (whiteTime > 0L) Color.Black else Color.Red,
+            modifier = Modifier
+                .background(Color.White)
+                .rotate(-90F)
+                .weight(1F)
+                .fillMaxSize()
+                .wrapContentSize(),
+        )
     }
 }
 
@@ -134,13 +140,12 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
     val roundedTime = (timeMillis + 50L) / 100L
     val integerPart = formatElapsedTime(roundedTime / 10L)
     val decimalPart = roundedTime % 10L
-    Text(
+    BasicText(
         text = "$integerPart.$decimalPart",
         modifier = modifier,
-        color = color,
-        fontSize = with(LocalDensity.current) {
+        style = TextStyle(color = color, fontSize = with(LocalDensity.current) {
             LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
-        },
+        }),
     )
 }
 

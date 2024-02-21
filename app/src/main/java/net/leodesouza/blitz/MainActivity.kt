@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,11 +36,14 @@ import kotlinx.coroutines.delay
 class MainActivity : ComponentActivity() {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
-            navigationBarStyle = SystemBarStyle.light(Color.Transparent.toArgb(), Color.Black.toArgb())
+            navigationBarStyle = SystemBarStyle.light(
+                Color.Transparent.toArgb(),
+                Color.Black.toArgb()
+            )
         )
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onCreate(savedInstanceState)
         setContent {
             CountDown(303_000L, 3_000L) { whiteTime, blackTime, onClick ->
@@ -59,47 +61,34 @@ fun CountDown(
 ) {
     var whiteTime by remember { mutableLongStateOf(duration) }
     var blackTime by remember { mutableLongStateOf(duration) }
-    var endTime by remember { mutableLongStateOf(elapsedRealtime() + duration) }
-    var timesPressed by remember { mutableIntStateOf(0) }
-    var isPressed by remember { mutableStateOf(false) }
+    var endTime by remember { mutableLongStateOf(0L) }
+    var isWhiteTurn by remember { mutableStateOf(true) }
     var isRunning by remember { mutableStateOf(false) }
-    val onClick = {
-        timesPressed++
-        isPressed = true
+    content.invoke(whiteTime, blackTime) {
+        if (whiteTime > 0L && blackTime > 0) {
+            if (isRunning) {
+                if (isWhiteTurn) {
+                    whiteTime += increment
+                } else {
+                    blackTime += increment
+                }
+                isWhiteTurn = !isWhiteTurn
+            }
+            endTime = elapsedRealtime() + if (isWhiteTurn) whiteTime else blackTime
+            isRunning = true
+        }
     }
-    content.invoke(whiteTime, blackTime, onClick)
     BackHandler(isRunning) {
-        timesPressed--
         isRunning = false
     }
-    LaunchedEffect(whiteTime, blackTime, isPressed) {
-        val isBlackTurn = (timesPressed % 2 == 0)
-        if (isPressed) {
-            if (isRunning) {
-                if (isBlackTurn) {
-                    if (whiteTime > 0L) {
-                        whiteTime += increment
-                    }
-                } else {
-                    if (blackTime > 0L) {
-                        blackTime += increment
-                    }
-                }
+    LaunchedEffect(whiteTime, blackTime, isRunning) {
+        if (isRunning && elapsedRealtime() < endTime) {
+            delay((endTime - elapsedRealtime()) % 100L)
+            if (isWhiteTurn) {
+                whiteTime = endTime - elapsedRealtime()
             } else {
-                isRunning = true
+                blackTime = endTime - elapsedRealtime()
             }
-            endTime = elapsedRealtime() + if (isBlackTurn) blackTime else whiteTime
-            isPressed = false
-        }
-        if (isRunning) {
-            val remainingTime = if (elapsedRealtime() < endTime) {
-                delay((endTime - elapsedRealtime()) % 100L)
-                endTime - elapsedRealtime()
-            } else {
-                0L
-            }
-            if (isBlackTurn) blackTime = remainingTime
-            else whiteTime = remainingTime
         }
     }
 }
@@ -150,7 +139,7 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun ChessClockPreview() {
-    CountDown(13_000L, 3_000L) { whiteTime, blackTime, onClick ->
+    CountDown(10_000L, 1_000L) { whiteTime, blackTime, onClick ->
         ChessClock(whiteTime, blackTime, onClick)
     }
 }

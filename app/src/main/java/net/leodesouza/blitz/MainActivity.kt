@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
         setContent {
-            CountDown(
+            Counter(
                 durationMinutes = 5L, incrementSeconds = 3L
             ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
                 ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
@@ -65,8 +65,74 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Preview
 @Composable
-fun CountDown(
+fun ChessClockPreview() {
+    Counter(
+        durationMinutes = 5L, incrementSeconds = 3L
+    ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
+        ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
+    }
+}
+
+@Composable
+fun ChessClock(
+    whiteTime: Long,
+    blackTime: Long,
+    onClick: () -> Unit,
+    onDragStart: (Offset) -> Unit,
+    onDrag: (PointerInputChange, Offset) -> Unit,
+) {
+    Column(modifier = Modifier
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick,
+        )
+        .pointerInput(Unit) {
+            detectDragGestures(
+                onDragStart = onDragStart, onDrag = onDrag
+            )
+        }) {
+        Time(
+            blackTime,
+            color = if (blackTime > 0L) Color.White else Color.Red,
+            modifier = Modifier
+                .background(Color.Black)
+                .rotate(-90F)
+                .weight(1F)
+                .fillMaxSize()
+                .wrapContentSize(),
+        )
+        Time(
+            whiteTime,
+            color = if (whiteTime > 0L) Color.Black else Color.Red,
+            modifier = Modifier
+                .background(Color.White)
+                .rotate(-90F)
+                .weight(1F)
+                .fillMaxSize()
+                .wrapContentSize(),
+        )
+    }
+}
+
+@Composable
+fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
+    val roundedTime = round(timeMillis, step = 100L)
+    val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
+    val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
+    BasicText(
+        text = if (roundedTime < HOUR_IN_MILLIS) "$integerPart.$decimalPart" else integerPart,
+        modifier = modifier,
+        style = TextStyle(color = color, fontSize = with(LocalDensity.current) {
+            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
+        }),
+    )
+}
+
+@Composable
+fun Counter(
     durationMinutes: Long, incrementSeconds: Long, content: @Composable (
         whiteTime: Long,
         blackTime: Long,
@@ -211,72 +277,6 @@ fun CountDown(
     }
 }
 
-@Composable
-fun ChessClock(
-    whiteTime: Long,
-    blackTime: Long,
-    onClick: () -> Unit,
-    onDragStart: (Offset) -> Unit,
-    onDrag: (PointerInputChange, Offset) -> Unit,
-) {
-    Column(modifier = Modifier
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onClick,
-        )
-        .pointerInput(Unit) {
-            detectDragGestures(
-                onDragStart = onDragStart, onDrag = onDrag
-            )
-        }) {
-        Time(
-            blackTime,
-            color = if (blackTime > 0L) Color.White else Color.Red,
-            modifier = Modifier
-                .background(Color.Black)
-                .rotate(-90F)
-                .weight(1F)
-                .fillMaxSize()
-                .wrapContentSize(),
-        )
-        Time(
-            whiteTime,
-            color = if (whiteTime > 0L) Color.Black else Color.Red,
-            modifier = Modifier
-                .background(Color.White)
-                .rotate(-90F)
-                .weight(1F)
-                .fillMaxSize()
-                .wrapContentSize(),
-        )
-    }
-}
-
-@Composable
-fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
-    val roundedTime = round(timeMillis, step = 100L)
-    val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
-    val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
-    BasicText(
-        text = if (roundedTime < HOUR_IN_MILLIS) "$integerPart.$decimalPart" else integerPart,
-        modifier = modifier,
-        style = TextStyle(color = color, fontSize = with(LocalDensity.current) {
-            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
-        }),
-    )
-}
-
 fun round(x: Long, step: Long): Long {
     return (x + (step / 2L)) / step * step
-}
-
-@Preview
-@Composable
-fun ChessClockPreview() {
-    CountDown(
-        durationMinutes = 1L, incrementSeconds = 1L
-    ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
-        ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
-    }
 }

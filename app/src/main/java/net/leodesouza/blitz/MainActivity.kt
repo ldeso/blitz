@@ -40,8 +40,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
             navigationBarStyle = SystemBarStyle.light(
-                Color.Transparent.toArgb(),
-                Color.Black.toArgb()
+                Color.Transparent.toArgb(), Color.Black.toArgb()
             )
         )
         super.onCreate(savedInstanceState)
@@ -80,6 +79,10 @@ fun CountDown(
     }
     BackHandler(isRunning) {
         isRunning = false
+    }
+    BackHandler(!(isRunning && whiteTime > 0L && blackTime > 0L)) {
+        whiteTime = duration
+        blackTime = duration
     }
     LaunchedEffect(whiteTime, blackTime, isRunning) {
         if (isRunning && elapsedRealtime() < endTime) {

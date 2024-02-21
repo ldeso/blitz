@@ -80,7 +80,7 @@ fun CountDown(
     BackHandler(isRunning) {
         isRunning = false
     }
-    BackHandler(!isRunning && whiteTime != duration && blackTime != duration) {
+    BackHandler(!isRunning && (whiteTime != duration || blackTime != duration)) {
         whiteTime = duration
         blackTime = duration
         isWhiteTurn = true
@@ -139,7 +139,7 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
         modifier = modifier,
         color = color,
         fontSize = with(LocalDensity.current) {
-            (LocalConfiguration.current.screenHeightDp / 8).dp.toSp()
+            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
         },
     )
 }

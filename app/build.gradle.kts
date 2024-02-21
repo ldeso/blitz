@@ -11,8 +11,8 @@ android {
         applicationId = "net.leodesouza.blitz"
         minSdk = 23
         targetSdk = 34
-        versionCode = 107
-        versionName = "1.0.7"
+        versionCode = 110
+        versionName = "1.1.0"
     }
 
     buildTypes {

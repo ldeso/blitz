@@ -156,7 +156,7 @@ fun CountDown(
                     }
                     whiteTime = duration + increment
                     blackTime = duration + increment
-                } else if (isHorizontalDrag) {
+                } else if (whiteTime > 0L && blackTime > 0L && isHorizontalDrag) {
                     val newTime = round(
                         savedTime - 20L * dragOffset.x.roundToLong(), step = SECOND_IN_MILLIS
                     )

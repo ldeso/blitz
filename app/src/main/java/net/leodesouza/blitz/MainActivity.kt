@@ -80,18 +80,22 @@ fun CountDown(
     BackHandler(isRunning) {
         isRunning = false
     }
-    BackHandler(!(isRunning && whiteTime > 0L && blackTime > 0L)) {
+    BackHandler(!isRunning && whiteTime != duration && blackTime != duration) {
         whiteTime = duration
         blackTime = duration
     }
     LaunchedEffect(whiteTime, blackTime, isRunning) {
-        if (isRunning && elapsedRealtime() < endTime) {
-            delay((endTime - elapsedRealtime()) % 100L)
-            if (isWhiteTurn) {
-                whiteTime = endTime - elapsedRealtime()
-            } else {
-                blackTime = endTime - elapsedRealtime()
+        if (whiteTime > 0L && blackTime > 0) {
+            if (isRunning && elapsedRealtime() < endTime) {
+                delay((endTime - elapsedRealtime()) % 100L)
+                if (isWhiteTurn) {
+                    whiteTime = endTime - elapsedRealtime()
+                } else {
+                    blackTime = endTime - elapsedRealtime()
+                }
             }
+        } else {
+            isRunning = false
         }
     }
 }

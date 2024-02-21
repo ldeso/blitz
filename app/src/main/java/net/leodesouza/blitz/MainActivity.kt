@@ -127,7 +127,7 @@ fun CountDown(
                 if (isReset) {
                     if (isHorizontalDrag) {
                         val newIncrement = round(
-                            savedIncrement - 50L * dragOffset.x.roundToLong(),
+                            savedIncrement - 20L * dragOffset.x.roundToLong(),
                             step = SECOND_IN_MILLIS
                         )
                         increment = if (newIncrement > 30L * SECOND_IN_MILLIS) {
@@ -158,7 +158,7 @@ fun CountDown(
                     blackTime = duration + increment
                 } else if (isHorizontalDrag) {
                     val newTime = round(
-                        savedTime - 50L * dragOffset.x.roundToLong(), step = SECOND_IN_MILLIS
+                        savedTime - 20L * dragOffset.x.roundToLong(), step = SECOND_IN_MILLIS
                     )
                     if (newTime > 0L) {
                         if (isWhiteTurn) {

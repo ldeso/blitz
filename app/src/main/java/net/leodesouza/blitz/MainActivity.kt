@@ -83,6 +83,7 @@ fun CountDown(
     BackHandler(!isRunning && whiteTime != duration && blackTime != duration) {
         whiteTime = duration
         blackTime = duration
+        isWhiteTurn = true
     }
     LaunchedEffect(whiteTime, blackTime, isRunning) {
         if (whiteTime > 0L && blackTime > 0) {

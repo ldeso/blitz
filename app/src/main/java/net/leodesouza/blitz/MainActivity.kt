@@ -64,7 +64,7 @@ fun CountDown(
     var isWhiteTurn by remember { mutableStateOf(true) }
     var isRunning by remember { mutableStateOf(false) }
     content.invoke(whiteTime, blackTime) {
-        if (whiteTime > 0L && blackTime > 0) {
+        if (whiteTime > 0L && blackTime > 0L) {
             if (isRunning) {
                 if (isWhiteTurn) {
                     whiteTime += increment
@@ -86,7 +86,7 @@ fun CountDown(
         isWhiteTurn = true
     }
     LaunchedEffect(whiteTime, blackTime, isRunning) {
-        if (whiteTime > 0L && blackTime > 0) {
+        if (whiteTime > 0L && blackTime > 0L) {
             if (isRunning && elapsedRealtime() < endTime) {
                 delay((endTime - elapsedRealtime()) % 100L)
                 if (isWhiteTurn) {

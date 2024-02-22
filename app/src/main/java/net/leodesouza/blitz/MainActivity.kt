@@ -175,8 +175,8 @@ fun Counter(
     val onDragStart = { it: Offset ->
         dragPosition = it
         savedDuration = duration
-        savedTime = if (isWhiteTurn) whiteTime else blackTime
         savedIncrement = increment
+        savedTime = if (isWhiteTurn) whiteTime else blackTime
         isDragStart = true
     }
 
@@ -259,14 +259,12 @@ fun Counter(
     }
 
     LaunchedEffect(whiteTime, blackTime, isRunning) {
-        if (whiteTime > 0L && blackTime > 0L) {
-            if (isRunning && elapsedRealtime() < endTime) {
-                delay((endTime - elapsedRealtime()) % 100L)
-                if (isWhiteTurn) {
-                    whiteTime = endTime - elapsedRealtime()
-                } else {
-                    blackTime = endTime - elapsedRealtime()
-                }
+        if (isRunning && whiteTime > 0L && blackTime > 0L && elapsedRealtime() < endTime) {
+            delay((endTime - elapsedRealtime()) % 100L)
+            if (isWhiteTurn) {
+                whiteTime = endTime - elapsedRealtime()
+            } else {
+                blackTime = endTime - elapsedRealtime()
             }
         } else {
             isRunning = false

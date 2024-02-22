@@ -259,15 +259,17 @@ fun Counter(
     }
 
     LaunchedEffect(whiteTime, blackTime, isRunning) {
-        if (isRunning && whiteTime > 0L && blackTime > 0L && elapsedRealtime() < endTime) {
-            delay((endTime - elapsedRealtime()) % 100L)
-            if (isWhiteTurn) {
-                whiteTime = endTime - elapsedRealtime()
+        if (isRunning) {
+            if (whiteTime > 0L && blackTime > 0L) {
+                delay((endTime - elapsedRealtime()) % 100L)
+                if (isWhiteTurn) {
+                    whiteTime = endTime - elapsedRealtime()
+                } else {
+                    blackTime = endTime - elapsedRealtime()
+                }
             } else {
-                blackTime = endTime - elapsedRealtime()
+                isRunning = false
             }
-        } else {
-            isRunning = false
         }
     }
 }

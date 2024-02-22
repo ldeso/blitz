@@ -1,0 +1,8 @@
+This release prevents adjusting the time after it reaches zero and reduces horizontal dragging sensitivity.
+
+Bug fixes:
+* Disallow time adjustments when a time is up
+* Reduce horizontal dragging sensitivity
+
+Note:
+* Slightly change code structure

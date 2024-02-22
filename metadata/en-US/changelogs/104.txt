@@ -1,0 +1,8 @@
+This release makes it possible to reset the clock with the "back" action when the clock is paused.
+
+Enhancement:
+* Make the "back" action reset a paused clock
+
+Notes:
+* Force portrait orientation
+* Move most logic out of LaunchedEffect

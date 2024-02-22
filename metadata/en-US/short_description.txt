@@ -1,0 +1,1 @@
+A minimalist Fischer chess clock for Android.

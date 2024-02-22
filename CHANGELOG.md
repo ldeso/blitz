@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.3] - 2024-02-22
+
+This release adds metadata and slightly simplifies the source code.
+
+### Enhancements
+
+- Add metadata
+- Remove an if block to simplify code
+- Further simplify if block
+
 ## [1.1.2] - 2024-02-22
 
 This release improves compatibility and fixes a bug preventing a reset when both times are equal to their initial values.
@@ -108,6 +118,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.1.2]: https://github.com/ldeso/blitz/releases/tag/v1.1.3
 [1.1.2]: https://github.com/ldeso/blitz/releases/tag/v1.1.2
 [1.1.1]: https://github.com/ldeso/blitz/releases/tag/v1.1.1
 [1.1.0]: https://github.com/ldeso/blitz/releases/tag/v1.1.0

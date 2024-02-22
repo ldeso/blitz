@@ -1,6 +1,7 @@
 This release adds app metadata and slightly simplifies the source code.
 
 Enhancements:
+
 * Add metadata
 * Remove an if block to simplify code
 * Further simplify if block

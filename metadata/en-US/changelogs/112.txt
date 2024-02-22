@@ -1,8 +1,10 @@
 This release improves compatibility and fixes a bug preventing a reset when both times are equal to their initial values.
 
 Bug fix:
+
 * Allow reset when times are equal to their initial values
 
 Enhancements:
+
 * Set minimum SDK version to 21 (Android 5.0)
 * Enable Gradle configuration cache

@@ -1,5 +1,6 @@
 This release fixes a bug where the time could still be incremented after reaching zero.
 
 Bug fixes:
+
 * Do not increment when time is up
 * Handle negative times

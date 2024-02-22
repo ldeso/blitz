@@ -1,4 +1,5 @@
 This release enables resource shrinking and app optimization to bring the size of the APK below one megabyte.
 
 Enhancement:
+
 * Enable resource shrinking and app optimization

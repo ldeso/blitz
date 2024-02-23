@@ -44,7 +44,17 @@ import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 
+/**
+ * A minimalist Fischer chess clock for Android.
+ *
+ * Defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
+ * set by horizontal and vertical dragging. The back action pauses or resets the clock.
+ */
 class MainActivity : ComponentActivity() {
+    /**
+     * Enforce portrait orientation, enable the edge-to-edge display and set the content to a
+     * fullscreen chess clock.
+     */
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -65,6 +75,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Preview the chess clock in Android Studio.
+ */
 @Preview
 @Composable
 fun ChessClockPreview() {
@@ -75,6 +88,12 @@ fun ChessClockPreview() {
     }
 }
 
+/**
+ * Fullscreen chess clock displaying [whiteTime] and [blackTime] supporting click and drag events.
+ *
+ * Call the [onClick] callback for any click event and [onDragStart] followed by [onDrag] for any
+ * drag event.
+ */
 @Composable
 fun ChessClock(
     whiteTime: Long,
@@ -117,6 +136,10 @@ fun ChessClock(
     }
 }
 
+/**
+ * Display [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D" in a given [color] and with a given
+ * [modifier].
+ */
 @Composable
 fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
     val roundedTime = round(timeMillis, step = 100L)
@@ -131,6 +154,15 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
+ * at every turn.
+ *
+ * Accept a [content] that is a composable taking the `whiteTime` and `blackTime` in milliseconds
+ * as arguments, as well as callbacks to be triggered by click and drag events. The `onClick` event
+ * callback pauses or resets the time, while the `onDragStart` and `onDrag` event callbacks allow
+ * changing the duration and increment to different values.
+ */
 @Composable
 fun Counter(
     durationMinutes: Long, incrementSeconds: Long, content: @Composable (
@@ -274,6 +306,9 @@ fun Counter(
     }
 }
 
-fun round(x: Long, step: Long): Long {
-    return (x + (step / 2L)) / step * step
+/**
+ * Return the given [number] rounded to the nearest [step] from zero.
+ */
+fun round(number: Long, step: Long): Long {
+    return (number + (step / 2L)) / step * step
 }

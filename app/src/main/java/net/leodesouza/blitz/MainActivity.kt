@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Counter(
-                durationMinutes = 5L, incrementSeconds = 3L
+                durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
             ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
                 ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
             }
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ChessClockPreview() {
     Counter(
-        durationMinutes = 5L, incrementSeconds = 3L
+        durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
     ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
         ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
     }
@@ -156,7 +156,7 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
 
 /**
  * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
- * at every turn.
+ * at every turn with a delay of [delayMillis] before each update.
  *
  * Accept a [content] that is a composable taking the `whiteTime` and `blackTime` in milliseconds
  * as arguments, as well as callbacks to be triggered by click and drag events. The `onClick` event
@@ -165,7 +165,7 @@ fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
  */
 @Composable
 fun Counter(
-    durationMinutes: Long, incrementSeconds: Long, content: @Composable (
+    durationMinutes: Long, incrementSeconds: Long, delayMillis: Long, content: @Composable (
         whiteTime: Long,
         blackTime: Long,
         onClick: () -> Unit,
@@ -186,16 +186,18 @@ fun Counter(
     val onClick = {
         if (whiteTime > 0L && blackTime > 0L) {
             if (isRunning) {
+                val remainingTime = endTime - elapsedRealtime()
+                val newTime = if (remainingTime > 0L) remainingTime + increment else 0L
                 if (isWhiteTurn) {
-                    whiteTime += increment
+                    whiteTime = newTime
                 } else {
-                    blackTime += increment
+                    blackTime = newTime
                 }
                 isWhiteTurn = !isWhiteTurn
             }
-            endTime = elapsedRealtime() + if (isWhiteTurn) whiteTime else blackTime
             isRunning = true
             isReset = false
+            endTime = elapsedRealtime() + if (isWhiteTurn) whiteTime else blackTime
         }
     }
 
@@ -290,14 +292,16 @@ fun Counter(
         blackTime = duration + increment
     }
 
-    LaunchedEffect(whiteTime, blackTime, isRunning) {
+    LaunchedEffect(isRunning, whiteTime, blackTime) {
         if (isRunning) {
             if (whiteTime > 0L && blackTime > 0L) {
-                delay((endTime - elapsedRealtime()) % 100L)
+                val remainingTime = endTime - elapsedRealtime()
+                val newTime = if (remainingTime > 0L) remainingTime else 0L
+                delay(newTime % delayMillis)
                 if (isWhiteTurn) {
-                    whiteTime = endTime - elapsedRealtime()
+                    whiteTime = newTime
                 } else {
-                    blackTime = endTime - elapsedRealtime()
+                    blackTime = newTime
                 }
             } else {
                 isRunning = false

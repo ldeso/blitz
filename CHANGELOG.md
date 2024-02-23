@@ -118,7 +118,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
-[1.1.2]: https://github.com/ldeso/blitz/releases/tag/v1.1.3
+[1.1.3]: https://github.com/ldeso/blitz/releases/tag/v1.1.3
 [1.1.2]: https://github.com/ldeso/blitz/releases/tag/v1.1.2
 [1.1.1]: https://github.com/ldeso/blitz/releases/tag/v1.1.1
 [1.1.0]: https://github.com/ldeso/blitz/releases/tag/v1.1.0

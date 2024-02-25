@@ -1,9 +1,3 @@
 This release fixes a bug where it would not be possible to reset if one of the timers did not start.
 
-Bug fix:
-
 * Allow a reset when one of the timers did not start
-
-Note:
-
-* Use 0L (Long) instead of 0 (Int)

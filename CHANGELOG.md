@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.2.0] - 2024-02-25
+
+This releases keeps the screen turned on and increases time precision by tracking system time instead of recompositions.
+
+### New Feature
+
+- Keep screen on during countdown
+
+### Enhancement
+
+- Increase precision by updating time independently from refresh rate
+
+### Notes
+
+- Update dependencies
+- Update JVM bytecode target version
+- Update graddle wrapper
+- Remove themes.xml
+- Remove tools:targetApi="31" from manifest
+- Add documentation
+- Change order of function definitions
+- Apply auto-formatting
+- Make changelogs valid markdown
+- Fix link to last version
+
 ## [1.1.3] - 2024-02-22
 
 This release adds metadata and slightly simplifies the source code.
@@ -118,6 +143,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.2.0]: https://github.com/ldeso/blitz/releases/tag/v1.2.0
 [1.1.3]: https://github.com/ldeso/blitz/releases/tag/v1.1.3
 [1.1.2]: https://github.com/ldeso/blitz/releases/tag/v1.1.2
 [1.1.1]: https://github.com/ldeso/blitz/releases/tag/v1.1.1

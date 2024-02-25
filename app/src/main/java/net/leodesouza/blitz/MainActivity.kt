@@ -79,16 +79,28 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Preview the chess clock in Android Studio.
+ * Return the given [number] rounded to the nearest [step] from zero.
  */
-@Preview
+fun round(number: Long, step: Long): Long {
+    return (number + (step / 2L)) / step * step
+}
+
+/**
+ * Display [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D" in a given [color] and with a given
+ * [modifier].
+ */
 @Composable
-fun ChessClockPreview() {
-    Counter(
-        durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
-    ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
-        ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
-    }
+fun BasicTime(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
+    val roundedTime = round(timeMillis, step = 100L)
+    val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
+    val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
+    BasicText(
+        text = if (roundedTime < HOUR_IN_MILLIS) "$integerPart.$decimalPart" else integerPart,
+        modifier = modifier,
+        style = TextStyle(color = color, fontSize = with(LocalDensity.current) {
+            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
+        }),
+    )
 }
 
 /**
@@ -116,7 +128,7 @@ fun ChessClock(
                 onDragStart = onDragStart, onDrag = onDrag
             )
         }) {
-        Time(
+        BasicTime(
             blackTime,
             color = if (blackTime > 0L) Color.White else Color.Red,
             modifier = Modifier
@@ -126,7 +138,7 @@ fun ChessClock(
                 .fillMaxSize()
                 .wrapContentSize(),
         )
-        Time(
+        BasicTime(
             whiteTime,
             color = if (whiteTime > 0L) Color.Black else Color.Red,
             modifier = Modifier
@@ -140,21 +152,16 @@ fun ChessClock(
 }
 
 /**
- * Display [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D" in a given [color] and with a given
- * [modifier].
+ * Preview the chess clock in Android Studio.
  */
+@Preview
 @Composable
-fun Time(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
-    val roundedTime = round(timeMillis, step = 100L)
-    val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
-    val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
-    BasicText(
-        text = if (roundedTime < HOUR_IN_MILLIS) "$integerPart.$decimalPart" else integerPart,
-        modifier = modifier,
-        style = TextStyle(color = color, fontSize = with(LocalDensity.current) {
-            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
-        }),
-    )
+fun ChessClockPreview() {
+    Counter(
+        durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
+    ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
+        ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
+    }
 }
 
 /**
@@ -318,11 +325,4 @@ fun Counter(
             }
         }
     }
-}
-
-/**
- * Return the given [number] rounded to the nearest [step] from zero.
- */
-fun round(number: Long, step: Long): Long {
-    return (number + (step / 2L)) / step * step
 }

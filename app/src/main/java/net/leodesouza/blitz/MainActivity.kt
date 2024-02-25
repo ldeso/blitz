@@ -1,6 +1,7 @@
 package net.leodesouza.blitz
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
@@ -8,6 +9,7 @@ import android.text.format.DateUtils.HOUR_IN_MILLIS
 import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.text.format.DateUtils.formatElapsedTime
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -36,6 +38,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,7 +60,6 @@ class MainActivity : ComponentActivity() {
      */
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
             navigationBarStyle = SystemBarStyle.light(
@@ -65,6 +67,7 @@ class MainActivity : ComponentActivity() {
             ),
         )
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             Counter(
                 durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
@@ -183,6 +186,8 @@ fun Counter(
     var isWhiteTurn by remember { mutableStateOf(true) }
     var isRunning by remember { mutableStateOf(false) }
     var isReset by remember { mutableStateOf(true) }
+    val context = LocalContext.current as Activity
+
     val onClick = {
         if (whiteTime > 0L && blackTime > 0L) {
             if (isRunning) {
@@ -194,6 +199,8 @@ fun Counter(
                     blackTime = newTime
                 }
                 isWhiteTurn = !isWhiteTurn
+            } else {
+                context.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
             isRunning = true
             isReset = false
@@ -206,6 +213,7 @@ fun Counter(
     var savedIncrement by remember { mutableLongStateOf(0L) }
     var savedTime by remember { mutableLongStateOf(0L) }
     var isDragStart by remember { mutableStateOf(false) }
+
     val onDragStart = { it: Offset ->
         dragPosition = it
         savedDuration = duration
@@ -215,6 +223,7 @@ fun Counter(
     }
 
     var isHorizontalDrag by remember { mutableStateOf(false) }
+
     val onDrag = { change: PointerInputChange, _: Offset ->
         if (!isRunning) {
             val dragOffset = change.position - dragPosition
@@ -276,6 +285,7 @@ fun Counter(
 
     BackHandler(isRunning) {
         isRunning = false
+        context.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     BackHandler(!isRunning && !isReset) {

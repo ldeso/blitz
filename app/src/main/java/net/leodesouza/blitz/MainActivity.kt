@@ -1,15 +1,15 @@
 package net.leodesouza.blitz
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.pm.ActivityInfo
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
 import android.text.format.DateUtils.HOUR_IN_MILLIS
 import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.text.format.DateUtils.formatElapsedTime
-import android.view.WindowManager
+import android.view.Window
+import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,10 +66,10 @@ class MainActivity : ComponentActivity() {
             ),
         )
         super.onCreate(savedInstanceState)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
         setContent {
             Counter(
-                durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
+                durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L, window = window,
             ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
                 ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
             }
@@ -91,7 +90,7 @@ fun round(number: Long, step: Long): Long {
  */
 @Composable
 fun BasicTime(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
-    val roundedTime = round(timeMillis, step = 100L)
+    val roundedTime = round(number = timeMillis, step = 100L)
     val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
     val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
     BasicText(
@@ -104,10 +103,8 @@ fun BasicTime(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
 }
 
 /**
- * Fullscreen chess clock displaying [whiteTime] and [blackTime] supporting click and drag events.
- *
- * Call the [onClick] callback for any click event and [onDragStart] followed by [onDrag] for any
- * drag event.
+ * Fullscreen chess clock displaying [whiteTime] and [blackTime] and calling the [onClick] callback
+ * on click events and [onDragStart] followed by [onDrag] on drag events.
  */
 @Composable
 fun ChessClock(
@@ -152,30 +149,39 @@ fun ChessClock(
 }
 
 /**
- * Preview the chess clock in Android Studio.
+ * Preview chess clock in Android Studio.
  */
 @Preview
 @Composable
 fun ChessClockPreview() {
-    Counter(
-        durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L,
-    ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
-        ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
-    }
+    ChessClock(whiteTime = 5L * MINUTE_IN_MILLIS,
+        blackTime = 5L * MINUTE_IN_MILLIS,
+        onClick = {},
+        onDragStart = {},
+        onDrag = { _: PointerInputChange, _: Offset -> })
 }
 
 /**
  * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
- * at every turn with a delay of [delayMillis] before each update.
+ * before each turn with a delay of [delayMillis] before each recomposition.
  *
- * Accept a [content] that is a composable taking the `whiteTime` and `blackTime` in milliseconds
- * as arguments, as well as callbacks to be triggered by click and drag events. The `onClick` event
- * callback pauses or resets the time, while the `onDragStart` and `onDrag` event callbacks allow
- * changing the duration and increment to different values.
+ * Back events pause or reset the time.
+ *
+ * @param[durationMinutes] initial duration in minutes.
+ * @param[incrementSeconds] time increment added before each turn in seconds.
+ * @param[delayMillis] time between recompositions in milliseconds.
+ * @param[content] composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
+ *     well as callbacks to be triggered by click and drag events. The `onClick` event callback
+ *     triggers next turn, while the `onDragStart` and `onDrag` event callbacks allow changing the
+ *     initial duration and time increment to different values.
  */
 @Composable
 fun Counter(
-    durationMinutes: Long, incrementSeconds: Long, delayMillis: Long, content: @Composable (
+    durationMinutes: Long,
+    incrementSeconds: Long,
+    delayMillis: Long,
+    window: Window,
+    content: @Composable (
         whiteTime: Long,
         blackTime: Long,
         onClick: () -> Unit,
@@ -189,44 +195,45 @@ fun Counter(
     var increment by remember { mutableLongStateOf(initialIncrement) }
     var whiteTime by remember { mutableLongStateOf(duration + increment) }
     var blackTime by remember { mutableLongStateOf(duration + increment) }
-    var endTime by remember { mutableLongStateOf(0L) }
+    var targetElapsedRealtime by remember { mutableLongStateOf(0L) }
     var isWhiteTurn by remember { mutableStateOf(true) }
-    var isRunning by remember { mutableStateOf(false) }
     var isReset by remember { mutableStateOf(true) }
-    val context = LocalContext.current as Activity
+    var isRunning by remember { mutableStateOf(false) }
+    var isFinished by remember { mutableStateOf(false) }
 
     val onClick = {
-        if (whiteTime > 0L && blackTime > 0L) {
+        if (!isFinished) {
             if (isRunning) {
-                val remainingTime = endTime - elapsedRealtime()
+                val remainingTime = targetElapsedRealtime - elapsedRealtime()
                 val newTime = if (remainingTime > 0L) remainingTime + increment else 0L
                 if (isWhiteTurn) {
                     whiteTime = newTime
+                    isWhiteTurn = false
                 } else {
                     blackTime = newTime
+                    isWhiteTurn = true
                 }
-                isWhiteTurn = !isWhiteTurn
             } else {
-                context.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                isReset = false
+                isRunning = true
+                window.addFlags(FLAG_KEEP_SCREEN_ON)
             }
-            isRunning = true
-            isReset = false
-            endTime = elapsedRealtime() + if (isWhiteTurn) whiteTime else blackTime
+            targetElapsedRealtime = elapsedRealtime() + if (isWhiteTurn) whiteTime else blackTime
         }
     }
 
+    var isDragStart by remember { mutableStateOf(false) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
     var savedDuration by remember { mutableLongStateOf(0L) }
     var savedIncrement by remember { mutableLongStateOf(0L) }
     var savedTime by remember { mutableLongStateOf(0L) }
-    var isDragStart by remember { mutableStateOf(false) }
 
     val onDragStart = { it: Offset ->
+        isDragStart = true
         dragPosition = it
         savedDuration = duration
         savedIncrement = increment
         savedTime = if (isWhiteTurn) whiteTime else blackTime
-        isDragStart = true
     }
 
     var isHorizontalDrag by remember { mutableStateOf(false) }
@@ -242,39 +249,44 @@ fun Counter(
             } else {
                 if (isReset) {
                     if (isHorizontalDrag) {
+                        val minIncrement = SECOND_IN_MILLIS
+                        val maxIncrement = 30L * SECOND_IN_MILLIS
                         val newIncrement = round(
-                            savedIncrement - 20L * dragOffset.x.roundToLong(),
+                            number = savedIncrement - 20L * dragOffset.x.roundToLong(),
                             step = SECOND_IN_MILLIS
                         )
-                        increment = if (newIncrement > 30L * SECOND_IN_MILLIS) {
-                            30L * SECOND_IN_MILLIS
+                        increment = if (newIncrement > maxIncrement) {
+                            maxIncrement
                         } else if (newIncrement > 0L) {
                             newIncrement
                         } else if (duration == 0L) {
-                            SECOND_IN_MILLIS
+                            minIncrement
                         } else {
                             0L
                         }
                     } else {
+                        val minDuration = MINUTE_IN_MILLIS
+                        val maxDuration = 3L * HOUR_IN_MILLIS
                         val newDuration = round(
-                            savedDuration - 1000L * dragOffset.y.roundToLong(),
+                            number = savedDuration - 1000L * dragOffset.y.roundToLong(),
                             step = MINUTE_IN_MILLIS
                         )
-                        duration = if (newDuration > 3L * HOUR_IN_MILLIS) {
-                            3L * HOUR_IN_MILLIS
+                        duration = if (newDuration > maxDuration) {
+                            maxDuration
                         } else if (newDuration > 0L) {
                             newDuration
                         } else if (increment == 0L) {
-                            MINUTE_IN_MILLIS
+                            minDuration
                         } else {
                             0L
                         }
                     }
                     whiteTime = duration + increment
                     blackTime = duration + increment
-                } else if (whiteTime > 0L && blackTime > 0L && isHorizontalDrag) {
+                } else if (!isFinished && isHorizontalDrag) {
                     val newTime = round(
-                        savedTime - 20L * dragOffset.x.roundToLong(), step = SECOND_IN_MILLIS
+                        number = savedTime - 20L * dragOffset.x.roundToLong(),
+                        step = SECOND_IN_MILLIS
                     )
                     if (newTime > 0L) {
                         if (isWhiteTurn) {
@@ -292,7 +304,7 @@ fun Counter(
 
     BackHandler(isRunning) {
         isRunning = false
-        context.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.clearFlags(FLAG_KEEP_SCREEN_ON)
     }
 
     BackHandler(!isRunning && !isReset) {
@@ -312,7 +324,7 @@ fun Counter(
     LaunchedEffect(isRunning, whiteTime, blackTime) {
         if (isRunning) {
             if (whiteTime > 0L && blackTime > 0L) {
-                val remainingTime = endTime - elapsedRealtime()
+                val remainingTime = targetElapsedRealtime - elapsedRealtime()
                 val newTime = if (remainingTime > 0L) remainingTime else 0L
                 delay(newTime % delayMillis)
                 if (isWhiteTurn) {
@@ -322,6 +334,7 @@ fun Counter(
                 }
             } else {
                 isRunning = false
+                isFinished = true
             }
         }
     }

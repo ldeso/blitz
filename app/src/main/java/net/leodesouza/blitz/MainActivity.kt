@@ -48,11 +48,27 @@ import kotlin.math.roundToLong
 /**
  * A minimalist Fischer chess clock for Android.
  *
- * Defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
+ * Default to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
  * set by horizontal and vertical dragging. The back action pauses or resets the clock.
  */
 class MainActivity : ComponentActivity() {
-    /** Enable the edge-to-edge display, start the activity and set the content to a chess clock. */
+    /** Mutable state keeping track of the orientation. */
+    private val isBlackRightHanded = mutableStateOf(true)
+
+    /** Event listener updating [isBlackRightHanded] based on the orientation of the device. */
+    private val orientationEventListener by lazy {
+        object : OrientationEventListener(this) {
+            override fun onOrientationChanged(orientation: Int) {
+                if (orientation in 30 until 150) {
+                    isBlackRightHanded.value = true
+                } else if (orientation in 210 until 330) {
+                    isBlackRightHanded.value = false
+                }
+            }
+        }
+    }
+
+    /** Enable the edge-to-edge display, start the activity and compose a chess clock. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
@@ -70,22 +86,6 @@ class MainActivity : ComponentActivity() {
                 window = window,
             ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
                 ChessClock(whiteTime, blackTime, isBlackRightHanded, onClick, onDragStart, onDrag)
-            }
-        }
-    }
-
-    /** Mutable state keeping track of the location. */
-    private val isBlackRightHanded = mutableStateOf(true)
-
-    /** Event listener updating [isBlackRightHanded] based on the orientation of the device. */
-    private val orientationEventListener by lazy {
-        object : OrientationEventListener(this) {
-            override fun onOrientationChanged(orientation: Int) {
-                if (orientation in 30 until 150) {
-                    isBlackRightHanded.value = true
-                } else if (orientation in 210 until 330) {
-                    isBlackRightHanded.value = false
-                }
             }
         }
     }
@@ -110,7 +110,7 @@ fun round(number: Long, step: Long): Long {
 
 /**
  * Basic element that displays [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D", in a given [style]
- * and accepting a given [modifier] to apply to this layout note.
+ * and accepting a given [modifier] to apply to the layout node.
  */
 @Composable
 fun BasicTime(
@@ -126,7 +126,7 @@ fun BasicTime(
 }
 
 /**
- * Chess clock displaying [whiteTime] and [blackTime], and calling the [onClick] callback on click
+ * Chess clock displaying [whiteTime] and [blackTime] and calling the [onClick] callback on click
  * events and the [onDragStart] followed by [onDrag] callbacks on drag events.
  */
 @Preview
@@ -270,7 +270,7 @@ fun Counter(
                         val dragFactor = if (isBlackRightHanded.value) -20L else 20L
                         val newIncrement = round(
                             number = savedIncrement + dragFactor * dragOffset.x.roundToLong(),
-                            step = 1_000L
+                            step = 1_000L,
                         )
                         val maxIncrement = 30_000L
                         val minIncrement = 1_000L
@@ -287,7 +287,7 @@ fun Counter(
                         val dragFactor = if (isBlackRightHanded.value xor isRTL) -1000L else 1000L
                         val newDuration = round(
                             number = savedDuration + dragFactor * dragOffset.y.roundToLong(),
-                            step = 60_000L
+                            step = 60_000L,
                         )
                         val maxDuration = 10_800_000L
                         val minDuration = 60_000L
@@ -306,7 +306,7 @@ fun Counter(
                 } else if (!isFinished && isHorizontalDrag) {
                     val newTime = round(
                         number = savedTime - 20L * dragOffset.x.roundToLong(),
-                        step = 1_000L
+                        step = 1_000L,
                     )
                     if (newTime > 0L) {
                         if (isWhiteTurn) {
@@ -353,8 +353,8 @@ fun Counter(
                     blackTime = newTime
                 }
             } else {
-                isRunning = false
                 isFinished = true
+                isRunning = false
             }
         }
     }

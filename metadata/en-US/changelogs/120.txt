@@ -1,4 +1,2 @@
-This releases keeps the screen turned on and increases time precision by tracking system time instead of recompositions.
-
-* Keep screen on during countdown
-* Increase precision by updating time independently from refresh rate
+• Keep screen on during countdown
+• Increase precision by updating time independently from refresh rate

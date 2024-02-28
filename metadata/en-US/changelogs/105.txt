@@ -1,4 +1,2 @@
-This release fixes some bugs introduced with the reset functionality.
-
-* Make it possible to leave the app
-* Set first player to white on reset
+• Make it possible to leave the app
+• Set first player to white on reset

@@ -1,3 +1,1 @@
-This release adds the possibility to select the time period using vertical dragging and the time increment using horizontal dragging.
-
-* Implement time input by dragging
+• Implement time input by dragging

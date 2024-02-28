@@ -1,3 +1,1 @@
-This release fixes a bug where it would not be possible to reset if one of the timers did not start.
-
-* Allow a reset when one of the timers did not start
+• Allow a reset when one of the timers did not start

@@ -1,5 +1,3 @@
-This release improves the app icon.
-
-* Implement adaptive icon
-* Remove circular icon
-* Reduce vector path from 1909 to 674 characters
+• Implement adaptive icon
+• Remove circular icon
+• Reduce vector path from 1909 to 674 characters

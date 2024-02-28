@@ -1,4 +1,2 @@
-This release updates and reduces dependencies, bringing the size of the APK down to 686 KiB.
-
-* Use Compose Foundation instead of Material 3
-* Update dependencies
+• Use Compose Foundation instead of Material 3
+• Update dependencies

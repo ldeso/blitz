@@ -1,4 +1,2 @@
-This release fixes a bug where the time could still be incremented after reaching zero.
-
-* Do not increment when time is up
-* Handle negative times
+• Do not increment when time is up
+• Handle negative times

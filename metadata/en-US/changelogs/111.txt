@@ -1,4 +1,2 @@
-This release prevents adjusting the time after it reaches zero and reduces horizontal dragging sensitivity.
-
-* Disallow time adjustments when a time is up
-* Reduce horizontal dragging sensitivity
+• Disallow time adjustments when a time is up
+• Reduce horizontal dragging sensitivity

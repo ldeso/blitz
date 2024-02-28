@@ -78,9 +78,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * Return the given [number] rounded to the nearest [step] from zero.
- */
+/** Return the given [number] rounded to the nearest [step] from zero. */
 fun round(number: Long, step: Long): Long {
     return (number + (step / 2L)) / step * step
 }
@@ -104,8 +102,8 @@ fun BasicTime(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
 }
 
 /**
- * Fullscreen chess clock displaying [whiteTime] and [blackTime] and calling the [onClick] callback
- * on click events and [onDragStart] followed by [onDrag] on drag events.
+ * Chess clock displaying [whiteTime] and [blackTime], and calling the [onClick] callback on click
+ * events and the [onDragStart] followed by [onDrag] callbacks on drag events.
  */
 @Composable
 fun ChessClock(
@@ -166,14 +164,13 @@ fun ChessClockPreview() {
 
 /**
  * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
- * before each turn with a delay of [delayMillis] before each recomposition.
+ * before each turn with a delay of [delayMillis] before each recomposition, and where back events
+ * pause or reset the time.
  *
- * Back events pause or reset the time.
- *
- * @param[durationMinutes] initial duration in minutes.
- * @param[incrementSeconds] time increment added before each turn in seconds.
- * @param[delayMillis] time between recompositions in milliseconds.
- * @param[content] composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
+ * @param[durationMinutes] Initial duration in minutes.
+ * @param[incrementSeconds] Time increment added before each turn in seconds.
+ * @param[delayMillis] Time between recompositions in milliseconds.
+ * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
  *     well as callbacks to be triggered by click and drag events. The `onClick` event callback
  *     triggers next turn, while the `onDragStart` and `onDrag` event callbacks allow changing the
  *     initial duration and time increment to different values.

@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -193,15 +194,15 @@ fun Counter(
 ) {
     val initialDuration = durationMinutes * MINUTE_IN_MILLIS
     val initialIncrement = incrementSeconds * SECOND_IN_MILLIS
-    var duration by remember { mutableLongStateOf(initialDuration) }
-    var increment by remember { mutableLongStateOf(initialIncrement) }
-    var whiteTime by remember { mutableLongStateOf(duration + increment) }
-    var blackTime by remember { mutableLongStateOf(duration + increment) }
-    var targetElapsedRealtime by remember { mutableLongStateOf(0L) }
-    var isWhiteTurn by remember { mutableStateOf(true) }
-    var isReset by remember { mutableStateOf(true) }
-    var isRunning by remember { mutableStateOf(false) }
-    var isFinished by remember { mutableStateOf(false) }
+    var duration by rememberSaveable { mutableLongStateOf(initialDuration) }
+    var increment by rememberSaveable { mutableLongStateOf(initialIncrement) }
+    var whiteTime by rememberSaveable { mutableLongStateOf(duration + increment) }
+    var blackTime by rememberSaveable { mutableLongStateOf(duration + increment) }
+    var targetElapsedRealtime by rememberSaveable { mutableLongStateOf(0L) }
+    var isWhiteTurn by rememberSaveable { mutableStateOf(true) }
+    var isReset by rememberSaveable { mutableStateOf(true) }
+    var isRunning by rememberSaveable { mutableStateOf(false) }
+    var isFinished by rememberSaveable { mutableStateOf(false) }
 
     val onClick = {
         if (!isFinished) {

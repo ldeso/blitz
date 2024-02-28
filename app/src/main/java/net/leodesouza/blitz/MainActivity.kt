@@ -2,10 +2,6 @@ package net.leodesouza.blitz
 
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
-import android.text.format.DateUtils.HOUR_IN_MILLIS
-import android.text.format.DateUtils.MINUTE_IN_MILLIS
-import android.text.format.DateUtils.SECOND_IN_MILLIS
-import android.text.format.DateUtils.formatElapsedTime
 import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
@@ -38,8 +34,10 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
@@ -85,13 +83,12 @@ fun BasicTime(
     timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
 ) {
     val roundedTime = round(number = timeMillis, step = 100L)
-    val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
-    val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
-    BasicText(
-        text = if (roundedTime < HOUR_IN_MILLIS) "$integerPart.$decimalPart" else integerPart,
-        modifier = modifier,
-        style = style
-    )
+    val hours = roundedTime / 3_600_000L
+    val minutes = (roundedTime % 3_600_000L / 60_000L).toString().padStart(2, '0')
+    val seconds = (roundedTime % 60_000L / 1_000L).toString().padStart(2, '0')
+    val decimal = (roundedTime % 1_000L).toString().take(1)
+    val text = if (hours > 0L) "$hours:$minutes:$seconds" else "$minutes:$seconds.$decimal"
+    BasicText(text = text, modifier = modifier, style = style)
 }
 
 /**
@@ -101,8 +98,8 @@ fun BasicTime(
 @Preview
 @Composable
 fun ChessClock(
-    whiteTime: Long = 5L * MINUTE_IN_MILLIS + 3L * SECOND_IN_MILLIS,
-    blackTime: Long = 5L * MINUTE_IN_MILLIS + 3L * SECOND_IN_MILLIS,
+    whiteTime: Long = 303_000L,
+    blackTime: Long = 303_000L,
     onClick: () -> Unit = {},
     onDragStart: (Offset) -> Unit = {},
     onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
@@ -173,8 +170,8 @@ fun Counter(
         onDrag: (PointerInputChange, Offset) -> Unit,
     ) -> Unit
 ) {
-    val initialDuration = durationMinutes * MINUTE_IN_MILLIS
-    val initialIncrement = incrementSeconds * SECOND_IN_MILLIS
+    val initialDuration = durationMinutes * 60_000L
+    val initialIncrement = incrementSeconds * 1_000L
     var duration by rememberSaveable { mutableLongStateOf(initialDuration) }
     var increment by rememberSaveable { mutableLongStateOf(initialIncrement) }
     var whiteTime by rememberSaveable { mutableLongStateOf(duration + increment) }
@@ -221,6 +218,7 @@ fun Counter(
     }
 
     var isHorizontalDrag by remember { mutableStateOf(false) }
+    val isRTL = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     val onDrag = { change: PointerInputChange, _: Offset ->
         if (!isRunning) {
@@ -233,11 +231,12 @@ fun Counter(
             } else {
                 if (isReset) {
                     if (isHorizontalDrag) {
-                        val minIncrement = SECOND_IN_MILLIS
-                        val maxIncrement = 30L * SECOND_IN_MILLIS
+                        val dragFactor = -20L
+                        val minIncrement = 1_000L
+                        val maxIncrement = 30_000L
                         val newIncrement = round(
-                            number = savedIncrement - 20L * dragOffset.x.roundToLong(),
-                            step = SECOND_IN_MILLIS
+                            number = savedIncrement + dragFactor * dragOffset.x.roundToLong(),
+                            step = 1_000L
                         )
                         increment = if (newIncrement > maxIncrement) {
                             maxIncrement
@@ -249,11 +248,12 @@ fun Counter(
                             0L
                         }
                     } else {
-                        val minDuration = MINUTE_IN_MILLIS
-                        val maxDuration = 3L * HOUR_IN_MILLIS
+                        val dragFactor = if (isRTL) 1000L else -1000L
+                        val minDuration = 60_000L
+                        val maxDuration = 10_800_000L
                         val newDuration = round(
-                            number = savedDuration - 1000L * dragOffset.y.roundToLong(),
-                            step = MINUTE_IN_MILLIS
+                            number = savedDuration + dragFactor * dragOffset.y.roundToLong(),
+                            step = 60_000L
                         )
                         duration = if (newDuration > maxDuration) {
                             maxDuration
@@ -270,7 +270,7 @@ fun Counter(
                 } else if (!isFinished && isHorizontalDrag) {
                     val newTime = round(
                         number = savedTime - 20L * dragOffset.x.roundToLong(),
-                        step = SECOND_IN_MILLIS
+                        step = 1_000L
                     )
                     if (newTime > 0L) {
                         if (isWhiteTurn) {

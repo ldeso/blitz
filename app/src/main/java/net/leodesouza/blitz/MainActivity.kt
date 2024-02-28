@@ -105,13 +105,14 @@ fun BasicTime(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
  * Chess clock displaying [whiteTime] and [blackTime], and calling the [onClick] callback on click
  * events and the [onDragStart] followed by [onDrag] callbacks on drag events.
  */
+@Preview
 @Composable
 fun ChessClock(
-    whiteTime: Long,
-    blackTime: Long,
-    onClick: () -> Unit,
-    onDragStart: (Offset) -> Unit,
-    onDrag: (PointerInputChange, Offset) -> Unit,
+    whiteTime: Long = 5L * MINUTE_IN_MILLIS + 3L * SECOND_IN_MILLIS,
+    blackTime: Long = 5L * MINUTE_IN_MILLIS + 3L * SECOND_IN_MILLIS,
+    onClick: () -> Unit = {},
+    onDragStart: (Offset) -> Unit = {},
+    onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
 ) {
     Column(modifier = Modifier
         .clickable(
@@ -145,21 +146,6 @@ fun ChessClock(
                 .wrapContentSize(),
         )
     }
-}
-
-/**
- * Preview chess clock in Android Studio.
- */
-@Preview
-@Composable
-fun ChessClockPreview() {
-    ChessClock(
-        whiteTime = 5L * MINUTE_IN_MILLIS,
-        blackTime = 5L * MINUTE_IN_MILLIS,
-        onClick = {},
-        onDragStart = {},
-        onDrag = { _: PointerInputChange, _: Offset -> },
-    )
 }
 
 /**

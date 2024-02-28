@@ -77,20 +77,20 @@ fun round(number: Long, step: Long): Long {
 }
 
 /**
- * Display [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D" in a given [color] and with a given
- * [modifier].
+ * Basic element that displays [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D", in a given [style]
+ * and accepting a given [modifier] to apply to this layout note.
  */
 @Composable
-fun BasicTime(timeMillis: Long, color: Color, modifier: Modifier = Modifier) {
+fun BasicTime(
+    timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
+) {
     val roundedTime = round(number = timeMillis, step = 100L)
     val integerPart = formatElapsedTime(roundedTime / SECOND_IN_MILLIS)
     val decimalPart = "${roundedTime % SECOND_IN_MILLIS}".take(1)
     BasicText(
         text = if (roundedTime < HOUR_IN_MILLIS) "$integerPart.$decimalPart" else integerPart,
         modifier = modifier,
-        style = TextStyle(color = color, fontSize = with(LocalDensity.current) {
-            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
-        }),
+        style = style
     )
 }
 
@@ -107,6 +107,11 @@ fun ChessClock(
     onDragStart: (Offset) -> Unit = {},
     onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
 ) {
+    val blackColor = if (blackTime > 0L) Color.White else Color.Red
+    val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
+    val fontSize = with(LocalDensity.current) {
+        LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
+    }
     Column(modifier = Modifier
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -120,23 +125,23 @@ fun ChessClock(
         }) {
         BasicTime(
             blackTime,
-            color = if (blackTime > 0L) Color.White else Color.Red,
             modifier = Modifier
                 .background(Color.Black)
                 .rotate(-90F)
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
+            style = TextStyle(color = blackColor, fontSize = fontSize),
         )
         BasicTime(
             whiteTime,
-            color = if (whiteTime > 0L) Color.Black else Color.Red,
             modifier = Modifier
                 .background(Color.White)
                 .rotate(-90F)
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
+            style = TextStyle(color = whiteColor, fontSize = fontSize),
         )
     }
 }

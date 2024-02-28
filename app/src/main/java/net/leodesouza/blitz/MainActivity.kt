@@ -1,7 +1,5 @@
 package net.leodesouza.blitz
 
-import android.annotation.SuppressLint
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
 import android.text.format.DateUtils.HOUR_IN_MILLIS
@@ -54,11 +52,7 @@ import kotlin.math.roundToLong
  * set by horizontal and vertical dragging. The back action pauses or resets the clock.
  */
 class MainActivity : ComponentActivity() {
-    /**
-     * Enforce portrait orientation, enable the edge-to-edge display and set the content to a
-     * fullscreen chess clock.
-     */
-    @SuppressLint("SourceLockedOrientationActivity")
+    /** Enable the edge-to-edge display, start the activity and set the content to a chess clock. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
@@ -67,7 +61,6 @@ class MainActivity : ComponentActivity() {
             ),
         )
         super.onCreate(savedInstanceState)
-        requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
         setContent {
             Counter(
                 durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L, window = window,

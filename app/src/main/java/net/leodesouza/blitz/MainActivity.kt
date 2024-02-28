@@ -2,6 +2,7 @@ package net.leodesouza.blitz
 
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
+import android.view.OrientationEventListener
 import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,11 +63,43 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Counter(
-                durationMinutes = 5L, incrementSeconds = 3L, delayMillis = 100L, window = window,
+                durationMinutes = 5L,
+                incrementSeconds = 3L,
+                delayMillis = 100L,
+                isBlackRightHanded = isBlackRightHanded,
+                window = window,
             ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
-                ChessClock(whiteTime, blackTime, onClick, onDragStart, onDrag)
+                ChessClock(whiteTime, blackTime, isBlackRightHanded, onClick, onDragStart, onDrag)
             }
         }
+    }
+
+    /** Mutable state keeping track of the location. */
+    private val isBlackRightHanded = mutableStateOf(true)
+
+    /** Event listener updating [isBlackRightHanded] based on the orientation of the device. */
+    private val orientationEventListener by lazy {
+        object : OrientationEventListener(this) {
+            override fun onOrientationChanged(orientation: Int) {
+                if (orientation in 30 until 150) {
+                    isBlackRightHanded.value = true
+                } else if (orientation in 210 until 330) {
+                    isBlackRightHanded.value = false
+                }
+            }
+        }
+    }
+
+    /** Enable the orientation event listener after [onCreate] or [onRestart]. */
+    override fun onStart() {
+        super.onStart()
+        orientationEventListener.enable()
+    }
+
+    /** Disable the orientation event listener when the activity is no longer visible. */
+    override fun onStop() {
+        super.onStop()
+        orientationEventListener.disable()
     }
 }
 
@@ -100,6 +134,7 @@ fun BasicTime(
 fun ChessClock(
     whiteTime: Long = 303_000L,
     blackTime: Long = 303_000L,
+    isBlackRightHanded: MutableState<Boolean> = remember { mutableStateOf(true) },
     onClick: () -> Unit = {},
     onDragStart: (Offset) -> Unit = {},
     onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
@@ -124,7 +159,7 @@ fun ChessClock(
             blackTime,
             modifier = Modifier
                 .background(Color.Black)
-                .rotate(-90F)
+                .rotate(if (isBlackRightHanded.value) -90F else 90F)
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
@@ -134,7 +169,7 @@ fun ChessClock(
             whiteTime,
             modifier = Modifier
                 .background(Color.White)
-                .rotate(-90F)
+                .rotate(if (isBlackRightHanded.value) -90F else 90F)
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
@@ -161,6 +196,7 @@ fun Counter(
     durationMinutes: Long,
     incrementSeconds: Long,
     delayMillis: Long,
+    isBlackRightHanded: MutableState<Boolean>,
     window: Window,
     content: @Composable (
         whiteTime: Long,
@@ -231,13 +267,13 @@ fun Counter(
             } else {
                 if (isReset) {
                     if (isHorizontalDrag) {
-                        val dragFactor = -20L
-                        val minIncrement = 1_000L
-                        val maxIncrement = 30_000L
+                        val dragFactor = if (isBlackRightHanded.value) -20L else 20L
                         val newIncrement = round(
                             number = savedIncrement + dragFactor * dragOffset.x.roundToLong(),
                             step = 1_000L
                         )
+                        val maxIncrement = 30_000L
+                        val minIncrement = 1_000L
                         increment = if (newIncrement > maxIncrement) {
                             maxIncrement
                         } else if (newIncrement > 0L) {
@@ -248,13 +284,13 @@ fun Counter(
                             0L
                         }
                     } else {
-                        val dragFactor = if (isRTL) 1000L else -1000L
-                        val minDuration = 60_000L
-                        val maxDuration = 10_800_000L
+                        val dragFactor = if (isBlackRightHanded.value xor isRTL) -1000L else 1000L
                         val newDuration = round(
                             number = savedDuration + dragFactor * dragOffset.y.roundToLong(),
                             step = 60_000L
                         )
+                        val maxDuration = 10_800_000L
+                        val minDuration = 60_000L
                         duration = if (newDuration > maxDuration) {
                             maxDuration
                         } else if (newDuration > 0L) {

@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.3.0] - 2024-02-28
+
+This release allows flipping the clock orientation for left-handed players and flips horizontal dragging for a right-to-left layout direction.
+
+### New Feature
+
+- Flip clock based on orientation for left-handed players
+
+### Enhancements
+
+- Support right-to-left layout direction
+- Add support for the predictive back gesture
+
+### Bug Fix
+
+- Make state survive activity or process recreation
+
+### Notes
+
+- Add privacy_policy.txt
+- Add featureGraphic.png
+- Add short description in title
+- Shorten changelogs in metadata
+- Shorten changelogs even more
+- Set screen orientation in AndroidManifest.xml
+- Improve code clarity by adding variables and imports
+- Give default values to arguments of ChessClock
+- Make BasicTime more basic
+- Update documentation
+- Replace ' with ’
+- Replace - with *
+- Minor code formatting changes
+- Formatting
+
 ## [1.2.0] - 2024-02-25
 
 This releases keeps the screen turned on and increases time precision by tracking system time instead of recompositions.
@@ -143,6 +177,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.3.0]: https://github.com/ldeso/blitz/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ldeso/blitz/releases/tag/v1.2.0
 [1.1.3]: https://github.com/ldeso/blitz/releases/tag/v1.1.3
 [1.1.2]: https://github.com/ldeso/blitz/releases/tag/v1.1.2

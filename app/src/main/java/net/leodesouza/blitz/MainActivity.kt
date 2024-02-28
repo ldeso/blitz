@@ -154,11 +154,13 @@ fun ChessClock(
 @Preview
 @Composable
 fun ChessClockPreview() {
-    ChessClock(whiteTime = 5L * MINUTE_IN_MILLIS,
+    ChessClock(
+        whiteTime = 5L * MINUTE_IN_MILLIS,
         blackTime = 5L * MINUTE_IN_MILLIS,
         onClick = {},
         onDragStart = {},
-        onDrag = { _: PointerInputChange, _: Offset -> })
+        onDrag = { _: PointerInputChange, _: Offset -> },
+    )
 }
 
 /**

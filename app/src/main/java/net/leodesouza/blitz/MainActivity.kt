@@ -268,52 +268,35 @@ fun Counter(
                 if (isReset) {
                     if (isHorizontalDrag) {
                         val dragFactor = if (isBlackRightHanded.value) -20L else 20L
-                        val newIncrement = round(
+                        val minIncrement = if (duration == 0L) 1_000L else 0L
+                        val maxIncrement = 30_000L
+                        increment = round(
                             number = savedIncrement + dragFactor * dragOffset.x.roundToLong(),
                             step = 1_000L,
-                        )
-                        val maxIncrement = 30_000L
-                        val minIncrement = 1_000L
-                        increment = if (newIncrement > maxIncrement) {
-                            maxIncrement
-                        } else if (newIncrement > 0L) {
-                            newIncrement
-                        } else if (duration == 0L) {
-                            minIncrement
-                        } else {
-                            0L
-                        }
+                        ).coerceIn(minIncrement, maxIncrement)
                     } else {
                         val dragFactor = if (isBlackRightHanded.value xor isRTL) -1000L else 1000L
-                        val newDuration = round(
+                        val minDuration = if (increment == 0L) 60_000L else 0L
+                        val maxDuration = 10_800_000L
+                        duration = round(
                             number = savedDuration + dragFactor * dragOffset.y.roundToLong(),
                             step = 60_000L,
-                        )
-                        val maxDuration = 10_800_000L
-                        val minDuration = 60_000L
-                        duration = if (newDuration > maxDuration) {
-                            maxDuration
-                        } else if (newDuration > 0L) {
-                            newDuration
-                        } else if (increment == 0L) {
-                            minDuration
-                        } else {
-                            0L
-                        }
+                        ).coerceIn(minDuration, maxDuration)
                     }
                     whiteTime = duration + increment
                     blackTime = duration + increment
                 } else if (!isFinished && isHorizontalDrag) {
+                    val dragFactor = if (isBlackRightHanded.value) -20L else 20L
+                    val minTime = 100L
+                    val maxTime = 35_999_900L
                     val newTime = round(
-                        number = savedTime - 20L * dragOffset.x.roundToLong(),
-                        step = 1_000L,
-                    )
-                    if (newTime > 0L) {
-                        if (isWhiteTurn) {
-                            whiteTime = newTime
-                        } else {
-                            blackTime = newTime
-                        }
+                        number = savedTime + dragFactor * dragOffset.x.roundToLong(),
+                        step = 100L,
+                    ).coerceIn(minTime, maxTime)
+                    if (isWhiteTurn) {
+                        whiteTime = newTime
+                    } else {
+                        blackTime = newTime
                     }
                 }
             }

@@ -126,8 +126,9 @@ fun BasicTime(
 }
 
 /**
- * Chess clock displaying [whiteTime] and [blackTime] and calling the [onClick] callback on click
- * events and the [onDragStart] followed by [onDrag] callbacks on drag events.
+ * Chess clock displaying [whiteTime] and [blackTime] in an orientation that depends on whether
+ * [isBlackRightHanded], and calling the [onClick] callback on click events and the [onDragStart]
+ *  followed by [onDrag] callbacks on drag events.
  */
 @Preview
 @Composable
@@ -186,6 +187,7 @@ fun ChessClock(
  * @param[durationMinutes] Initial duration in minutes.
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
+ * @param[isBlackRightHanded] Whether to flip the horizontal dragging direction.
  * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
  *     well as callbacks to be triggered by click and drag events. The `onClick` event callback
  *     triggers next turn, while the `onDragStart` and `onDrag` event callbacks allow changing the

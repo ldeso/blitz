@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.0] - 2024-02-29
+
+This release adds support for landscape mode and for devices without a touchscreen.
+
+### New Features
+
+- Add true landscape support
+- Add support for devices with only a D-pad controller
+
+### Enhancement
+
+- Enable per-app language support
+
+### Note
+
+- Add documentation for isBlackRightHanded
+
 ## [1.3.2] - 2024-02-29
 
 This release fixes a bug where, when correcting a player’s time, the drag orientation would not flip based on the orientation of the clock.
@@ -193,6 +210,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.0]: https://github.com/ldeso/blitz/releases/tag/v1.4.0
 [1.3.2]: https://github.com/ldeso/blitz/releases/tag/v1.3.2
 [1.3.1]: https://github.com/ldeso/blitz/releases/tag/v1.3.1
 [1.3.0]: https://github.com/ldeso/blitz/releases/tag/v1.3.0

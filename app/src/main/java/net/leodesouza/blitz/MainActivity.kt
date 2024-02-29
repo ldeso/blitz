@@ -35,6 +35,13 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.key.Key.Companion.DirectionDown
+import androidx.compose.ui.input.key.Key.Companion.DirectionLeft
+import androidx.compose.ui.input.key.Key.Companion.DirectionRight
+import androidx.compose.ui.input.key.Key.Companion.DirectionUp
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -90,8 +97,16 @@ class MainActivity : ComponentActivity() {
                 delayMillis = 100L,
                 isBlackRightHanded = isBlackRightHanded,
                 window = window,
-            ) { whiteTime, blackTime, onClick, onDragStart, onDrag ->
-                ChessClock(whiteTime, blackTime, isBlackRightHanded, onClick, onDragStart, onDrag)
+            ) { whiteTime, blackTime, onClick, onDragStart, onDrag, onKeyEvent ->
+                ChessClock(
+                    whiteTime,
+                    blackTime,
+                    isBlackRightHanded,
+                    onClick,
+                    onDragStart,
+                    onDrag,
+                    onKeyEvent
+                )
             }
         }
     }
@@ -145,6 +160,7 @@ fun ChessClock(
     onClick: () -> Unit = {},
     onDragStart: (Offset) -> Unit = {},
     onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
+    onKeyEvent: (KeyEvent) -> Boolean = { true },
 ) {
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val rotation = if (isLandscape) {
@@ -171,7 +187,8 @@ fun ChessClock(
             detectDragGestures(
                 onDragStart = onDragStart, onDrag = onDrag
             )
-        }) {
+        }
+        .onKeyEvent(onKeyEvent = onKeyEvent)) {
         BasicTime(
             blackTime,
             modifier = Modifier
@@ -238,6 +255,7 @@ fun Counter(
         onClick: () -> Unit,
         onDragStart: (Offset) -> Unit,
         onDrag: (PointerInputChange, Offset) -> Unit,
+        onKeyEvent: (KeyEvent) -> Boolean,
     ) -> Unit
 ) {
     val initialDuration = durationMinutes * 60_000L
@@ -303,39 +321,33 @@ fun Counter(
             } else {
                 if (isReset) {
                     if (isHorizontalDrag) {
+                        val sign = if (isLandscape || isBlackRightHanded.value) 1L else -1L
                         val magnitude = 20L
-                        val direction = if (isLandscape || isBlackRightHanded.value) 1L else -1L
                         val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
-                        val minIncrement = if (duration == 0L) 1_000L else 0L
-                        val maxIncrement = 30_000L
                         increment = round(
-                            number = savedIncrement + magnitude * direction * offset,
+                            number = savedIncrement + sign * magnitude * offset,
                             step = 1_000L,
-                        ).coerceIn(minIncrement, maxIncrement)
+                        ).coerceIn(if (duration == 0L) 1_000L..30_000L else 0L..30_000L)
                     } else {
-                        val magnitude = 1_000L
-                        val direction =
+                        val sign =
                             if ((isLandscape || isBlackRightHanded.value) xor isRTL) 1L else -1L
+                        val magnitude = 1_000L
                         val offset = verticalOffset(dragOffset, isLandscape).roundToLong()
-                        val minDuration = if (increment == 0L) 60_000L else 0L
-                        val maxDuration = 10_800_000L
                         duration = round(
-                            number = savedDuration + magnitude * direction * offset,
+                            number = savedDuration + sign * magnitude * offset,
                             step = 60_000L,
-                        ).coerceIn(minDuration, maxDuration)
+                        ).coerceIn(if (increment == 0L) 60_000L..10_800_000L else 0L..10_800_000L)
                     }
                     whiteTime = duration + increment
                     blackTime = duration + increment
                 } else if (!isFinished && isHorizontalDrag) {
+                    val sign = if (isLandscape || isBlackRightHanded.value) 1L else -1L
                     val magnitude = 20L
-                    val direction = if (isLandscape || isBlackRightHanded.value) 1L else -1L
                     val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
-                    val minTime = 100L
-                    val maxTime = 35_999_900L
                     val newTime = round(
-                        number = savedTime + magnitude * direction * offset,
+                        number = savedTime + sign * magnitude * offset,
                         step = 100L,
-                    ).coerceIn(minTime, maxTime)
+                    ).coerceIn(100L..35_999_900L)
                     if (isWhiteTurn) {
                         whiteTime = newTime
                     } else {
@@ -346,7 +358,40 @@ fun Counter(
         }
     }
 
-    content.invoke(whiteTime, blackTime, onClick, onDragStart, onDrag)
+    val onKeyEvent = onKeyEvent@{ it: KeyEvent ->
+        if (isReset) {
+            val sign = if (isRTL) -1L else 1L
+            val incrementRange = if (duration == 0L) 1_000L..30_000L else 0L..30_000L
+            val durationRange = if (increment == 0L) 60_000L..10_800_000L else 0L..10_800_000L
+            when (it.key) {
+                DirectionUp -> increment = (increment + 1_000).coerceIn(incrementRange)
+                DirectionDown -> increment = (increment - 1_000).coerceIn(incrementRange)
+                DirectionRight -> duration = (duration + sign * 60_000).coerceIn(durationRange)
+                DirectionLeft -> duration = (duration - sign * 60_000).coerceIn(durationRange)
+                else -> return@onKeyEvent false
+            }
+            whiteTime = duration + increment
+            blackTime = duration + increment
+        } else {
+            val timeUpdate = when (it.key) {
+                DirectionUp -> 1_000L
+                DirectionDown -> -1_000L
+                else -> return@onKeyEvent false
+            }
+            val oldTime = if (isWhiteTurn) whiteTime else blackTime
+            val newTime = round(
+                number = oldTime + timeUpdate, step = 1000L
+            ).coerceIn(1000L..35_999_000L)
+            if (isWhiteTurn) {
+                whiteTime = newTime
+            } else {
+                blackTime = newTime
+            }
+        }
+        true
+    }
+
+    content.invoke(whiteTime, blackTime, onClick, onDragStart, onDrag, onKeyEvent)
 
     BackHandler(isRunning) {
         isRunning = false

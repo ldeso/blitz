@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1] - 2024-02-29
+
+This release fixes a bug where the time could not be restarted after reaching zero.
+
+### Bug Fix
+
+- Fix bug where time could not be restarted after ending
+
 ## [1.3.0] - 2024-02-28
 
 This release allows flipping the clock orientation for left-handed players and flips horizontal dragging for a right-to-left layout direction.
@@ -177,6 +185,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.3.1]: https://github.com/ldeso/blitz/releases/tag/v1.3.1
 [1.3.0]: https://github.com/ldeso/blitz/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ldeso/blitz/releases/tag/v1.2.0
 [1.1.3]: https://github.com/ldeso/blitz/releases/tag/v1.1.3

@@ -1,0 +1,1 @@
+• Fix frozen drag orientation when correcting time

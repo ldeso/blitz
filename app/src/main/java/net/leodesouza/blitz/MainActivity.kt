@@ -332,6 +332,7 @@ fun Counter(
         blackTime = duration + increment
         isWhiteTurn = true
         isReset = true
+        isFinished = false
     }
 
     BackHandler(isReset && (duration != initialDuration || increment != initialIncrement)) {

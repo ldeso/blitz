@@ -69,9 +69,9 @@ class MainActivity : ComponentActivity() {
     private val orientationEventListener by lazy {
         object : OrientationEventListener(this) {
             override fun onOrientationChanged(orientation: Int) {
-                if (orientation in 10 until 90 || orientation in 190 until 270) {
+                if (orientation in 10 until 90) {
                     isBlackRightHanded.value = true
-                } else if (orientation in 90 until 170 || orientation in 270 until 350) {
+                } else if (orientation in 270 until 350) {
                     isBlackRightHanded.value = false
                 }
             }

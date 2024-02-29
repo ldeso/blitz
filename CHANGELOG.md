@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.1] - 2024-02-29
+
+This release fixes possible wrong orientations by disabling the orientation sensor when using reverse portrait mode.
+
+### Bug Fix
+
+- Disable orientation sensor when in reverse portrait
+
+### Note
+
+- Add icon and badges to README.md
+
 ## [1.4.0] - 2024-02-29
 
 This release adds support for landscape mode and for devices without a touchscreen.
@@ -210,6 +222,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.1]: https://github.com/ldeso/blitz/releases/tag/v1.4.1
 [1.4.0]: https://github.com/ldeso/blitz/releases/tag/v1.4.0
 [1.3.2]: https://github.com/ldeso/blitz/releases/tag/v1.3.2
 [1.3.1]: https://github.com/ldeso/blitz/releases/tag/v1.3.1

@@ -1,0 +1,1 @@
+• Restore orientation sensor when in reverse portrait

@@ -1,10 +1,13 @@
 package net.leodesouza.blitz
 
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
 import android.view.OrientationEventListener
 import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -39,7 +42,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
@@ -59,9 +62,9 @@ class MainActivity : ComponentActivity() {
     private val orientationEventListener by lazy {
         object : OrientationEventListener(this) {
             override fun onOrientationChanged(orientation: Int) {
-                if (orientation in 30 until 150) {
+                if (orientation in 10 until 90 || orientation in 190 until 270) {
                     isBlackRightHanded.value = true
-                } else if (orientation in 210 until 330) {
+                } else if (orientation in 90 until 170 || orientation in 270 until 350) {
                     isBlackRightHanded.value = false
                 }
             }
@@ -77,6 +80,9 @@ class MainActivity : ComponentActivity() {
             ),
         )
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
         setContent {
             Counter(
                 durationMinutes = 5L,
@@ -140,10 +146,20 @@ fun ChessClock(
     onDragStart: (Offset) -> Unit = {},
     onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
 ) {
+    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
+    val rotation = if (isLandscape) {
+        0F
+    } else {
+        if (isBlackRightHanded.value) -90F else 90F
+    }
     val blackColor = if (blackTime > 0L) Color.White else Color.Red
     val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
     val fontSize = with(LocalDensity.current) {
-        LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
+        if (isLandscape) {
+            LocalConfiguration.current.screenHeightDp.dp.toSp() / 3
+        } else {
+            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
+        }
     }
     Column(modifier = Modifier
         .clickable(
@@ -160,7 +176,7 @@ fun ChessClock(
             blackTime,
             modifier = Modifier
                 .background(Color.Black)
-                .rotate(if (isBlackRightHanded.value) -90F else 90F)
+                .rotate(rotation)
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
@@ -170,13 +186,29 @@ fun ChessClock(
             whiteTime,
             modifier = Modifier
                 .background(Color.White)
-                .rotate(if (isBlackRightHanded.value) -90F else 90F)
+                .rotate(rotation)
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
             style = TextStyle(color = whiteColor, fontSize = fontSize),
         )
     }
+}
+
+/**
+ * Return the horizontal part of an [offset] increasing from left to right and taking into account
+ * whether the device orientation [isLandscape].
+ */
+fun horizontalOffset(offset: Offset, isLandscape: Boolean): Float {
+    return if (isLandscape) -offset.y else -offset.x
+}
+
+/**
+ * Return the vertical part of an [offset] increasing from the bottom to the top and taking into
+ * account whether the device orientation [isLandscape].
+ */
+fun verticalOffset(offset: Offset, isLandscape: Boolean): Float {
+    return if (isLandscape) offset.x else -offset.y
 }
 
 /**
@@ -256,43 +288,52 @@ fun Counter(
     }
 
     var isHorizontalDrag by remember { mutableStateOf(false) }
-    val isRTL = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
+    val isRTL = LocalLayoutDirection.current == Rtl
 
     val onDrag = { change: PointerInputChange, _: Offset ->
         if (!isRunning) {
             val dragOffset = change.position - dragPosition
             if (isDragStart) {
                 if (dragOffset.getDistanceSquared() > 40_000F) {
-                    isHorizontalDrag = dragOffset.x.absoluteValue > dragOffset.y.absoluteValue
+                    isHorizontalDrag =
+                        (dragOffset.x.absoluteValue > dragOffset.y.absoluteValue) xor isLandscape
                     isDragStart = false
                 }
             } else {
                 if (isReset) {
                     if (isHorizontalDrag) {
-                        val dragFactor = if (isBlackRightHanded.value) -20L else 20L
+                        val magnitude = 20L
+                        val direction = if (isLandscape || isBlackRightHanded.value) 1L else -1L
+                        val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
                         val minIncrement = if (duration == 0L) 1_000L else 0L
                         val maxIncrement = 30_000L
                         increment = round(
-                            number = savedIncrement + dragFactor * dragOffset.x.roundToLong(),
+                            number = savedIncrement + magnitude * direction * offset,
                             step = 1_000L,
                         ).coerceIn(minIncrement, maxIncrement)
                     } else {
-                        val dragFactor = if (isBlackRightHanded.value xor isRTL) -1000L else 1000L
+                        val magnitude = 1_000L
+                        val direction =
+                            if ((isLandscape || isBlackRightHanded.value) xor isRTL) 1L else -1L
+                        val offset = verticalOffset(dragOffset, isLandscape).roundToLong()
                         val minDuration = if (increment == 0L) 60_000L else 0L
                         val maxDuration = 10_800_000L
                         duration = round(
-                            number = savedDuration + dragFactor * dragOffset.y.roundToLong(),
+                            number = savedDuration + magnitude * direction * offset,
                             step = 60_000L,
                         ).coerceIn(minDuration, maxDuration)
                     }
                     whiteTime = duration + increment
                     blackTime = duration + increment
                 } else if (!isFinished && isHorizontalDrag) {
-                    val dragFactor = if (isBlackRightHanded.value) -20L else 20L
+                    val magnitude = 20L
+                    val direction = if (isLandscape || isBlackRightHanded.value) 1L else -1L
+                    val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
                     val minTime = 100L
                     val maxTime = 35_999_900L
                     val newTime = round(
-                        number = savedTime + dragFactor * dragOffset.x.roundToLong(),
+                        number = savedTime + magnitude * direction * offset,
                         step = 100L,
                     ).coerceIn(minTime, maxTime)
                     if (isWhiteTurn) {

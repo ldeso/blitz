@@ -149,8 +149,8 @@ fun BasicTime(
 
 /**
  * Chess clock displaying [whiteTime] and [blackTime] in an orientation that depends on whether
- * [isBlackRightHanded], and calling the [onClick] callback on click events and the [onDragStart]
- *  followed by [onDrag] callbacks on drag events.
+ * [isBlackRightHanded], and calling the [onClick] callback on click events, the [onDragStart]
+ * followed by [onDrag] callbacks on drag events, and the [onKeyEvent] on key events.
  */
 @Preview
 @Composable
@@ -172,12 +172,8 @@ fun ChessClock(
     val blackColor = if (blackTime > 0L) Color.White else Color.Red
     val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
     val fontSize = with(LocalDensity.current) {
-        if (isLandscape) {
-            LocalConfiguration.current.screenHeightDp.dp.toSp() / 3
-        } else {
-            LocalConfiguration.current.screenHeightDp.dp.toSp() / 8
-        }
-    }
+        LocalConfiguration.current.screenHeightDp.dp.toSp()
+    } / if (isLandscape) 3 else 8
     Column(modifier = Modifier
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -238,10 +234,11 @@ fun verticalOffset(offset: Offset, isLandscape: Boolean): Float {
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
  * @param[isBlackRightHanded] Whether to flip the horizontal dragging direction.
+ * @param[window] Window for which to keep the screen on when time is running.
  * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
  *     well as callbacks to be triggered by click and drag events. The `onClick` event callback
- *     triggers next turn, while the `onDragStart` and `onDrag` event callbacks allow changing the
- *     initial duration and time increment to different values.
+ *     triggers next turn, while the `onDragStart`, `onDrag`, and `onKeyEvent` event callbacks allow
+ *     changing the initial duration and time increment to different values.
  */
 @Composable
 fun Counter(
@@ -315,13 +312,12 @@ fun Counter(
             val dragOffset = change.position - dragPosition
             if (isDragStart) {
                 if (dragOffset.getDistanceSquared() > 40_000F) {
-                    isHorizontalDrag =
-                        (dragOffset.x.absoluteValue > dragOffset.y.absoluteValue) xor isLandscape
+                    isHorizontalDrag = dragOffset.x.absoluteValue > dragOffset.y.absoluteValue
                     isDragStart = false
                 }
             } else {
                 if (isReset) {
-                    if (isHorizontalDrag) {
+                    if (isHorizontalDrag xor isLandscape) {
                         val sign = if (isLandscape || isBlackRightHanded.value) 1L else -1L
                         val magnitude = 20L
                         val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
@@ -341,7 +337,7 @@ fun Counter(
                     }
                     whiteTime = duration + increment
                     blackTime = duration + increment
-                } else if (!isFinished && isHorizontalDrag) {
+                } else if (!isFinished && (isHorizontalDrag xor isLandscape)) {
                     val sign = if (isLandscape || isBlackRightHanded.value) 1L else -1L
                     val magnitude = 20L
                     val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()

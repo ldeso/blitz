@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.3] - 2024-03-04
+
+This release is a big refactor of the code handling dragging events, fixing two issues and improving the dragging experience.
+
+### Enhancement
+
+- Improve single player's time settings ([#3])
+
+### Bug Fixes
+
+- Use monospace font to prevent digits from jumping ([#2])
+- Fix D-Pad events being counted twice
+
+### Notes
+
+- Do not repeat short description in full description
+- Add missing documentation
+
 ## [1.4.2] - 2024-02-29
 
 This release restores the orientation sensor when using reverse portrait mode while avoiding issues when the orientation is locked.
@@ -230,6 +248,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.3]: https://github.com/ldeso/blitz/releases/tag/v1.4.3
 [1.4.2]: https://github.com/ldeso/blitz/releases/tag/v1.4.2
 [1.4.1]: https://github.com/ldeso/blitz/releases/tag/v1.4.1
 [1.4.0]: https://github.com/ldeso/blitz/releases/tag/v1.4.0
@@ -249,3 +268,5 @@ Initial release.
 [1.0.2]: https://github.com/ldeso/blitz/releases/tag/v1.0.2
 [1.0.1]: https://github.com/ldeso/blitz/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ldeso/blitz/releases/tag/v1.0.0
+[#3]: https://github.com/ldeso/blitz/issues/3
+[#2]: https://github.com/ldeso/blitz/issues/2

@@ -1,0 +1,3 @@
+• Improve single player's time settings
+• Use monospace font to prevent digits from jumping
+• Fix D-Pad events being counted twice

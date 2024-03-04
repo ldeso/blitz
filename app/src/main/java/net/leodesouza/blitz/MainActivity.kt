@@ -18,10 +18,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -50,7 +52,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily.Companion.Monospace
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -141,12 +145,28 @@ fun BasicTime(
     timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
 ) {
     val roundedTime = round(number = timeMillis, step = 100L)
-    val hours = roundedTime / 3_600_000L
+    val hours = (roundedTime / 3_600_000L).toString()
     val minutes = (roundedTime % 3_600_000L / 60_000L).toString().padStart(2, '0')
     val seconds = (roundedTime % 60_000L / 1_000L).toString().padStart(2, '0')
-    val decimal = (roundedTime % 1_000L).toString().take(1)
-    val text = if (hours > 0L) "$hours:$minutes:$seconds" else "$minutes:$seconds.$decimal"
-    BasicText(text = text, modifier = modifier, style = style)
+    val monospaceStyle = style.merge(fontFamily = Monospace)
+    CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
+        Row(modifier) {
+            if (hours == "0") {
+                val decimal = (roundedTime % 1_000L).toString().take(1)
+                BasicText(text = minutes, style = monospaceStyle)
+                BasicText(text = ":", style = style)
+                BasicText(text = seconds, style = monospaceStyle)
+                BasicText(text = ".", style = style)
+                BasicText(text = decimal, style = monospaceStyle)
+            } else {
+                BasicText(text = hours, style = monospaceStyle)
+                BasicText(text = ":", style = style)
+                BasicText(text = minutes, style = monospaceStyle)
+                BasicText(text = ":", style = style)
+                BasicText(text = seconds, style = monospaceStyle)
+            }
+        }
+    }
 }
 
 /**
@@ -173,9 +193,8 @@ fun ChessClock(
     }
     val blackColor = if (blackTime > 0L) Color.White else Color.Red
     val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
-    val fontSize = with(LocalDensity.current) {
-        LocalConfiguration.current.screenHeightDp.dp.toSp()
-    } / if (isLandscape) 3 else 8
+    val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
+    val fontSize = with(LocalDensity.current) { textHeight.toSp() }
     Column(modifier = Modifier
         .clickable(
             interactionSource = remember { MutableInteractionSource() },

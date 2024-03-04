@@ -40,8 +40,10 @@ import androidx.compose.ui.input.key.Key.Companion.DirectionLeft
 import androidx.compose.ui.input.key.Key.Companion.DirectionRight
 import androidx.compose.ui.input.key.Key.Companion.DirectionUp
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -356,36 +358,40 @@ fun Counter(
     }
 
     val onKeyEvent = onKeyEvent@{ it: KeyEvent ->
-        if (isReset) {
-            val sign = if (isRTL) -1L else 1L
-            val incrementRange = if (duration == 0L) 1_000L..30_000L else 0L..30_000L
-            val durationRange = if (increment == 0L) 60_000L..10_800_000L else 0L..10_800_000L
-            when (it.key) {
-                DirectionUp -> increment = (increment + 1_000).coerceIn(incrementRange)
-                DirectionDown -> increment = (increment - 1_000).coerceIn(incrementRange)
-                DirectionRight -> duration = (duration + sign * 60_000).coerceIn(durationRange)
-                DirectionLeft -> duration = (duration - sign * 60_000).coerceIn(durationRange)
-                else -> return@onKeyEvent false
-            }
-            whiteTime = duration + increment
-            blackTime = duration + increment
-        } else {
-            val timeUpdate = when (it.key) {
-                DirectionUp -> 1_000L
-                DirectionDown -> -1_000L
-                else -> return@onKeyEvent false
-            }
-            val oldTime = if (isWhiteTurn) whiteTime else blackTime
-            val newTime = round(
-                number = oldTime + timeUpdate, step = 1000L
-            ).coerceIn(1000L..35_999_000L)
-            if (isWhiteTurn) {
-                whiteTime = newTime
+        if (it.type == KeyDown) {
+            if (isReset) {
+                val sign = if (isRTL) -1L else 1L
+                val incrementRange = if (duration == 0L) 1_000L..30_000L else 0L..30_000L
+                val durationRange = if (increment == 0L) 60_000L..10_800_000L else 0L..10_800_000L
+                when (it.key) {
+                    DirectionUp -> increment = (increment + 1_000).coerceIn(incrementRange)
+                    DirectionDown -> increment = (increment - 1_000).coerceIn(incrementRange)
+                    DirectionRight -> duration = (duration + sign * 60_000).coerceIn(durationRange)
+                    DirectionLeft -> duration = (duration - sign * 60_000).coerceIn(durationRange)
+                    else -> return@onKeyEvent false
+                }
+                whiteTime = duration + increment
+                blackTime = duration + increment
             } else {
-                blackTime = newTime
+                val timeUpdate = when (it.key) {
+                    DirectionUp -> 1_000L
+                    DirectionDown -> -1_000L
+                    else -> return@onKeyEvent false
+                }
+                val oldTime = if (isWhiteTurn) whiteTime else blackTime
+                val newTime = round(
+                    number = oldTime + timeUpdate, step = 1000L
+                ).coerceIn(1000L..35_999_000L)
+                if (isWhiteTurn) {
+                    whiteTime = newTime
+                } else {
+                    blackTime = newTime
+                }
             }
+            true
+        } else {
+            false
         }
-        true
     }
 
     content.invoke(whiteTime, blackTime, onClick, onDragStart, onDrag, onKeyEvent)

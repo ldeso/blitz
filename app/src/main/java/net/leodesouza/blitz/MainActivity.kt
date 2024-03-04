@@ -15,7 +15,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +60,6 @@ import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 
 /**
@@ -104,14 +105,15 @@ class MainActivity : ComponentActivity() {
                 delayMillis = 100L,
                 isBlackRightHanded = isBlackRightHanded,
                 window = window,
-            ) { whiteTime, blackTime, onClick, onDragStart, onDrag, onKeyEvent ->
+            ) { whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent ->
                 ChessClock(
                     whiteTime,
                     blackTime,
                     isBlackRightHanded,
                     onClick,
                     onDragStart,
-                    onDrag,
+                    onHorDrag,
+                    onVertDrag,
                     onKeyEvent
                 )
             }
@@ -172,7 +174,8 @@ fun BasicTime(
 /**
  * Chess clock displaying [whiteTime] and [blackTime] in an orientation that depends on whether
  * [isBlackRightHanded], and calling the [onClick] callback on click events, the [onDragStart]
- * followed by [onDrag] callbacks on drag events, and the [onKeyEvent] on key events.
+ * followed by [onHorDrag] or [onVertDrag] callbacks on drag events, and the [onKeyEvent] callback
+ * on key events.
  */
 @Preview
 @Composable
@@ -181,15 +184,18 @@ fun ChessClock(
     blackTime: Long = 303_000L,
     isBlackRightHanded: MutableState<Boolean> = remember { mutableStateOf(true) },
     onClick: () -> Unit = {},
-    onDragStart: (Offset) -> Unit = {},
-    onDrag: (PointerInputChange, Offset) -> Unit = { _: PointerInputChange, _: Offset -> },
+    onDragStart: (Offset) -> Unit = { _: Offset -> },
+    onHorDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
+    onVertDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
     onKeyEvent: (KeyEvent) -> Boolean = { true },
 ) {
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val rotation = if (isLandscape) {
         0F
+    } else if (isBlackRightHanded.value) {
+        -90F
     } else {
-        if (isBlackRightHanded.value) -90F else 90F
+        90F
     }
     val blackColor = if (blackTime > 0L) Color.White else Color.Red
     val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
@@ -202,8 +208,13 @@ fun ChessClock(
             onClick = onClick,
         )
         .pointerInput(Unit) {
-            detectDragGestures(
-                onDragStart = onDragStart, onDrag = onDrag
+            detectHorizontalDragGestures(
+                onDragStart = onDragStart, onHorizontalDrag = onHorDrag,
+            )
+        }
+        .pointerInput(Unit) {
+            detectVerticalDragGestures(
+                onDragStart = onDragStart, onVerticalDrag = onVertDrag,
             )
         }
         .onKeyEvent(onKeyEvent = onKeyEvent)) {
@@ -231,35 +242,19 @@ fun ChessClock(
 }
 
 /**
- * Return the horizontal part of an [offset] increasing from left to right and taking into account
- * whether the device orientation [isLandscape].
- */
-fun horizontalOffset(offset: Offset, isLandscape: Boolean): Float {
-    return if (isLandscape) -offset.y else -offset.x
-}
-
-/**
- * Return the vertical part of an [offset] increasing from the bottom to the top and taking into
- * account whether the device orientation [isLandscape].
- */
-fun verticalOffset(offset: Offset, isLandscape: Boolean): Float {
-    return if (isLandscape) offset.x else -offset.y
-}
-
-/**
  * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
- * before each turn with a delay of [delayMillis] before each recomposition, and where back events
+ * before each turn with a given [delayMillis] before each recomposition, and where back events
  * pause or reset the time.
  *
  * @param[durationMinutes] Initial duration in minutes.
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
- * @param[isBlackRightHanded] Whether to flip the horizontal dragging direction.
+ * @param[isBlackRightHanded] Whether to flip the orientation when using portrait mode.
  * @param[window] Window for which to keep the screen on when time is running.
  * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
- *     well as callbacks to be triggered by click and drag events. The `onClick` event callback
- *     triggers next turn, while the `onDragStart`, `onDrag`, and `onKeyEvent` event callbacks allow
- *     changing the initial duration and time increment to different values.
+ *     well as callbacks to be triggered by click, drag and key events. The `onClick` event callback
+ *     resumes or triggers next turn, while the `onDragStart`, `onHorDrag`, `onVertDrag`, and
+ *     `onKeyEvent` callbacks allow changing the duration and time increment to different values.
  */
 @Composable
 fun Counter(
@@ -273,12 +268,18 @@ fun Counter(
         blackTime: Long,
         onClick: () -> Unit,
         onDragStart: (Offset) -> Unit,
-        onDrag: (PointerInputChange, Offset) -> Unit,
+        onHorDrag: (PointerInputChange, Float) -> Unit,
+        onVertDrag: (PointerInputChange, Float) -> Unit,
         onKeyEvent: (KeyEvent) -> Boolean,
     ) -> Unit
 ) {
     val initialDuration = durationMinutes * 60_000L
     val initialIncrement = incrementSeconds * 1_000L
+    val dragSensitivity = 0.01F
+    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
+    val isRtl = LocalLayoutDirection.current == Rtl
+
+    // General state that survives activity or process recreation
     var duration by rememberSaveable { mutableLongStateOf(initialDuration) }
     var increment by rememberSaveable { mutableLongStateOf(initialIncrement) }
     var whiteTime by rememberSaveable { mutableLongStateOf(duration + increment) }
@@ -289,18 +290,85 @@ fun Counter(
     var isRunning by rememberSaveable { mutableStateOf(false) }
     var isFinished by rememberSaveable { mutableStateOf(false) }
 
+    // Saved state to update from when changing the configuration
+    var savedDurationMinutes by remember { mutableFloatStateOf(0F) }
+    var savedIncrementSeconds by remember { mutableFloatStateOf(0F) }
+    var savedTimeMinutes by remember { mutableFloatStateOf(0F) }
+    var savedTimeSeconds by remember { mutableFloatStateOf(0F) }
+
+    /** Save duration, time increment and current time before changing the configuration. */
+    fun saveState() {
+        val currentTime = (if (isWhiteTurn) whiteTime else blackTime)
+        savedDurationMinutes = duration / 60_000F
+        savedIncrementSeconds = increment / 1_000F
+        savedTimeMinutes = (currentTime / 60_000L).toFloat()
+        savedTimeSeconds = round(currentTime % 60_000L, 1_000L) / 1_000F
+    }
+
+    /** Update current player's time to [newTime]. */
+    fun updateTime(newTime: Long) {
+        if (isWhiteTurn) {
+            whiteTime = newTime
+        } else {
+            blackTime = newTime
+        }
+    }
+
+    /** Reset time to starting position. */
+    fun resetTime() {
+        val newTime = duration + increment
+        whiteTime = newTime
+        blackTime = newTime
+    }
+
+    /** Update time or duration by [minutes] from state that optionally [isNewSavedState]. */
+    fun updateMinutes(minutes: Float, isNewSavedState: Boolean = true) {
+        if (!isRunning) {
+            if (isNewSavedState) saveState()
+            if (isReset) {
+                val minMinutes = if (increment < 1_000L) 1F else 0F
+                savedDurationMinutes = (savedDurationMinutes + minutes).coerceIn(minMinutes, 180F)
+                duration = savedDurationMinutes.roundToLong() * 60_000L
+                resetTime()
+            } else if (!isFinished) {
+                val newSeconds = savedTimeSeconds.roundToLong() * 1_000L
+                val minMinutes = -newSeconds / 60_000L + if (newSeconds % 60_000L == 0L) 1F else 0F
+                val maxMinutes = 599F - newSeconds / 60_000L
+                savedTimeMinutes = (savedTimeMinutes + minutes).coerceIn(minMinutes, maxMinutes)
+                val newMinutes = savedTimeMinutes.roundToLong() * 60_000L
+                updateTime(newMinutes + newSeconds)
+            }
+        }
+    }
+
+    /** Update time or increment by [seconds] from state that optionally [isNewSavedState]. */
+    fun updateSeconds(seconds: Float, isNewSavedState: Boolean = true) {
+        if (!isRunning) {
+            if (isNewSavedState) saveState()
+            if (isReset) {
+                val minSeconds = if (duration < 60_000L) 1F else 0F
+                savedIncrementSeconds = (savedIncrementSeconds + seconds).coerceIn(minSeconds, 30F)
+                increment = savedIncrementSeconds.roundToLong() * 1_000L
+                resetTime()
+            } else if (!isFinished) {
+                val newMinutes = savedTimeMinutes.roundToLong() * 60_000L
+                val minSeconds = 1F - newMinutes / 1_000L
+                val maxSeconds = 35_999F - newMinutes / 1_000L
+                savedTimeSeconds = (savedTimeSeconds + seconds).coerceIn(minSeconds, maxSeconds)
+                val newSeconds = savedTimeSeconds.roundToLong() * 1_000L
+                updateTime(newMinutes + newSeconds)
+            }
+        }
+    }
+
+    /** On-click event callback to resume or trigger next turn. */
     val onClick = {
         if (!isFinished) {
             if (isRunning) {
                 val remainingTime = targetElapsedRealtime - elapsedRealtime()
                 val newTime = if (remainingTime > 0L) remainingTime + increment else 0L
-                if (isWhiteTurn) {
-                    whiteTime = newTime
-                    isWhiteTurn = false
-                } else {
-                    blackTime = newTime
-                    isWhiteTurn = true
-                }
+                updateTime(newTime)
+                isWhiteTurn = !isWhiteTurn
             } else {
                 isReset = false
                 isRunning = true
@@ -310,110 +378,48 @@ fun Counter(
         }
     }
 
-    var isDragStart by remember { mutableStateOf(false) }
-    var dragPosition by remember { mutableStateOf(Offset.Zero) }
-    var savedDuration by remember { mutableLongStateOf(0L) }
-    var savedIncrement by remember { mutableLongStateOf(0L) }
-    var savedTime by remember { mutableLongStateOf(0L) }
+    /** Event callback to save the current state before dragging to change the configuration. */
+    val onDragStart = { _: Offset -> saveState() }
 
-    val onDragStart = { it: Offset ->
-        isDragStart = true
-        dragPosition = it
-        savedDuration = duration
-        savedIncrement = increment
-        savedTime = if (isWhiteTurn) whiteTime else blackTime
-    }
-
-    var isHorizontalDrag by remember { mutableStateOf(false) }
-    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
-    val isRTL = LocalLayoutDirection.current == Rtl
-
-    val onDrag = { change: PointerInputChange, _: Offset ->
-        if (!isRunning) {
-            val dragOffset = change.position - dragPosition
-            if (isDragStart) {
-                if (dragOffset.getDistanceSquared() > 40_000F) {
-                    isHorizontalDrag = dragOffset.x.absoluteValue > dragOffset.y.absoluteValue
-                    isDragStart = false
-                }
-            } else {
-                if (isReset) {
-                    if (isHorizontalDrag xor isLandscape) {
-                        val sign = if (isLandscape || isBlackRightHanded.value) 1L else -1L
-                        val magnitude = 20L
-                        val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
-                        increment = round(
-                            number = savedIncrement + sign * magnitude * offset,
-                            step = 1_000L,
-                        ).coerceIn(if (duration == 0L) 1_000L..30_000L else 0L..30_000L)
-                    } else {
-                        val sign =
-                            if ((isLandscape || isBlackRightHanded.value) xor isRTL) 1L else -1L
-                        val magnitude = 1_000L
-                        val offset = verticalOffset(dragOffset, isLandscape).roundToLong()
-                        duration = round(
-                            number = savedDuration + sign * magnitude * offset,
-                            step = 60_000L,
-                        ).coerceIn(if (increment == 0L) 60_000L..10_800_000L else 0L..10_800_000L)
-                    }
-                    whiteTime = duration + increment
-                    blackTime = duration + increment
-                } else if (!isFinished && (isHorizontalDrag xor isLandscape)) {
-                    val sign = if (isLandscape || isBlackRightHanded.value) 1L else -1L
-                    val magnitude = 20L
-                    val offset = horizontalOffset(dragOffset, isLandscape).roundToLong()
-                    val newTime = round(
-                        number = savedTime + sign * magnitude * offset,
-                        step = 100L,
-                    ).coerceIn(100L..35_999_900L)
-                    if (isWhiteTurn) {
-                        whiteTime = newTime
-                    } else {
-                        blackTime = newTime
-                    }
-                }
-            }
+    /** Horizontal dragging event callback to change the current configuration. */
+    val onHorDrag = { _: PointerInputChange, dragAmount: Float ->
+        if (isLandscape) {
+            val sign = if (isRtl) -1F else 1F
+            updateMinutes(sign * dragSensitivity * dragAmount, isNewSavedState = false)
+        } else {
+            val sign = if (isBlackRightHanded.value) -1F else 1F
+            updateSeconds(sign * dragSensitivity * dragAmount, isNewSavedState = false)
         }
     }
 
+    /** Vertical dragging event callback to change the current configuration. */
+    val onVertDrag = { _: PointerInputChange, dragAmount: Float ->
+        if (isLandscape) {
+            val sign = -1F
+            updateSeconds(sign * dragSensitivity * dragAmount, isNewSavedState = false)
+        } else {
+            val sign = if (isBlackRightHanded.value xor isRtl) -1F else 1F
+            updateMinutes(sign * dragSensitivity * dragAmount, isNewSavedState = false)
+        }
+    }
+
+    /** Key press event callback to change the current configuration. */
     val onKeyEvent = onKeyEvent@{ it: KeyEvent ->
         if (it.type == KeyDown) {
-            if (isReset) {
-                val sign = if (isRTL) -1L else 1L
-                val incrementRange = if (duration == 0L) 1_000L..30_000L else 0L..30_000L
-                val durationRange = if (increment == 0L) 60_000L..10_800_000L else 0L..10_800_000L
-                when (it.key) {
-                    DirectionUp -> increment = (increment + 1_000).coerceIn(incrementRange)
-                    DirectionDown -> increment = (increment - 1_000).coerceIn(incrementRange)
-                    DirectionRight -> duration = (duration + sign * 60_000).coerceIn(durationRange)
-                    DirectionLeft -> duration = (duration - sign * 60_000).coerceIn(durationRange)
-                    else -> return@onKeyEvent false
-                }
-                whiteTime = duration + increment
-                blackTime = duration + increment
-            } else {
-                val timeUpdate = when (it.key) {
-                    DirectionUp -> 1_000L
-                    DirectionDown -> -1_000L
-                    else -> return@onKeyEvent false
-                }
-                val oldTime = if (isWhiteTurn) whiteTime else blackTime
-                val newTime = round(
-                    number = oldTime + timeUpdate, step = 1000L
-                ).coerceIn(1000L..35_999_000L)
-                if (isWhiteTurn) {
-                    whiteTime = newTime
-                } else {
-                    blackTime = newTime
-                }
+            when (it.key) {
+                DirectionUp -> updateSeconds(1F)
+                DirectionDown -> updateSeconds(-1F)
+                DirectionRight -> updateMinutes(if (isRtl) -1F else 1F)
+                DirectionLeft -> updateMinutes(if (isRtl) 1F else -1F)
+                else -> return@onKeyEvent false
             }
-            true
         } else {
-            false
+            return@onKeyEvent false
         }
+        return@onKeyEvent true
     }
 
-    content.invoke(whiteTime, blackTime, onClick, onDragStart, onDrag, onKeyEvent)
+    content.invoke(whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent)
 
     BackHandler(isRunning) {
         isRunning = false
@@ -421,8 +427,7 @@ fun Counter(
     }
 
     BackHandler(!isRunning && !isReset) {
-        whiteTime = duration + increment
-        blackTime = duration + increment
+        resetTime()
         isWhiteTurn = true
         isReset = true
         isFinished = false
@@ -431,8 +436,7 @@ fun Counter(
     BackHandler(isReset && (duration != initialDuration || increment != initialIncrement)) {
         duration = initialDuration
         increment = initialIncrement
-        whiteTime = duration + increment
-        blackTime = duration + increment
+        resetTime()
     }
 
     LaunchedEffect(isRunning, whiteTime, blackTime) {
@@ -441,11 +445,7 @@ fun Counter(
                 val remainingTime = targetElapsedRealtime - elapsedRealtime()
                 val newTime = if (remainingTime > 0L) remainingTime else 0L
                 delay(newTime % delayMillis)
-                if (isWhiteTurn) {
-                    whiteTime = newTime
-                } else {
-                    blackTime = newTime
-                }
+                updateTime(newTime)
             } else {
                 isFinished = true
                 isRunning = false

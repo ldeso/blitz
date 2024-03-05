@@ -1,0 +1,1 @@
+• Also trigger next turn from drag events

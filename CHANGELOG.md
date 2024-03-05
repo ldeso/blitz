@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.5] - 2024-03-05
+
+This release vastly increases the sensitivity to touch events when counting down.
+
+### Enhancement
+
+- Also trigger next turn from drag events
+
+### Note
+
+- Use application ID in build filename
+
 ## [1.4.4] - 2024-03-05
 
 This release increases the precision and readability of the clock.
@@ -260,6 +272,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.5]: https://github.com/ldeso/blitz/releases/tag/v1.4.5
 [1.4.4]: https://github.com/ldeso/blitz/releases/tag/v1.4.4
 [1.4.3]: https://github.com/ldeso/blitz/releases/tag/v1.4.3
 [1.4.2]: https://github.com/ldeso/blitz/releases/tag/v1.4.2

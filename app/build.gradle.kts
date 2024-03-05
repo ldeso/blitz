@@ -13,6 +13,7 @@ android {
         targetSdk = 34
         versionCode = 144
         versionName = "1.4.4"
+        base.archivesName = "${applicationId}_$versionCode"
     }
 
     buildTypes {

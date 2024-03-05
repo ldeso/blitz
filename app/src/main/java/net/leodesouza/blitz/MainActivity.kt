@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily.Companion.Monospace
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -182,12 +183,12 @@ fun BasicTime(
 fun ChessClock(
     whiteTime: Long = 303_000L,
     blackTime: Long = 303_000L,
-    isBlackRightHanded: MutableState<Boolean> = remember { mutableStateOf(true) },
+    isBlackRightHanded: MutableState<Boolean> = mutableStateOf(true),
     onClick: () -> Unit = {},
     onDragStart: (Offset) -> Unit = { _: Offset -> },
     onHorDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
     onVertDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
-    onKeyEvent: (KeyEvent) -> Boolean = { true },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
 ) {
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val rotation = if (isLandscape) {
@@ -226,7 +227,7 @@ fun ChessClock(
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
-            style = TextStyle(color = blackColor, fontSize = fontSize),
+            style = TextStyle(color = blackColor, fontSize = fontSize, fontWeight = Bold),
         )
         BasicTime(
             whiteTime,
@@ -236,7 +237,7 @@ fun ChessClock(
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
-            style = TextStyle(color = whiteColor, fontSize = fontSize),
+            style = TextStyle(color = whiteColor, fontSize = fontSize, fontWeight = Bold),
         )
     }
 }

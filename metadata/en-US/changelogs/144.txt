@@ -1,0 +1,2 @@
+• Use a bold font to increase readability
+• Fix a bug that skipped the last tenth of a second

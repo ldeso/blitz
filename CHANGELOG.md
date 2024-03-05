@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.4] - 2024-03-05
+
+This release increases the precision and readability of the clock.
+
+### Enhancement
+
+- Use a bold font to increase readability
+
+### Bug Fix
+
+- Fix a bug that skipped the last tenth of a second
+
 ## [1.4.3] - 2024-03-04
 
 This release is a big refactor of the code handling dragging events, fixing two issues and improving the dragging experience.
@@ -248,6 +260,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.4]: https://github.com/ldeso/blitz/releases/tag/v1.4.4
 [1.4.3]: https://github.com/ldeso/blitz/releases/tag/v1.4.3
 [1.4.2]: https://github.com/ldeso/blitz/releases/tag/v1.4.2
 [1.4.1]: https://github.com/ldeso/blitz/releases/tag/v1.4.1

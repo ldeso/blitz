@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Enable the edge-to-edge display, start the activity and compose a chess clock. */
+    /** Enable the edge-to-edge display, startCounter the activity and compose a chess clock. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
@@ -240,7 +240,7 @@ fun ChessClock(
 /**
  * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
  * before each turn with a given [delayMillis] before each recomposition, and where back events
- * pause or reset the time.
+ * pauseCounter or reset the time.
  *
  * @param[durationMinutes] Initial duration in minutes.
  * @param[incrementSeconds] Time increment added before each turn in seconds.
@@ -275,34 +275,23 @@ fun Counter(
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == Rtl
 
-    // General state that survives activity or process recreation
     var duration by rememberSaveable { mutableLongStateOf(initialDuration) }
     var increment by rememberSaveable { mutableLongStateOf(initialIncrement) }
     var whiteTime by rememberSaveable { mutableLongStateOf(duration + increment) }
     var blackTime by rememberSaveable { mutableLongStateOf(duration + increment) }
     var targetElapsedRealtime by rememberSaveable { mutableLongStateOf(0L) }
     var isWhiteTurn by rememberSaveable { mutableStateOf(true) }
-    var isReset by rememberSaveable { mutableStateOf(true) }
-    var isRunning by rememberSaveable { mutableStateOf(false) }
+    var isStarted by rememberSaveable { mutableStateOf(false) }
     var isFinished by rememberSaveable { mutableStateOf(false) }
+    var isCounting by rememberSaveable { mutableStateOf(false) }
+    var savedMinutes by remember { mutableFloatStateOf(0F) }
+    var savedSeconds by remember { mutableFloatStateOf(0F) }
 
-    // Saved state to update from when changing the configuration
-    var savedDurationMinutes by remember { mutableFloatStateOf(0F) }
-    var savedIncrementSeconds by remember { mutableFloatStateOf(0F) }
-    var savedTimeMinutes by remember { mutableFloatStateOf(0F) }
-    var savedTimeSeconds by remember { mutableFloatStateOf(0F) }
-
-    /** Save duration, time increment and current time before changing the configuration. */
-    fun saveState() {
-        val currentTime = (if (isWhiteTurn) whiteTime else blackTime)
-        savedDurationMinutes = duration / 60_000F
-        savedIncrementSeconds = increment / 1_000F
-        savedTimeMinutes = (currentTime / 60_000L).toFloat()
-        savedTimeSeconds = currentTime % 60_000L / 1_000F
+    fun getPlayerTime(): Long {
+        return if (isWhiteTurn) whiteTime else blackTime
     }
 
-    /** Update time of current player to [timeMillis]. */
-    fun updateCurrentTime(timeMillis: Long) {
+    fun setPlayerTime(timeMillis: Long) {
         if (isWhiteTurn) {
             whiteTime = timeMillis
         } else {
@@ -310,147 +299,171 @@ fun Counter(
         }
     }
 
-    /** Reset times to starting position. */
-    fun resetTimes() {
+    fun applyConfig() {
         val newTime = duration + increment
         whiteTime = newTime
         blackTime = newTime
     }
 
-    /** Update time or duration by [minutes] from state that optionally [isNewSavedState]. */
-    fun updateMinutes(minutes: Float, isNewSavedState: Boolean = true) {
-        if (!isRunning) {
-            if (isNewSavedState) saveState()
-            if (isReset) {
-                val minMinutes = if (increment < 1_000L) 1F else 0F
-                savedDurationMinutes = (savedDurationMinutes + minutes).coerceIn(minMinutes, 180F)
-                duration = savedDurationMinutes.roundToLong() * 60_000L
-                resetTimes()
-            } else if (!isFinished) {
-                val newSeconds = savedTimeSeconds.roundToLong()
-                val minMinutes = -newSeconds / 60L + if (newSeconds % 60L == 0L) 1F else 0F
-                val maxMinutes = 599F - newSeconds / 60L
-                savedTimeMinutes = (savedTimeMinutes + minutes).coerceIn(minMinutes, maxMinutes)
-                val newMinutes = savedTimeMinutes.roundToLong()
-                updateCurrentTime(newMinutes * 60_000L + newSeconds * 1_000L)
-            }
+    fun resetConfig() {
+        duration = initialDuration
+        increment = initialIncrement
+        applyConfig()
+    }
+
+    fun startCounter() {
+        targetElapsedRealtime = elapsedRealtime() + getPlayerTime()
+        window.addFlags(FLAG_KEEP_SCREEN_ON)
+        isStarted = true
+        isCounting = true
+    }
+
+    fun pauseCounter() {
+        window.clearFlags(FLAG_KEEP_SCREEN_ON)
+        isCounting = false
+    }
+
+    fun resetCounter() {
+        isWhiteTurn = true
+        isStarted = false
+        isFinished = false
+        applyConfig()
+    }
+
+    fun nextTurn() {
+        val remainingTime = targetElapsedRealtime - elapsedRealtime()
+        val newTime = if (remainingTime > 0L) (remainingTime + increment) else 0L
+        setPlayerTime(newTime)
+        isWhiteTurn = !isWhiteTurn
+        targetElapsedRealtime = elapsedRealtime() + getPlayerTime()
+    }
+
+    fun saveMinutesAndSeconds() {
+        if (isStarted) {
+            savedMinutes = (getPlayerTime() / 60_000L).toFloat()
+            savedSeconds = getPlayerTime() % 60_000L / 1_000F
+        } else {
+            savedMinutes = duration / 60_000F
+            savedSeconds = increment / 1_000F
         }
     }
 
-    /** Update time or increment by [seconds] from state that optionally [isNewSavedState]. */
-    fun updateSeconds(seconds: Float, isNewSavedState: Boolean = true) {
-        if (!isRunning) {
-            if (isNewSavedState) saveState()
-            if (isReset) {
-                val minSeconds = if (duration < 60_000L) 1F else 0F
-                savedIncrementSeconds = (savedIncrementSeconds + seconds).coerceIn(minSeconds, 30F)
-                increment = savedIncrementSeconds.roundToLong() * 1_000L
-                resetTimes()
-            } else if (!isFinished) {
-                val newMinutes = savedTimeMinutes.roundToLong()
-                val minSeconds = 1F - newMinutes * 60L
-                val maxSeconds = 35_999F - newMinutes * 60L
-                savedTimeSeconds = (savedTimeSeconds + seconds).coerceIn(minSeconds, maxSeconds)
-                val newSeconds = savedTimeSeconds.roundToLong()
-                updateCurrentTime(newMinutes * 60_000L + newSeconds * 1_000L)
-            }
+    fun addMinutes(minutes: Float, addToSavedMinutes: Boolean = false) {
+        if (!addToSavedMinutes) saveMinutesAndSeconds()
+        if (isStarted) {
+            val newSeconds = savedSeconds.roundToLong()
+            val minMinutes = -newSeconds / 60L + if (newSeconds % 60L == 0L) 1F else 0F
+            val maxMinutes = 599F - newSeconds / 60L
+            savedMinutes = (savedMinutes + minutes).coerceIn(minMinutes, maxMinutes)
+            val newMinutes = savedMinutes.roundToLong()
+            setPlayerTime(newMinutes * 60_000L + newSeconds * 1_000L)
+        } else {
+            val minMinutes = if (increment < 1_000L) 1F else 0F
+            savedMinutes = (savedMinutes + minutes).coerceIn(minMinutes, 180F)
+            duration = savedMinutes.roundToLong() * 60_000L
+            applyConfig()
         }
     }
 
-    /** On-click event callback to resume or trigger next turn. */
+    fun addSeconds(seconds: Float, addToSavedSeconds: Boolean = false) {
+        if (!addToSavedSeconds) saveMinutesAndSeconds()
+        if (isStarted) {
+            val newMinutes = savedMinutes.roundToLong()
+            val minSeconds = 1F - newMinutes * 60L
+            val maxSeconds = 35_999F - newMinutes * 60L
+            savedSeconds = (savedSeconds + seconds).coerceIn(minSeconds, maxSeconds)
+            val newSeconds = savedSeconds.roundToLong()
+            setPlayerTime(newMinutes * 60_000L + newSeconds * 1_000L)
+        } else {
+            val minSeconds = if (duration < 60_000L) 1F else 0F
+            savedSeconds = (savedSeconds + seconds).coerceIn(minSeconds, 30F)
+            increment = savedSeconds.roundToLong() * 1_000L
+            applyConfig()
+        }
+    }
+
     val onClick = {
-        if (!isFinished) {
-            if (isRunning) {
-                val remainingTime = targetElapsedRealtime - elapsedRealtime()
-                val newTime = if (remainingTime > 0L) remainingTime + increment else 0L
-                updateCurrentTime(newTime)
-                isWhiteTurn = !isWhiteTurn
-            } else {
-                isReset = false
-                isRunning = true
-                window.addFlags(FLAG_KEEP_SCREEN_ON)
-            }
-            targetElapsedRealtime = elapsedRealtime() + if (isWhiteTurn) whiteTime else blackTime
+        if (isCounting) {
+            nextTurn()
+        } else if (!isFinished) {
+            startCounter()
         }
     }
 
-    /** Event callback to save the current state before dragging to change the configuration. */
-    val onDragStart = { _: Offset -> saveState() }
+    val onDragStart = { _: Offset ->
+        if (isCounting) {
+            nextTurn()
+        } else if (!isFinished) {
+            saveMinutesAndSeconds()
+        }
+    }
 
-    /** Horizontal dragging event callback to change the current configuration. */
     val onHorDrag = { _: PointerInputChange, dragAmount: Float ->
-        if (isLandscape) {
-            val sign = if (isRtl) -1F else 1F
-            updateMinutes(sign * dragSensitivity * dragAmount, isNewSavedState = false)
-        } else {
-            val sign = if (isBlackRightHanded.value) -1F else 1F
-            updateSeconds(sign * dragSensitivity * dragAmount, isNewSavedState = false)
+        if (!isCounting && !isFinished) {
+            if (isLandscape) {
+                val sign = if (isRtl) -1F else 1F
+                addMinutes(sign * dragSensitivity * dragAmount, addToSavedMinutes = true)
+            } else {
+                val sign = if (isBlackRightHanded.value) -1F else 1F
+                addSeconds(sign * dragSensitivity * dragAmount, addToSavedSeconds = true)
+            }
         }
     }
 
-    /** Vertical dragging event callback to change the current configuration. */
     val onVertDrag = { _: PointerInputChange, dragAmount: Float ->
-        if (isLandscape) {
-            val sign = -1F
-            updateSeconds(sign * dragSensitivity * dragAmount, isNewSavedState = false)
-        } else {
-            val sign = if (isBlackRightHanded.value xor isRtl) -1F else 1F
-            updateMinutes(sign * dragSensitivity * dragAmount, isNewSavedState = false)
+        if (!isCounting && !isFinished) {
+            if (isLandscape) {
+                val sign = -1F
+                addSeconds(sign * dragSensitivity * dragAmount, addToSavedSeconds = true)
+            } else {
+                val sign = if (isBlackRightHanded.value xor isRtl) -1F else 1F
+                addMinutes(sign * dragSensitivity * dragAmount, addToSavedMinutes = true)
+            }
         }
     }
 
-    /** Key press event callback to change the current configuration. */
     val onKeyEvent = onKeyEvent@{ it: KeyEvent ->
         var isConsumed = false
         if (it.type == KeyDown) {
             isConsumed = true
-            when (it.key) {
-                DirectionUp -> updateSeconds(1F)
-                DirectionDown -> updateSeconds(-1F)
-                DirectionRight -> updateMinutes(if (isRtl) -1F else 1F)
-                DirectionLeft -> updateMinutes(if (isRtl) 1F else -1F)
-                else -> isConsumed = false
+            if (!isCounting && !isFinished) {
+                when (it.key) {
+                    DirectionUp -> addSeconds(1F)
+                    DirectionDown -> addSeconds(-1F)
+                    DirectionRight -> addMinutes(if (isRtl) -1F else 1F)
+                    DirectionLeft -> addMinutes(if (isRtl) 1F else -1F)
+                    else -> isConsumed = false
+                }
             }
         }
         isConsumed
     }
 
-    // Back event handler to pause time
-    BackHandler(isRunning) {
-        isRunning = false
-        window.clearFlags(FLAG_KEEP_SCREEN_ON)
+    BackHandler(isCounting) {
+        pauseCounter()
     }
 
-    // Back event handler to reset times
-    BackHandler(!isRunning && !isReset) {
-        isWhiteTurn = true
-        isReset = true
-        isFinished = false
-        resetTimes()
+    BackHandler(isStarted && !isCounting) {
+        resetCounter()
     }
 
-    // Back event handler to reset times to reset duration and time increment
-    BackHandler(isReset && (duration != initialDuration || increment != initialIncrement)) {
-        duration = initialDuration
-        increment = initialIncrement
-        resetTimes()
+    BackHandler(!isStarted && (duration != initialDuration || increment != initialIncrement)) {
+        resetConfig()
     }
 
-    // Recompose on start, after time updates or after a given `delayMillis`
-    LaunchedEffect(isRunning, whiteTime, blackTime) {
-        if (isRunning) {
+    LaunchedEffect(isCounting, whiteTime, blackTime) {
+        if (isCounting) {
             if (whiteTime > 0L && blackTime > 0L) {
                 val remainingTime = targetElapsedRealtime - elapsedRealtime()
-                val correctedDelayMillis = remainingTime % delayMillis
-                delay(correctedDelayMillis)
-                updateCurrentTime(remainingTime - correctedDelayMillis)
+                val correctedDelay = remainingTime % delayMillis
+                delay(correctedDelay)
+                setPlayerTime(remainingTime - correctedDelay)
             } else {
                 isFinished = true
-                isRunning = false
+                pauseCounter()
             }
         }
     }
 
-    // Compose content with current times and event callbacks
     content.invoke(whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent)
 }

@@ -134,11 +134,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** Return the given [number] rounded to the nearest [step] from zero. */
-fun round(number: Long, step: Long): Long {
-    return (number + (step / 2L)) / step * step
-}
-
 /**
  * Basic element that displays [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D", in a given [style]
  * and accepting a given [modifier] to apply to the layout node.
@@ -147,20 +142,19 @@ fun round(number: Long, step: Long): Long {
 fun BasicTime(
     timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
 ) {
-    val roundedTime = round(number = timeMillis, step = 100L)
-    val hours = (roundedTime / 3_600_000L).toString()
-    val minutes = (roundedTime % 3_600_000L / 60_000L).toString().padStart(2, '0')
-    val seconds = (roundedTime % 60_000L / 1_000L).toString().padStart(2, '0')
+    val tenthsOfSeconds = (timeMillis + 50L) / 100L
+    val hours = (tenthsOfSeconds / 36_000L).toString()
+    val minutes = (tenthsOfSeconds % 36_000L / 600L).toString().padStart(2, '0')
+    val seconds = (tenthsOfSeconds % 600L / 10L).toString().padStart(2, '0')
     val monospaceStyle = style.merge(fontFamily = Monospace)
     CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
         Row(modifier) {
             if (hours == "0") {
-                val decimal = (roundedTime % 1_000L).toString().take(1)
                 BasicText(text = minutes, style = monospaceStyle)
                 BasicText(text = ":", style = style)
                 BasicText(text = seconds, style = monospaceStyle)
                 BasicText(text = ".", style = style)
-                BasicText(text = decimal, style = monospaceStyle)
+                BasicText(text = (tenthsOfSeconds % 10L).toString(), style = monospaceStyle)
             } else {
                 BasicText(text = hours, style = monospaceStyle)
                 BasicText(text = ":", style = style)
@@ -202,6 +196,7 @@ fun ChessClock(
     val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
     val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
     val fontSize = with(LocalDensity.current) { textHeight.toSp() }
+    val fontWeight = Bold
     Column(modifier = Modifier
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -227,7 +222,7 @@ fun ChessClock(
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
-            style = TextStyle(color = blackColor, fontSize = fontSize, fontWeight = Bold),
+            style = TextStyle(color = blackColor, fontSize = fontSize, fontWeight = fontWeight),
         )
         BasicTime(
             whiteTime,
@@ -237,7 +232,7 @@ fun ChessClock(
                 .weight(1F)
                 .fillMaxSize()
                 .wrapContentSize(),
-            style = TextStyle(color = whiteColor, fontSize = fontSize, fontWeight = Bold),
+            style = TextStyle(color = whiteColor, fontSize = fontSize, fontWeight = fontWeight),
         )
     }
 }
@@ -303,20 +298,20 @@ fun Counter(
         savedDurationMinutes = duration / 60_000F
         savedIncrementSeconds = increment / 1_000F
         savedTimeMinutes = (currentTime / 60_000L).toFloat()
-        savedTimeSeconds = round(currentTime % 60_000L, 1_000L) / 1_000F
+        savedTimeSeconds = currentTime % 60_000L / 1_000F
     }
 
-    /** Update current player's time to [newTime]. */
-    fun updateTime(newTime: Long) {
+    /** Update time of current player to [timeMillis]. */
+    fun updateCurrentTime(timeMillis: Long) {
         if (isWhiteTurn) {
-            whiteTime = newTime
+            whiteTime = timeMillis
         } else {
-            blackTime = newTime
+            blackTime = timeMillis
         }
     }
 
-    /** Reset time to starting position. */
-    fun resetTime() {
+    /** Reset times to starting position. */
+    fun resetTimes() {
         val newTime = duration + increment
         whiteTime = newTime
         blackTime = newTime
@@ -330,14 +325,14 @@ fun Counter(
                 val minMinutes = if (increment < 1_000L) 1F else 0F
                 savedDurationMinutes = (savedDurationMinutes + minutes).coerceIn(minMinutes, 180F)
                 duration = savedDurationMinutes.roundToLong() * 60_000L
-                resetTime()
+                resetTimes()
             } else if (!isFinished) {
-                val newSeconds = savedTimeSeconds.roundToLong() * 1_000L
-                val minMinutes = -newSeconds / 60_000L + if (newSeconds % 60_000L == 0L) 1F else 0F
-                val maxMinutes = 599F - newSeconds / 60_000L
+                val newSeconds = savedTimeSeconds.roundToLong()
+                val minMinutes = -newSeconds / 60L + if (newSeconds % 60L == 0L) 1F else 0F
+                val maxMinutes = 599F - newSeconds / 60L
                 savedTimeMinutes = (savedTimeMinutes + minutes).coerceIn(minMinutes, maxMinutes)
-                val newMinutes = savedTimeMinutes.roundToLong() * 60_000L
-                updateTime(newMinutes + newSeconds)
+                val newMinutes = savedTimeMinutes.roundToLong()
+                updateCurrentTime(newMinutes * 60_000L + newSeconds * 1_000L)
             }
         }
     }
@@ -350,14 +345,14 @@ fun Counter(
                 val minSeconds = if (duration < 60_000L) 1F else 0F
                 savedIncrementSeconds = (savedIncrementSeconds + seconds).coerceIn(minSeconds, 30F)
                 increment = savedIncrementSeconds.roundToLong() * 1_000L
-                resetTime()
+                resetTimes()
             } else if (!isFinished) {
-                val newMinutes = savedTimeMinutes.roundToLong() * 60_000L
-                val minSeconds = 1F - newMinutes / 1_000L
-                val maxSeconds = 35_999F - newMinutes / 1_000L
+                val newMinutes = savedTimeMinutes.roundToLong()
+                val minSeconds = 1F - newMinutes * 60L
+                val maxSeconds = 35_999F - newMinutes * 60L
                 savedTimeSeconds = (savedTimeSeconds + seconds).coerceIn(minSeconds, maxSeconds)
-                val newSeconds = savedTimeSeconds.roundToLong() * 1_000L
-                updateTime(newMinutes + newSeconds)
+                val newSeconds = savedTimeSeconds.roundToLong()
+                updateCurrentTime(newMinutes * 60_000L + newSeconds * 1_000L)
             }
         }
     }
@@ -368,7 +363,7 @@ fun Counter(
             if (isRunning) {
                 val remainingTime = targetElapsedRealtime - elapsedRealtime()
                 val newTime = if (remainingTime > 0L) remainingTime + increment else 0L
-                updateTime(newTime)
+                updateCurrentTime(newTime)
                 isWhiteTurn = !isWhiteTurn
             } else {
                 isReset = false
@@ -406,51 +401,56 @@ fun Counter(
 
     /** Key press event callback to change the current configuration. */
     val onKeyEvent = onKeyEvent@{ it: KeyEvent ->
+        var isConsumed = false
         if (it.type == KeyDown) {
+            isConsumed = true
             when (it.key) {
                 DirectionUp -> updateSeconds(1F)
                 DirectionDown -> updateSeconds(-1F)
                 DirectionRight -> updateMinutes(if (isRtl) -1F else 1F)
                 DirectionLeft -> updateMinutes(if (isRtl) 1F else -1F)
-                else -> return@onKeyEvent false
+                else -> isConsumed = false
             }
-        } else {
-            return@onKeyEvent false
         }
-        return@onKeyEvent true
+        isConsumed
     }
 
-    content.invoke(whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent)
-
+    // Back event handler to pause time
     BackHandler(isRunning) {
         isRunning = false
         window.clearFlags(FLAG_KEEP_SCREEN_ON)
     }
 
+    // Back event handler to reset times
     BackHandler(!isRunning && !isReset) {
-        resetTime()
         isWhiteTurn = true
         isReset = true
         isFinished = false
+        resetTimes()
     }
 
+    // Back event handler to reset times to reset duration and time increment
     BackHandler(isReset && (duration != initialDuration || increment != initialIncrement)) {
         duration = initialDuration
         increment = initialIncrement
-        resetTime()
+        resetTimes()
     }
 
+    // Recompose on start, after time updates or after a given `delayMillis`
     LaunchedEffect(isRunning, whiteTime, blackTime) {
         if (isRunning) {
             if (whiteTime > 0L && blackTime > 0L) {
                 val remainingTime = targetElapsedRealtime - elapsedRealtime()
-                val newTime = if (remainingTime > 0L) remainingTime else 0L
-                delay(newTime % delayMillis)
-                updateTime(newTime)
+                val correctedDelayMillis = remainingTime % delayMillis
+                delay(correctedDelayMillis)
+                updateCurrentTime(remainingTime - correctedDelayMillis)
             } else {
                 isFinished = true
                 isRunning = false
             }
         }
     }
+
+    // Compose content with current times and event callbacks
+    content.invoke(whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent)
 }

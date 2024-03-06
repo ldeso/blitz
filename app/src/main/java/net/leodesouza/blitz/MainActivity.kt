@@ -133,9 +133,7 @@ class MainActivity : ComponentActivity() {
 fun BasicTime(
     timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
 ) {
-    val isLessThanOneHour = timeMillis < 3_600_000L
-    val roundingCorrection = if (isLessThanOneHour) 0L else 9L
-    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L + roundingCorrection
+    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
     val hours = timeTenthsOfSeconds / 36_000L
     val minutes = timeTenthsOfSeconds % 36_000L / 600L
     val seconds = timeTenthsOfSeconds % 600L / 10L
@@ -144,14 +142,14 @@ fun BasicTime(
 
     CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
         Row(modifier) {
-            if (!isLessThanOneHour) {
+            if (hours != 0L) {
                 BasicText("$hours", style = monospace)
                 BasicText(":", style = style)
             }
             BasicText("$minutes".padStart(2, '0'), style = monospace)
             BasicText(":", style = style)
             BasicText("$seconds".padStart(2, '0'), style = monospace)
-            if (isLessThanOneHour) {
+            if (hours == 0L) {
                 BasicText(".", style = style)
                 BasicText("$tenthsOfSeconds", style = monospace)
             }

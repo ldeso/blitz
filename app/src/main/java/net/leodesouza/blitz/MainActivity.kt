@@ -106,15 +106,16 @@ class MainActivity : ComponentActivity() {
                 delayMillis = 100L,
                 isBlackRightHanded = isBlackRightHanded,
                 window = window,
-            ) { whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent ->
+            ) { whiteTime, blackTime, onClick, onDragStart, onDragEnd, onHorizontalDrag, onVerticalDrag, onKeyEvent ->
                 ChessClock(
                     whiteTime,
                     blackTime,
                     isBlackRightHanded,
                     onClick,
                     onDragStart,
-                    onHorDrag,
-                    onVertDrag,
+                    onDragEnd,
+                    onHorizontalDrag,
+                    onVerticalDrag,
                     onKeyEvent
                 )
             }
@@ -169,8 +170,8 @@ fun BasicTime(
 /**
  * Chess clock displaying [whiteTime] and [blackTime] in an orientation that depends on whether
  * [isBlackRightHanded], and calling the [onClick] callback on click events, the [onDragStart]
- * followed by [onHorDrag] or [onVertDrag] callbacks on drag events, and the [onKeyEvent] callback
- * on key events.
+ * followed by [onHorizontalDrag] or [onVerticalDrag] then [onDragEnd] callbacks on drag events, and
+ * the [onKeyEvent] callback on key events.
  */
 @Preview
 @Composable
@@ -179,9 +180,10 @@ fun ChessClock(
     blackTime: Long = 303_000L,
     isBlackRightHanded: MutableState<Boolean> = mutableStateOf(true),
     onClick: () -> Unit = {},
-    onDragStart: (Offset) -> Unit = { _: Offset -> },
-    onHorDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
-    onVertDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
+    onDragStart: (Offset) -> Unit = {},
+    onDragEnd: () -> Unit = {},
+    onHorizontalDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
+    onVerticalDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
 ) {
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
@@ -205,12 +207,16 @@ fun ChessClock(
         )
         .pointerInput(Unit) {
             detectHorizontalDragGestures(
-                onDragStart = onDragStart, onHorizontalDrag = onHorDrag,
+                onDragStart = onDragStart,
+                onDragEnd = onDragEnd,
+                onHorizontalDrag = onHorizontalDrag,
             )
         }
         .pointerInput(Unit) {
             detectVerticalDragGestures(
-                onDragStart = onDragStart, onVerticalDrag = onVertDrag,
+                onDragStart = onDragStart,
+                onDragEnd = onDragEnd,
+                onVerticalDrag = onVerticalDrag,
             )
         }
         .onKeyEvent(onKeyEvent = onKeyEvent)) {
@@ -249,8 +255,9 @@ fun ChessClock(
  * @param[window] Window for which to keep the screen on when time is running.
  * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
  *     well as callbacks to be triggered by click, drag and key events. The `onClick` event callback
- *     resumes or triggers next turn, while the `onDragStart`, `onHorDrag`, `onVertDrag`, and
- *     `onKeyEvent` callbacks allow changing the duration and time increment to different values.
+ *     resumes or triggers next turn, while the `onDragStart`, `onHorizontalDrag`, `onVerticalDrag`,
+ *     `onDragStart` and `onKeyEvent` callbacks allow changing the duration and time increment to
+ *     different values.
  */
 @Composable
 fun Counter(
@@ -264,8 +271,9 @@ fun Counter(
         blackTime: Long,
         onClick: () -> Unit,
         onDragStart: (Offset) -> Unit,
-        onHorDrag: (PointerInputChange, Float) -> Unit,
-        onVertDrag: (PointerInputChange, Float) -> Unit,
+        onDragEnd: () -> Unit,
+        onHorizontalDrag: (PointerInputChange, Float) -> Unit,
+        onVerticalDrag: (PointerInputChange, Float) -> Unit,
         onKeyEvent: (KeyEvent) -> Boolean,
     ) -> Unit
 ) {
@@ -391,14 +399,18 @@ fun Counter(
     }
 
     val onDragStart = { _: Offset ->
-        if (isCounting) {
-            nextTurn()
-        } else if (!isFinished) {
+        if (!isCounting && !isFinished) {
             saveMinutesAndSeconds()
         }
     }
 
-    val onHorDrag = { _: PointerInputChange, dragAmount: Float ->
+    val onDragEnd = {
+        if (isCounting) {
+            nextTurn()
+        }
+    }
+
+    val onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
         if (!isCounting && !isFinished) {
             if (isLandscape) {
                 val sign = if (isRtl) -1F else 1F
@@ -410,7 +422,7 @@ fun Counter(
         }
     }
 
-    val onVertDrag = { _: PointerInputChange, dragAmount: Float ->
+    val onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
         if (!isCounting && !isFinished) {
             if (isLandscape) {
                 val sign = -1F
@@ -465,5 +477,14 @@ fun Counter(
         }
     }
 
-    content.invoke(whiteTime, blackTime, onClick, onDragStart, onHorDrag, onVertDrag, onKeyEvent)
+    content.invoke(
+        whiteTime,
+        blackTime,
+        onClick,
+        onDragStart,
+        onDragEnd,
+        onHorizontalDrag,
+        onVerticalDrag,
+        onKeyEvent
+    )
 }

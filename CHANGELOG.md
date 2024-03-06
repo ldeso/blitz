@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.8] - 2024-03-06
+
+This release fixes a bug introduced in the last release where, above one hour, the displayed time would sometimes be off by up to one second.
+
+### Bug Fix
+
+- Fix wrong time displayed above one hour
+
 ## [1.4.7] - 2024-03-06
 
 This release improves the precision of the counter and of the time display.
@@ -297,6 +305,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.8]: https://github.com/ldeso/blitz/releases/tag/v1.4.8
 [1.4.7]: https://github.com/ldeso/blitz/releases/tag/v1.4.7
 [1.4.6]: https://github.com/ldeso/blitz/releases/tag/v1.4.6
 [1.4.5]: https://github.com/ldeso/blitz/releases/tag/v1.4.5

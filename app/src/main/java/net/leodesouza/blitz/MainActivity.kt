@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -86,7 +87,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Enable the edge-to-edge display, startCounter the activity and compose a chess clock. */
+    /** Enable the [orientationEventListener] after [onCreate] or [onRestart]. */
+    override fun onStart() {
+        super.onStart()
+        orientationEventListener.enable()
+    }
+
+    /** Disable the [orientationEventListener] when the activity is no longer visible. */
+    override fun onStop() {
+        super.onStop()
+        orientationEventListener.disable()
+    }
+
+    /** Start the activity, [enableEdgeToEdge] and [setContent] to a chess clock. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.Transparent.toArgb()),
@@ -100,43 +113,21 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             Counter(
-                durationMinutes = 5L,
-                incrementSeconds = 3L,
-                delayMillis = 100L,
+                durationMinutes = 5,
+                incrementSeconds = 3,
+                delayMillis = 100,
                 window = window,
                 isBlackRightHanded = { isLeaningRight.value },
-            ) { whiteTime, blackTime, onClick, onDragStart, onDragEnd, onHorizontalDrag, onVerticalDrag, onKeyEvent ->
-                ChessClock(
-                    whiteTime,
-                    blackTime,
-                    isLeaningRight.value,
-                    onClick,
-                    onDragStart,
-                    onDragEnd,
-                    onHorizontalDrag,
-                    onVerticalDrag,
-                    onKeyEvent
-                )
+            ) { chessClockPolicy ->
+                ChessClock(chessClockPolicy)
             }
         }
-    }
-
-    /** Enable the orientation event listener after [onCreate] or [onRestart]. */
-    override fun onStart() {
-        super.onStart()
-        orientationEventListener.enable()
-    }
-
-    /** Disable the orientation event listener when the activity is no longer visible. */
-    override fun onStop() {
-        super.onStop()
-        orientationEventListener.disable()
     }
 }
 
 /**
  * Basic element that displays [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D", in a given [style]
- * and accepting a given [modifier] to apply to the layout node.
+ * and accepting a given [modifier] to apply to its layout node.
  */
 @Composable
 fun BasicTime(
@@ -149,52 +140,68 @@ fun BasicTime(
     val monospaceStyle = style.merge(fontFamily = Monospace)
     CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
         Row(modifier) {
-            if (hours == "0") {
-                BasicText(text = minutes, style = monospaceStyle)
-                BasicText(text = ":", style = style)
-                BasicText(text = seconds, style = monospaceStyle)
-                BasicText(text = ".", style = style)
-                BasicText(text = (tenthsOfSeconds % 10L).toString(), style = monospaceStyle)
-            } else {
+            if (hours != "0") {
                 BasicText(text = hours, style = monospaceStyle)
                 BasicText(text = ":", style = style)
-                BasicText(text = minutes, style = monospaceStyle)
-                BasicText(text = ":", style = style)
-                BasicText(text = seconds, style = monospaceStyle)
+            }
+            BasicText(text = minutes, style = monospaceStyle)
+            BasicText(text = ":", style = style)
+            BasicText(text = seconds, style = monospaceStyle)
+            if (hours == "0") {
+                BasicText(text = ".", style = style)
+                BasicText(text = (tenthsOfSeconds % 10L).toString(), style = monospaceStyle)
             }
         }
     }
 }
 
+/** Policy for a chess clock, that is a collection of its state and its input event callbacks. */
+@Stable
+interface ChessClockPolicy {
+    /** Time of the first player in milliseconds. */
+    val whiteTime: Long
+
+    /** Time of the second player in milliseconds. */
+    val blackTime: Long
+
+    /** Whether to orient for a right-handed black player when the time is shown sideways. */
+    val isBlackRightHanded: Boolean
+
+    /** Callback to call on a click event. */
+    val onClick: () -> Unit
+
+    /** Callback to call at the beginning of a drag event. */
+    val onDragStart: (Offset) -> Unit
+
+    /** Callback to call at the end of a successful drag event. */
+    val onDragEnd: () -> Unit
+
+    /** Callback to call during a horizontal drag event. */
+    val onHorizontalDrag: (PointerInputChange, Float) -> Unit
+
+    /** Callback to call during a vertical drag event. */
+    val onVerticalDrag: (PointerInputChange, Float) -> Unit
+
+    /** Callback to call on a key event. */
+    val onKeyEvent: (KeyEvent) -> Boolean
+}
+
 /**
- * Chess clock displaying [whiteTime] and [blackTime] in an orientation that depends on whether
- * [isBlackRightHanded], and calling the [onClick] callback on click events, the [onDragStart]
- * followed by [onHorizontalDrag] or [onVerticalDrag] then [onDragEnd] callbacks on drag events, and
- * the [onKeyEvent] callback on key events.
+ * Chess clock displaying the remaining time for two players and handling user interactions
+ * according to a given [policy].
  */
-@Preview
 @Composable
-fun ChessClock(
-    whiteTime: Long = 303_000L,
-    blackTime: Long = 303_000L,
-    isBlackRightHanded: Boolean = true,
-    onClick: () -> Unit = {},
-    onDragStart: (Offset) -> Unit = {},
-    onDragEnd: () -> Unit = {},
-    onHorizontalDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
-    onVerticalDrag: (PointerInputChange, Float) -> Unit = { _: PointerInputChange, _: Float -> },
-    onKeyEvent: (KeyEvent) -> Boolean = { false },
-) {
+fun ChessClock(policy: ChessClockPolicy) {
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val rotation = if (isLandscape) {
         0F
-    } else if (isBlackRightHanded) {
+    } else if (policy.isBlackRightHanded) {
         -90F
     } else {
         90F
     }
-    val blackColor = if (blackTime > 0L) Color.White else Color.Red
-    val whiteColor = if (whiteTime > 0L) Color.Black else Color.Red
+    val whiteColor = if (policy.whiteTime > 0L) Color.Black else Color.Red
+    val blackColor = if (policy.blackTime > 0L) Color.White else Color.Red
     val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
     val fontSize = with(LocalDensity.current) { textHeight.toSp() }
     val fontWeight = Bold
@@ -202,25 +209,25 @@ fun ChessClock(
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            onClick = onClick,
+            onClick = policy.onClick,
         )
         .pointerInput(Unit) {
             detectHorizontalDragGestures(
-                onDragStart = onDragStart,
-                onDragEnd = onDragEnd,
-                onHorizontalDrag = onHorizontalDrag,
+                onDragStart = policy.onDragStart,
+                onDragEnd = policy.onDragEnd,
+                onHorizontalDrag = policy.onHorizontalDrag,
             )
         }
         .pointerInput(Unit) {
             detectVerticalDragGestures(
-                onDragStart = onDragStart,
-                onDragEnd = onDragEnd,
-                onVerticalDrag = onVerticalDrag,
+                onDragStart = policy.onDragStart,
+                onDragEnd = policy.onDragEnd,
+                onVerticalDrag = policy.onVerticalDrag,
             )
         }
-        .onKeyEvent(onKeyEvent = onKeyEvent)) {
+        .onKeyEvent(onKeyEvent = policy.onKeyEvent)) {
         BasicTime(
-            blackTime,
+            policy.blackTime,
             modifier = Modifier
                 .background(Color.Black)
                 .rotate(rotation)
@@ -230,7 +237,7 @@ fun ChessClock(
             style = TextStyle(color = blackColor, fontSize = fontSize, fontWeight = fontWeight),
         )
         BasicTime(
-            whiteTime,
+            policy.whiteTime,
             modifier = Modifier
                 .background(Color.White)
                 .rotate(rotation)
@@ -242,21 +249,34 @@ fun ChessClock(
     }
 }
 
+/** [ChessClock] preview in Android Studio. */
+@Preview
+@Composable
+fun ChessClockPreview() {
+    ChessClock(object : ChessClockPolicy {
+        override val whiteTime = 303_000L
+        override val blackTime = 303_000L
+        override val isBlackRightHanded = true
+        override val onClick = {}
+        override val onDragStart = { _: Offset -> }
+        override val onDragEnd = {}
+        override val onHorizontalDrag = { _: PointerInputChange, _: Float -> }
+        override val onVerticalDrag = { _: PointerInputChange, _: Float -> }
+        override val onKeyEvent = { _: KeyEvent -> false }
+    })
+}
+
 /**
  * Two-player time counter initially starting from [durationMinutes] and adding [incrementSeconds]
- * before each turn with a given [delayMillis] before each recomposition, and where back events
- * pauseCounter or reset the time.
+ * before each turn, with a given [delayMillis] before each recomposition, and where back events
+ * pause or reset the time.
  *
  * @param[durationMinutes] Initial duration in minutes.
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
- * @param[window] Window for which to keep the screen on when time is running.
+ * @param[window] Window for which to keep the screen on while the counter is counting.
  * @param[isBlackRightHanded] Whether to flip the dragging direction in portrait mode.
- * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
- *     well as callbacks to be triggered by click, drag and key events. The `onClick` event callback
- *     resumes or triggers next turn, while the `onDragStart`, `onHorizontalDrag`, `onVerticalDrag`,
- *     `onDragStart` and `onKeyEvent` callbacks allow changing the duration and time increment to
- *     different values.
+ * @param[content] Composable content that accepts a [ChessClockPolicy].
  */
 @Composable
 fun Counter(
@@ -265,16 +285,7 @@ fun Counter(
     delayMillis: Long,
     window: Window,
     isBlackRightHanded: () -> Boolean,
-    content: @Composable (
-        whiteTime: Long,
-        blackTime: Long,
-        onClick: () -> Unit,
-        onDragStart: (Offset) -> Unit,
-        onDragEnd: () -> Unit,
-        onHorizontalDrag: (PointerInputChange, Float) -> Unit,
-        onVerticalDrag: (PointerInputChange, Float) -> Unit,
-        onKeyEvent: (KeyEvent) -> Boolean,
-    ) -> Unit
+    content: @Composable (ChessClockPolicy) -> Unit
 ) {
     val initialDuration = durationMinutes * 60_000L
     val initialIncrement = incrementSeconds * 1_000L
@@ -286,7 +297,7 @@ fun Counter(
     var increment by rememberSaveable { mutableLongStateOf(initialIncrement) }
     var whiteTime by rememberSaveable { mutableLongStateOf(duration + increment) }
     var blackTime by rememberSaveable { mutableLongStateOf(duration + increment) }
-    var targetElapsedRealtime by rememberSaveable { mutableLongStateOf(0L) }
+    var finalElapsedRealtime by rememberSaveable { mutableLongStateOf(0L) }
     var isWhiteTurn by rememberSaveable { mutableStateOf(true) }
     var isStarted by rememberSaveable { mutableStateOf(false) }
     var isFinished by rememberSaveable { mutableStateOf(false) }
@@ -319,7 +330,7 @@ fun Counter(
     }
 
     fun startCounter() {
-        targetElapsedRealtime = elapsedRealtime() + getPlayerTime()
+        finalElapsedRealtime = elapsedRealtime() + getPlayerTime()
         window.addFlags(FLAG_KEEP_SCREEN_ON)
         isStarted = true
         isCounting = true
@@ -338,11 +349,10 @@ fun Counter(
     }
 
     fun nextTurn() {
-        val remainingTime = targetElapsedRealtime - elapsedRealtime()
-        val newTime = if (remainingTime > 0L) (remainingTime + increment) else 0L
-        setPlayerTime(newTime)
+        val remainingTime = finalElapsedRealtime - elapsedRealtime()
+        if (remainingTime > 0L) setPlayerTime(remainingTime + increment) else setPlayerTime(0L)
         isWhiteTurn = !isWhiteTurn
-        targetElapsedRealtime = elapsedRealtime() + getPlayerTime()
+        finalElapsedRealtime = elapsedRealtime() + getPlayerTime()
     }
 
     fun saveMinutesAndSeconds() {
@@ -355,8 +365,8 @@ fun Counter(
         }
     }
 
-    fun addMinutes(minutes: Float, addToSavedMinutes: Boolean = false) {
-        if (!addToSavedMinutes) saveMinutesAndSeconds()
+    fun addMinutes(minutes: Float, isAddedToSavedMinutes: Boolean = false) {
+        if (!isAddedToSavedMinutes) saveMinutesAndSeconds()
         if (isStarted) {
             val newSeconds = savedSeconds.roundToLong()
             val minMinutes = -newSeconds / 60L + if (newSeconds % 60L == 0L) 1F else 0F
@@ -372,8 +382,8 @@ fun Counter(
         }
     }
 
-    fun addSeconds(seconds: Float, addToSavedSeconds: Boolean = false) {
-        if (!addToSavedSeconds) saveMinutesAndSeconds()
+    fun addSeconds(seconds: Float, isAddedToSavedSeconds: Boolean = false) {
+        if (!isAddedToSavedSeconds) saveMinutesAndSeconds()
         if (isStarted) {
             val newMinutes = savedMinutes.roundToLong()
             val minSeconds = 1F - newMinutes * 60L
@@ -387,67 +397,6 @@ fun Counter(
             increment = savedSeconds.roundToLong() * 1_000L
             applyConfig()
         }
-    }
-
-    val onClick = {
-        if (isCounting) {
-            nextTurn()
-        } else if (!isFinished) {
-            startCounter()
-        }
-    }
-
-    val onDragStart = { _: Offset ->
-        if (!isCounting && !isFinished) {
-            saveMinutesAndSeconds()
-        }
-    }
-
-    val onDragEnd = {
-        if (isCounting) {
-            nextTurn()
-        }
-    }
-
-    val onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
-        if (!isCounting && !isFinished) {
-            if (isLandscape) {
-                val sign = if (isRtl) -1F else 1F
-                addMinutes(sign * dragSensitivity * dragAmount, addToSavedMinutes = true)
-            } else {
-                val sign = if (isBlackRightHanded.invoke()) -1F else 1F
-                addSeconds(sign * dragSensitivity * dragAmount, addToSavedSeconds = true)
-            }
-        }
-    }
-
-    val onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
-        if (!isCounting && !isFinished) {
-            if (isLandscape) {
-                val sign = -1F
-                addSeconds(sign * dragSensitivity * dragAmount, addToSavedSeconds = true)
-            } else {
-                val sign = if (isBlackRightHanded.invoke() xor isRtl) -1F else 1F
-                addMinutes(sign * dragSensitivity * dragAmount, addToSavedMinutes = true)
-            }
-        }
-    }
-
-    val onKeyEvent = onKeyEvent@{ it: KeyEvent ->
-        var isConsumed = false
-        if (it.type == KeyDown) {
-            isConsumed = true
-            if (!isCounting && !isFinished) {
-                when (it.key) {
-                    DirectionUp -> addSeconds(1F)
-                    DirectionDown -> addSeconds(-1F)
-                    DirectionRight -> addMinutes(if (isRtl) -1F else 1F)
-                    DirectionLeft -> addMinutes(if (isRtl) 1F else -1F)
-                    else -> isConsumed = false
-                }
-            }
-        }
-        isConsumed
     }
 
     BackHandler(isCounting) {
@@ -465,7 +414,7 @@ fun Counter(
     LaunchedEffect(isCounting, whiteTime, blackTime) {
         if (isCounting) {
             if (whiteTime > 0L && blackTime > 0L) {
-                val remainingTime = targetElapsedRealtime - elapsedRealtime()
+                val remainingTime = finalElapsedRealtime - elapsedRealtime()
                 val correctedDelay = remainingTime % delayMillis
                 delay(correctedDelay)
                 setPlayerTime(remainingTime - correctedDelay)
@@ -476,14 +425,72 @@ fun Counter(
         }
     }
 
-    content.invoke(
-        whiteTime,
-        blackTime,
-        onClick,
-        onDragStart,
-        onDragEnd,
-        onHorizontalDrag,
-        onVerticalDrag,
-        onKeyEvent
-    )
+    content.invoke(object : ChessClockPolicy {
+        override val whiteTime = whiteTime
+
+        override val blackTime = blackTime
+
+        override val isBlackRightHanded = isBlackRightHanded.invoke()
+
+        override val onClick = {
+            if (isCounting) {
+                nextTurn()
+            } else if (!isFinished) {
+                startCounter()
+            }
+        }
+
+        override val onDragStart = { _: Offset ->
+            if (!isCounting && !isFinished) {
+                saveMinutesAndSeconds()
+            }
+        }
+
+        override val onDragEnd = {
+            if (isCounting) {
+                nextTurn()
+            }
+        }
+
+        override val onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
+            if (!isCounting && !isFinished) {
+                if (isLandscape) {
+                    val sign = if (isRtl) -1F else 1F
+                    addMinutes(sign * dragSensitivity * dragAmount, isAddedToSavedMinutes = true)
+                } else {
+                    val sign = if (isBlackRightHanded.invoke()) -1F else 1F
+                    addSeconds(sign * dragSensitivity * dragAmount, isAddedToSavedSeconds = true)
+                }
+            }
+        }
+
+        override val onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
+            if (!isCounting && !isFinished) {
+                if (isLandscape) {
+                    val sign = -1F
+                    addSeconds(sign * dragSensitivity * dragAmount, isAddedToSavedSeconds = true)
+                } else {
+                    val sign = if (isBlackRightHanded.invoke() xor isRtl) -1F else 1F
+                    addMinutes(sign * dragSensitivity * dragAmount, isAddedToSavedMinutes = true)
+                }
+            }
+        }
+
+        override val onKeyEvent = { it: KeyEvent ->
+            var isConsumed = false
+            if (it.type == KeyDown) {
+                isConsumed = true
+                if (!isCounting && !isFinished) {
+                    when (it.key) {
+                        DirectionUp -> addSeconds(1F)
+                        DirectionDown -> addSeconds(-1F)
+                        DirectionRight -> addMinutes(if (isRtl) -1F else 1F)
+                        DirectionLeft -> addMinutes(if (isRtl) 1F else -1F)
+                        else -> isConsumed = false
+                    }
+                }
+            }
+            isConsumed
+        }
+    })
 }

@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.6] - 2024-03-06
+
+This release is another refactor that makes triggering the next turn more consistent between tapping and dragging actions.
+
+### Bug Fix
+
+- Trigger next turn from the end of a drag action instead of its start
+
+### Notes
+
+- Refactor chess clock policy into an interface
+- Pass an immutable orientation state to its consumers
+
 ## [1.4.5] - 2024-03-05
 
 This release vastly increases the sensitivity to touch events when counting down.
@@ -272,6 +285,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.6]: https://github.com/ldeso/blitz/releases/tag/v1.4.6
 [1.4.5]: https://github.com/ldeso/blitz/releases/tag/v1.4.5
 [1.4.4]: https://github.com/ldeso/blitz/releases/tag/v1.4.4
 [1.4.3]: https://github.com/ldeso/blitz/releases/tag/v1.4.3

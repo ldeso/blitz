@@ -1,0 +1,1 @@
+• Trigger next turn from the end of a drag action instead of its start

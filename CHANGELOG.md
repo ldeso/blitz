@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.9] - 2024-03-06
+
+This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7].
+
+### Enhancement
+
+- Revert rounding up to nearest second above one hour
+
 ## [1.4.8] - 2024-03-06
 
 This release fixes a bug introduced in the last release where, above one hour, the displayed time would sometimes be off by up to one second.
@@ -305,6 +313,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.9]: https://github.com/ldeso/blitz/releases/tag/v1.4.9
 [1.4.8]: https://github.com/ldeso/blitz/releases/tag/v1.4.8
 [1.4.7]: https://github.com/ldeso/blitz/releases/tag/v1.4.7
 [1.4.6]: https://github.com/ldeso/blitz/releases/tag/v1.4.6

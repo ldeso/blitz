@@ -1,0 +1,1 @@
+• Revert rounding up to nearest second above one hour

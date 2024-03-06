@@ -133,23 +133,28 @@ class MainActivity : ComponentActivity() {
 fun BasicTime(
     timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
 ) {
-    val tenthsOfSeconds = (timeMillis + 50L) / 100L
-    val hours = (tenthsOfSeconds / 36_000L).toString()
-    val minutes = (tenthsOfSeconds % 36_000L / 600L).toString().padStart(2, '0')
-    val seconds = (tenthsOfSeconds % 600L / 10L).toString().padStart(2, '0')
-    val monospaceStyle = style.merge(fontFamily = Monospace)
+    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
+    val hours = timeTenthsOfSeconds / 36_000L
+    val minutes = timeTenthsOfSeconds % 36_000L / 600L
+    val seconds = if (hours == 0L) {
+        timeTenthsOfSeconds % 600L / 10L  // round down to the nearest second
+    } else {
+        (timeTenthsOfSeconds % 600L + 9L) / 10L  // round up to the nearest second
+    }
+    val monospace = style.merge(fontFamily = Monospace)
     CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
         Row(modifier) {
-            if (hours != "0") {
-                BasicText(text = hours, style = monospaceStyle)
+            if (hours != 0L) {
+                BasicText(text = "$hours", style = monospace)
                 BasicText(text = ":", style = style)
             }
-            BasicText(text = minutes, style = monospaceStyle)
+            BasicText(text = "$minutes".padStart(2, '0'), style = monospace)
             BasicText(text = ":", style = style)
-            BasicText(text = seconds, style = monospaceStyle)
-            if (hours == "0") {
+            BasicText(text = "$seconds".padStart(2, '0'), style = monospace)
+            if (hours == 0L) {
+                val tenthsOfSeconds = timeTenthsOfSeconds % 10L
                 BasicText(text = ".", style = style)
-                BasicText(text = (tenthsOfSeconds % 10L).toString(), style = monospaceStyle)
+                BasicText(text = "$tenthsOfSeconds", style = monospace)
             }
         }
     }

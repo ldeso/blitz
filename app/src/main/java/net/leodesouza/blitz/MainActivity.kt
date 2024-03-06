@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -71,17 +70,17 @@ import kotlin.math.roundToLong
  */
 class MainActivity : ComponentActivity() {
     /** Mutable state keeping track of the orientation. */
-    private val isBlackRightHanded = mutableStateOf(true)
+    private val isLeaningRight = mutableStateOf(true)
 
-    /** Event listener updating [isBlackRightHanded] based on the orientation of the device. */
+    /** Event listener updating [isLeaningRight] based on the orientation of the device. */
     private val orientationEventListener by lazy {
         object : OrientationEventListener(this) {
             override fun onOrientationChanged(orientation: Int) {
                 when (orientation) {
-                    in 10 until 135 -> isBlackRightHanded.value = true
-                    in 135 until 170 -> isBlackRightHanded.value = false
-                    in 190 until 225 -> isBlackRightHanded.value = true
-                    in 225 until 350 -> isBlackRightHanded.value = false
+                    in 10 until 135 -> isLeaningRight.value = true
+                    in 135 until 170 -> isLeaningRight.value = false
+                    in 190 until 225 -> isLeaningRight.value = true
+                    in 225 until 350 -> isLeaningRight.value = false
                 }
             }
         }
@@ -104,13 +103,13 @@ class MainActivity : ComponentActivity() {
                 durationMinutes = 5L,
                 incrementSeconds = 3L,
                 delayMillis = 100L,
-                isBlackRightHanded = isBlackRightHanded,
                 window = window,
+                isBlackRightHanded = { isLeaningRight.value },
             ) { whiteTime, blackTime, onClick, onDragStart, onDragEnd, onHorizontalDrag, onVerticalDrag, onKeyEvent ->
                 ChessClock(
                     whiteTime,
                     blackTime,
-                    isBlackRightHanded,
+                    isLeaningRight.value,
                     onClick,
                     onDragStart,
                     onDragEnd,
@@ -178,7 +177,7 @@ fun BasicTime(
 fun ChessClock(
     whiteTime: Long = 303_000L,
     blackTime: Long = 303_000L,
-    isBlackRightHanded: MutableState<Boolean> = mutableStateOf(true),
+    isBlackRightHanded: Boolean = true,
     onClick: () -> Unit = {},
     onDragStart: (Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
@@ -189,7 +188,7 @@ fun ChessClock(
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val rotation = if (isLandscape) {
         0F
-    } else if (isBlackRightHanded.value) {
+    } else if (isBlackRightHanded) {
         -90F
     } else {
         90F
@@ -251,8 +250,8 @@ fun ChessClock(
  * @param[durationMinutes] Initial duration in minutes.
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
- * @param[isBlackRightHanded] Whether to flip the orientation when using portrait mode.
  * @param[window] Window for which to keep the screen on when time is running.
+ * @param[isBlackRightHanded] Whether to flip the dragging direction in portrait mode.
  * @param[content] Composable taking `whiteTime` and `blackTime` in milliseconds as arguments, as
  *     well as callbacks to be triggered by click, drag and key events. The `onClick` event callback
  *     resumes or triggers next turn, while the `onDragStart`, `onHorizontalDrag`, `onVerticalDrag`,
@@ -264,8 +263,8 @@ fun Counter(
     durationMinutes: Long,
     incrementSeconds: Long,
     delayMillis: Long,
-    isBlackRightHanded: MutableState<Boolean>,
     window: Window,
+    isBlackRightHanded: () -> Boolean,
     content: @Composable (
         whiteTime: Long,
         blackTime: Long,
@@ -416,7 +415,7 @@ fun Counter(
                 val sign = if (isRtl) -1F else 1F
                 addMinutes(sign * dragSensitivity * dragAmount, addToSavedMinutes = true)
             } else {
-                val sign = if (isBlackRightHanded.value) -1F else 1F
+                val sign = if (isBlackRightHanded.invoke()) -1F else 1F
                 addSeconds(sign * dragSensitivity * dragAmount, addToSavedSeconds = true)
             }
         }
@@ -428,7 +427,7 @@ fun Counter(
                 val sign = -1F
                 addSeconds(sign * dragSensitivity * dragAmount, addToSavedSeconds = true)
             } else {
-                val sign = if (isBlackRightHanded.value xor isRtl) -1F else 1F
+                val sign = if (isBlackRightHanded.invoke() xor isRtl) -1F else 1F
                 addMinutes(sign * dragSensitivity * dragAmount, addToSavedMinutes = true)
             }
         }

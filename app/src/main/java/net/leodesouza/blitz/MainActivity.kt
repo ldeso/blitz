@@ -315,6 +315,9 @@ fun Counter(
     }
 
     fun setPlayerTime(timeMillis: Long) {
+        if (timeMillis <= 0L) {
+            isFinished = true
+        }
         if (isWhiteTurn) {
             whiteTime = timeMillis
         } else {
@@ -341,7 +344,15 @@ fun Counter(
         isCounting = true
     }
 
+    suspend fun advanceCounter() {
+        val remainingTime = finalElapsedRealtime - elapsedRealtime()
+        val correctedDelay = remainingTime % delayMillis
+        delay(correctedDelay)
+        setPlayerTime(remainingTime - correctedDelay)
+    }
+
     fun pauseCounter() {
+        setPlayerTime(finalElapsedRealtime - elapsedRealtime())
         window.clearFlags(FLAG_KEEP_SCREEN_ON)
         isCounting = false
     }
@@ -404,6 +415,12 @@ fun Counter(
         }
     }
 
+    LaunchedEffect(isCounting, whiteTime, blackTime) {
+        if (isCounting) {
+            if (isFinished) pauseCounter() else advanceCounter()
+        }
+    }
+
     BackHandler(isCounting) {
         pauseCounter()
     }
@@ -414,20 +431,6 @@ fun Counter(
 
     BackHandler(!isStarted && (duration != initialDuration || increment != initialIncrement)) {
         resetConfig()
-    }
-
-    LaunchedEffect(isCounting, whiteTime, blackTime) {
-        if (isCounting) {
-            if (whiteTime > 0L && blackTime > 0L) {
-                val remainingTime = finalElapsedRealtime - elapsedRealtime()
-                val correctedDelay = remainingTime % delayMillis
-                delay(correctedDelay)
-                setPlayerTime(remainingTime - correctedDelay)
-            } else {
-                isFinished = true
-                pauseCounter()
-            }
-        }
     }
 
     content.invoke(object : ChessClockPolicy {

@@ -133,28 +133,27 @@ class MainActivity : ComponentActivity() {
 fun BasicTime(
     timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
 ) {
-    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
+    val isLessThanOneHour = timeMillis < 3_600_000L
+    val roundingCorrection = if (isLessThanOneHour) 0L else 9L
+    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L + roundingCorrection
     val hours = timeTenthsOfSeconds / 36_000L
     val minutes = timeTenthsOfSeconds % 36_000L / 600L
-    val seconds = if (hours == 0L) {
-        timeTenthsOfSeconds % 600L / 10L  // round down to the nearest second
-    } else {
-        (timeTenthsOfSeconds % 600L + 9L) / 10L  // round up to the nearest second
-    }
+    val seconds = timeTenthsOfSeconds % 600L / 10L
+    val tenthsOfSeconds = timeTenthsOfSeconds % 10L
     val monospace = style.merge(fontFamily = Monospace)
+
     CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
         Row(modifier) {
-            if (hours != 0L) {
-                BasicText(text = "$hours", style = monospace)
-                BasicText(text = ":", style = style)
+            if (!isLessThanOneHour) {
+                BasicText("$hours", style = monospace)
+                BasicText(":", style = style)
             }
-            BasicText(text = "$minutes".padStart(2, '0'), style = monospace)
-            BasicText(text = ":", style = style)
-            BasicText(text = "$seconds".padStart(2, '0'), style = monospace)
-            if (hours == 0L) {
-                val tenthsOfSeconds = timeTenthsOfSeconds % 10L
-                BasicText(text = ".", style = style)
-                BasicText(text = "$tenthsOfSeconds", style = monospace)
+            BasicText("$minutes".padStart(2, '0'), style = monospace)
+            BasicText(":", style = style)
+            BasicText("$seconds".padStart(2, '0'), style = monospace)
+            if (isLessThanOneHour) {
+                BasicText(".", style = style)
+                BasicText("$tenthsOfSeconds", style = monospace)
             }
         }
     }
@@ -210,6 +209,7 @@ fun ChessClock(policy: ChessClockPolicy) {
     val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
     val fontSize = with(LocalDensity.current) { textHeight.toSp() }
     val fontWeight = Bold
+
     Column(modifier = Modifier
         .clickable(
             interactionSource = remember { MutableInteractionSource() },

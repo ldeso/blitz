@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.7] - 2024-03-06
+
+This release improves the precision of the counter and of the time display.
+
+### Enhancement
+
+- Round up to show the current (thenth of a) second
+
+### Bug Fix
+
+- Update current time on pause
+
 ## [1.4.6] - 2024-03-06
 
 This release is another refactor that makes triggering the next turn more consistent between tapping and dragging actions.
@@ -285,6 +297,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.4.7]: https://github.com/ldeso/blitz/releases/tag/v1.4.7
 [1.4.6]: https://github.com/ldeso/blitz/releases/tag/v1.4.6
 [1.4.5]: https://github.com/ldeso/blitz/releases/tag/v1.4.5
 [1.4.4]: https://github.com/ldeso/blitz/releases/tag/v1.4.4

@@ -1,0 +1,2 @@
+• Round up to show the current (thenth of a) second
+• Update current time on pause

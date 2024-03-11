@@ -8,7 +8,6 @@ import android.view.OrientationEventListener
 import android.view.Surface.ROTATION_0
 import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_90
-import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
 import androidx.activity.ComponentActivity
@@ -126,8 +125,9 @@ class MainActivity : ComponentActivity() {
                 durationMinutes = 5,
                 incrementSeconds = 3,
                 delayMillis = 100,
-                window = window,
                 isLeaningRight = { isLeaningRight.value },
+                onStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
+                onPause = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
             ) { chessClockPolicy ->
                 ChessClock(chessClockPolicy)
             }
@@ -285,8 +285,9 @@ fun ChessClockPreview() {
  * @param[durationMinutes] Initial duration in minutes.
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
- * @param[window] Window for which to keep the screen on while the counter is counting.
  * @param[isLeaningRight] Whether to flip the dragging direction in portrait mode.
+ * @param[onStart] Callback to call when the counter starts.
+ * @param[onPause] Callback to call when the counter pauses.
  * @param[content] Composable content that accepts a [ChessClockPolicy].
  */
 @Composable
@@ -294,8 +295,9 @@ fun Counter(
     durationMinutes: Long,
     incrementSeconds: Long,
     delayMillis: Long,
-    window: Window,
     isLeaningRight: () -> Boolean,
+    onStart: () -> Unit,
+    onPause: () -> Unit,
     content: @Composable (ChessClockPolicy) -> Unit
 ) {
     val initialDuration = durationMinutes * 60_000L
@@ -345,9 +347,9 @@ fun Counter(
 
     fun startCounter() {
         finalElapsedRealtime = elapsedRealtime() + getPlayerTime()
-        window.addFlags(FLAG_KEEP_SCREEN_ON)
         isStarted = true
         isCounting = true
+        onStart.invoke()
     }
 
     suspend fun advanceCounter() {
@@ -359,8 +361,8 @@ fun Counter(
 
     fun pauseCounter() {
         setPlayerTime(finalElapsedRealtime - elapsedRealtime())
-        window.clearFlags(FLAG_KEEP_SCREEN_ON)
         isCounting = false
+        onPause.invoke()
     }
 
     fun resetCounter() {

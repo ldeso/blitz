@@ -140,13 +140,13 @@ interface ChessClockModel {
     /** Time for the second player in milliseconds. */
     val blackTime: Long
 
-    /** Whether the chess clock has started ticking. */
+    /** Whether the clock has started ticking. */
     val isStarted: Boolean
 
-    /** Whether the chess clock is currently ticking. */
+    /** Whether the clock is currently ticking. */
     val isTicking: Boolean
 
-    /** Whether the chess clock is currently paused. */
+    /** Whether the clock is currently paused. */
     val isPaused: Boolean
 
     /** Whether the duration and time increment are set to their default value. */
@@ -188,12 +188,14 @@ interface ChessClockModel {
  * @param[whiteTimeState] Mutable state holding the time for the first player in milliseconds.
  * @param[blackTimeState] Mutable state holding the time for the second player in milliseconds.
  * @param[targetRealtimeState] Mutable state holding the time since boot where the clock should end.
- * @param[isWhiteTurnState] Mutable state holding whether the clock is ticking for the first player.
- * @param[isStartedState] Mutable state holding whether the chess clock has started ticking.
- * @param[isTickingState] Mutable state holding whether the chess clock is currently ticking.
+ * @param[isWhiteTurnState] Mutable state holding whether it is the turn of the first player.
+ * @param[isStartedState] Mutable state holding whether the clock has started ticking.
+ * @param[isTickingState] Mutable state holding whether the clock is currently ticking.
+ * @param[defaultDuration] The default initial time for each player in milliseconds.
+ * @param[defaultIncrement] The default time increment in milliseconds.
  * @param[tickPeriod] Period between each tick in milliseconds.
- * @param[onStart] Callback called when the chess clock starts ticking.
- * @param[onPause] Callback called when the chess clock stops ticking.
+ * @param[onStart] Callback called when the clock starts ticking.
+ * @param[onPause] Callback called when the clock stops ticking.
  */
 @Stable
 class ChessClockModelImpl(
@@ -205,12 +207,12 @@ class ChessClockModelImpl(
     isWhiteTurnState: MutableState<Boolean>,
     isStartedState: MutableState<Boolean>,
     isTickingState: MutableState<Boolean>,
+    private val defaultDuration: Long,
+    private val defaultIncrement: Long,
     private val tickPeriod: Long,
     private val onStart: () -> Unit,
     private val onPause: () -> Unit,
 ) : ChessClockModel {
-    private val defaultDuration: Long by lazy { duration }
-    private val defaultIncrement: Long by lazy { increment }
     private var duration: Long by durationState
     private var increment: Long by incrementState
     override var whiteTime: Long by whiteTimeState
@@ -367,6 +369,8 @@ fun rememberChessClockModel(
         isWhiteTurnState = rememberSaveable { mutableStateOf(true) },
         isStartedState = rememberSaveable { mutableStateOf(false) },
         isTickingState = rememberSaveable { mutableStateOf(false) },
+        defaultDuration = duration,
+        defaultIncrement = increment,
         tickPeriod = tickPeriodMillis,
         onStart = onStart,
         onPause = onPause,

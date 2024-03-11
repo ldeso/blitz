@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0] - 2024-03-11
+
+This release is a big refactor of the code that tries to follow the principle of separation of concerns, and introduces a better support of the orientation on all devices.
+
+### New Feature
+
+- Properly handle orientation on all devices
+
+### Notes
+
+- Separate chess clock model, view and controller
+- Change order of declarations
+- Use callbacks instead of passing Window to composable
+
 ## [1.4.9] - 2024-03-06
 
 This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7].
@@ -313,6 +327,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.0]: https://github.com/ldeso/blitz/releases/tag/v1.5.0
 [1.4.9]: https://github.com/ldeso/blitz/releases/tag/v1.4.9
 [1.4.8]: https://github.com/ldeso/blitz/releases/tag/v1.4.8
 [1.4.7]: https://github.com/ldeso/blitz/releases/tag/v1.4.7

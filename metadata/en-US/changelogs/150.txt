@@ -1,0 +1,1 @@
+• Properly handle orientation on all devices

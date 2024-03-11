@@ -135,38 +135,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * Basic element that displays [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D", in a given [style]
- * and accepting a given [modifier] to apply to its layout node.
- */
-@Composable
-fun BasicTime(
-    timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
-) {
-    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
-    val hours = timeTenthsOfSeconds / 36_000L
-    val minutes = timeTenthsOfSeconds % 36_000L / 600L
-    val seconds = timeTenthsOfSeconds % 600L / 10L
-    val tenthsOfSeconds = timeTenthsOfSeconds % 10L
-    val monospace = style.merge(fontFamily = Monospace)
-
-    CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
-        Row(modifier) {
-            if (hours != 0L) {
-                BasicText("$hours", style = monospace)
-                BasicText(":", style = style)
-            }
-            BasicText("$minutes".padStart(2, '0'), style = monospace)
-            BasicText(":", style = style)
-            BasicText("$seconds".padStart(2, '0'), style = monospace)
-            if (hours == 0L) {
-                BasicText(".", style = style)
-                BasicText("$tenthsOfSeconds", style = monospace)
-            }
-        }
-    }
-}
-
 /** Policy for a chess clock, that is a collection of its state and its input event callbacks. */
 @Stable
 interface ChessClockPolicy {
@@ -196,85 +164,6 @@ interface ChessClockPolicy {
 
     /** Callback to call on a key event. */
     val onKeyEvent: (KeyEvent) -> Boolean
-}
-
-/**
- * Chess clock displaying the remaining time for two players and handling user interactions
- * according to a given [policy].
- */
-@Composable
-fun ChessClock(policy: ChessClockPolicy) {
-    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
-    val rotation = if (isLandscape) {
-        0F
-    } else {
-        if (policy.isLeaningRight) -90F else 90F
-    }
-    val whiteColor = if (policy.whiteTime > 0L) Color.Black else Color.Red
-    val blackColor = if (policy.blackTime > 0L) Color.White else Color.Red
-    val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
-    val fontSize = with(LocalDensity.current) { textHeight.toSp() }
-    val fontWeight = Bold
-
-    Column(modifier = Modifier
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = policy.onClick,
-        )
-        .pointerInput(Unit) {
-            detectHorizontalDragGestures(
-                onDragStart = policy.onDragStart,
-                onDragEnd = policy.onDragEnd,
-                onHorizontalDrag = policy.onHorizontalDrag,
-            )
-        }
-        .pointerInput(Unit) {
-            detectVerticalDragGestures(
-                onDragStart = policy.onDragStart,
-                onDragEnd = policy.onDragEnd,
-                onVerticalDrag = policy.onVerticalDrag,
-            )
-        }
-        .onKeyEvent(onKeyEvent = policy.onKeyEvent)) {
-        BasicTime(
-            policy.blackTime,
-            modifier = Modifier
-                .background(Color.Black)
-                .rotate(rotation)
-                .weight(1F)
-                .fillMaxSize()
-                .wrapContentSize(),
-            style = TextStyle(color = blackColor, fontSize = fontSize, fontWeight = fontWeight),
-        )
-        BasicTime(
-            policy.whiteTime,
-            modifier = Modifier
-                .background(Color.White)
-                .rotate(rotation)
-                .weight(1F)
-                .fillMaxSize()
-                .wrapContentSize(),
-            style = TextStyle(color = whiteColor, fontSize = fontSize, fontWeight = fontWeight),
-        )
-    }
-}
-
-/** [ChessClock] preview in Android Studio. */
-@Preview
-@Composable
-fun ChessClockPreview() {
-    ChessClock(object : ChessClockPolicy {
-        override val whiteTime = 303_000L
-        override val blackTime = 303_000L
-        override val isLeaningRight = true
-        override val onClick = {}
-        override val onDragStart = { _: Offset -> }
-        override val onDragEnd = {}
-        override val onHorizontalDrag = { _: PointerInputChange, _: Float -> }
-        override val onVerticalDrag = { _: PointerInputChange, _: Float -> }
-        override val onKeyEvent = { _: KeyEvent -> false }
-    })
 }
 
 /**
@@ -508,5 +397,116 @@ fun Counter(
             }
             isConsumed
         }
+    })
+}
+
+/**
+ * Basic element that displays [timeMillis] in the form "MM:SS.D" or "H:MM:SS.D", in a given [style]
+ * and accepting a given [modifier] to apply to its layout node.
+ */
+@Composable
+fun BasicTime(
+    timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
+) {
+    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
+    val hours = timeTenthsOfSeconds / 36_000L
+    val minutes = timeTenthsOfSeconds % 36_000L / 600L
+    val seconds = timeTenthsOfSeconds % 600L / 10L
+    val tenthsOfSeconds = timeTenthsOfSeconds % 10L
+    val monospace = style.merge(fontFamily = Monospace)
+
+    CompositionLocalProvider(LocalLayoutDirection provides Ltr) {
+        Row(modifier) {
+            if (hours != 0L) {
+                BasicText("$hours", style = monospace)
+                BasicText(":", style = style)
+            }
+            BasicText("$minutes".padStart(2, '0'), style = monospace)
+            BasicText(":", style = style)
+            BasicText("$seconds".padStart(2, '0'), style = monospace)
+            if (hours == 0L) {
+                BasicText(".", style = style)
+                BasicText("$tenthsOfSeconds", style = monospace)
+            }
+        }
+    }
+}
+
+/**
+ * Chess clock displaying the remaining time for two players and handling user interactions
+ * according to a given [policy].
+ */
+@Composable
+fun ChessClock(policy: ChessClockPolicy) {
+    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
+    val rotation = if (isLandscape) {
+        0F
+    } else {
+        if (policy.isLeaningRight) -90F else 90F
+    }
+    val whiteColor = if (policy.whiteTime > 0L) Color.Black else Color.Red
+    val blackColor = if (policy.blackTime > 0L) Color.White else Color.Red
+    val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
+    val fontSize = with(LocalDensity.current) { textHeight.toSp() }
+    val fontWeight = Bold
+
+    Column(modifier = Modifier
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = policy.onClick,
+        )
+        .pointerInput(Unit) {
+            detectHorizontalDragGestures(
+                onDragStart = policy.onDragStart,
+                onDragEnd = policy.onDragEnd,
+                onHorizontalDrag = policy.onHorizontalDrag,
+            )
+        }
+        .pointerInput(Unit) {
+            detectVerticalDragGestures(
+                onDragStart = policy.onDragStart,
+                onDragEnd = policy.onDragEnd,
+                onVerticalDrag = policy.onVerticalDrag,
+            )
+        }
+        .onKeyEvent(onKeyEvent = policy.onKeyEvent)) {
+        BasicTime(
+            policy.blackTime,
+            modifier = Modifier
+                .background(Color.Black)
+                .rotate(rotation)
+                .weight(1F)
+                .fillMaxSize()
+                .wrapContentSize(),
+            style = TextStyle(color = blackColor, fontSize = fontSize, fontWeight = fontWeight),
+        )
+        BasicTime(
+            policy.whiteTime,
+            modifier = Modifier
+                .background(Color.White)
+                .rotate(rotation)
+                .weight(1F)
+                .fillMaxSize()
+                .wrapContentSize(),
+            style = TextStyle(color = whiteColor, fontSize = fontSize, fontWeight = fontWeight),
+        )
+    }
+}
+
+/** [ChessClock] preview in Android Studio. */
+@Preview
+@Composable
+fun ChessClockPreview() {
+    ChessClock(object : ChessClockPolicy {
+        override val whiteTime = 303_000L
+        override val blackTime = 303_000L
+        override val isLeaningRight = true
+        override val onClick = {}
+        override val onDragStart = { _: Offset -> }
+        override val onDragEnd = {}
+        override val onHorizontalDrag = { _: PointerInputChange, _: Float -> }
+        override val onVerticalDrag = { _: PointerInputChange, _: Float -> }
+        override val onKeyEvent = { _: KeyEvent -> false }
     })
 }

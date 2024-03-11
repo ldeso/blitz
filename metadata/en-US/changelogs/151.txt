@@ -1,0 +1,1 @@
+• Fix bug where changing the language would change the default duration and increment

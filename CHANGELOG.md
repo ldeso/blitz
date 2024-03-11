@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1] - 2024-03-11
+
+This release fixes a bug introduced in version [1.5.0] where changing the language would change the default duration and time increment.
+
+### Bug Fix
+
+- Fix bug where changing the language would change the default duration and increment
+
 ## [1.5.0] - 2024-03-11
 
 This release is a big refactor of the code that tries to follow the principle of separation of concerns, and introduces a better support of the orientation on all devices.
@@ -327,6 +335,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.1]: https://github.com/ldeso/blitz/releases/tag/v1.5.1
 [1.5.0]: https://github.com/ldeso/blitz/releases/tag/v1.5.0
 [1.4.9]: https://github.com/ldeso/blitz/releases/tag/v1.4.9
 [1.4.8]: https://github.com/ldeso/blitz/releases/tag/v1.4.8

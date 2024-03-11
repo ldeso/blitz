@@ -5,6 +5,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock.elapsedRealtime
 import android.view.OrientationEventListener
+import android.view.Surface.ROTATION_0
+import android.view.Surface.ROTATION_180
+import android.view.Surface.ROTATION_90
 import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
@@ -60,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getDisplayOrDefault
 import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 
@@ -75,13 +79,19 @@ class MainActivity : ComponentActivity() {
 
     /** Event listener updating [isLeaningRight] based on the orientation of the device. */
     private val orientationEventListener by lazy {
-        object : OrientationEventListener(this) {
+        val activity = this
+        object : OrientationEventListener(activity) {
             override fun onOrientationChanged(orientation: Int) {
-                when (orientation) {
-                    in 10 until 135 -> isLeaningRight.value = true
-                    in 135 until 170 -> isLeaningRight.value = false
-                    in 190 until 225 -> isLeaningRight.value = true
-                    in 225 until 350 -> isLeaningRight.value = false
+                if (orientation == ORIENTATION_UNKNOWN) return
+                val rotation = when (getDisplayOrDefault(activity).rotation) {
+                    ROTATION_0 -> 0
+                    ROTATION_90 -> 90
+                    ROTATION_180 -> 180
+                    else -> 270
+                }
+                when ((orientation + rotation) % 360) {
+                    in 10 until 170 -> isLeaningRight.value = true
+                    in 190 until 350 -> isLeaningRight.value = false
                 }
             }
         }
@@ -117,7 +127,7 @@ class MainActivity : ComponentActivity() {
                 incrementSeconds = 3,
                 delayMillis = 100,
                 window = window,
-                isBlackRightHanded = { isLeaningRight.value },
+                isLeaningRight = { isLeaningRight.value },
             ) { chessClockPolicy ->
                 ChessClock(chessClockPolicy)
             }
@@ -167,7 +177,7 @@ interface ChessClockPolicy {
     val blackTime: Long
 
     /** Whether to orient for a right-handed black player when the time is shown sideways. */
-    val isBlackRightHanded: Boolean
+    val isLeaningRight: Boolean
 
     /** Callback to call on a click event. */
     val onClick: () -> Unit
@@ -197,10 +207,8 @@ fun ChessClock(policy: ChessClockPolicy) {
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val rotation = if (isLandscape) {
         0F
-    } else if (policy.isBlackRightHanded) {
-        -90F
     } else {
-        90F
+        if (policy.isLeaningRight) -90F else 90F
     }
     val whiteColor = if (policy.whiteTime > 0L) Color.Black else Color.Red
     val blackColor = if (policy.blackTime > 0L) Color.White else Color.Red
@@ -259,7 +267,7 @@ fun ChessClockPreview() {
     ChessClock(object : ChessClockPolicy {
         override val whiteTime = 303_000L
         override val blackTime = 303_000L
-        override val isBlackRightHanded = true
+        override val isLeaningRight = true
         override val onClick = {}
         override val onDragStart = { _: Offset -> }
         override val onDragEnd = {}
@@ -278,7 +286,7 @@ fun ChessClockPreview() {
  * @param[incrementSeconds] Time increment added before each turn in seconds.
  * @param[delayMillis] Time between recompositions in milliseconds.
  * @param[window] Window for which to keep the screen on while the counter is counting.
- * @param[isBlackRightHanded] Whether to flip the dragging direction in portrait mode.
+ * @param[isLeaningRight] Whether to flip the dragging direction in portrait mode.
  * @param[content] Composable content that accepts a [ChessClockPolicy].
  */
 @Composable
@@ -287,7 +295,7 @@ fun Counter(
     incrementSeconds: Long,
     delayMillis: Long,
     window: Window,
-    isBlackRightHanded: () -> Boolean,
+    isLeaningRight: () -> Boolean,
     content: @Composable (ChessClockPolicy) -> Unit
 ) {
     val initialDuration = durationMinutes * 60_000L
@@ -436,7 +444,7 @@ fun Counter(
 
         override val blackTime = blackTime
 
-        override val isBlackRightHanded = isBlackRightHanded.invoke()
+        override val isLeaningRight = isLeaningRight.invoke()
 
         override val onClick = {
             if (isCounting) {
@@ -464,7 +472,7 @@ fun Counter(
                     val sign = if (isRtl) -1F else 1F
                     addMinutes(sign * dragSensitivity * dragAmount, isAddedToSavedMinutes = true)
                 } else {
-                    val sign = if (isBlackRightHanded.invoke()) -1F else 1F
+                    val sign = if (isLeaningRight.invoke()) -1F else 1F
                     addSeconds(sign * dragSensitivity * dragAmount, isAddedToSavedSeconds = true)
                 }
             }
@@ -476,7 +484,7 @@ fun Counter(
                     val sign = -1F
                     addSeconds(sign * dragSensitivity * dragAmount, isAddedToSavedSeconds = true)
                 } else {
-                    val sign = if (isBlackRightHanded.invoke() xor isRtl) -1F else 1F
+                    val sign = if (isLeaningRight.invoke() xor isRtl) -1F else 1F
                     addMinutes(sign * dragSensitivity * dragAmount, isAddedToSavedMinutes = true)
                 }
             }

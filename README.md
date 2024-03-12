@@ -8,7 +8,7 @@
     <a href="https://f-droid.org/packages/net.leodesouza.blitz/" alt="F-Droid">
         <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" /></a>
     <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz" alt="Google">
-        <img src="https://img.shields.io/badge/Google-Testing-red?logo=Google-Play" /></a>
+        <img src="https://img.shields.io/badge/Google-v1.5.2-blue?logo=Google-Play" /></a>
 </p>
 
 # Blitz: Fischer chess clock

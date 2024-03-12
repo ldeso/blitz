@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.5.2] - 2024-03-12
+
+This release simplifies the codebase and updates metadata.
+
+### Enhancement
+
+- Store state directly in chess clock model
+
+### Notes
+
+- Add links to README.md
+- Explicitly convert from Long to Float
+- Remove trailing newline in full description to avoid `<br>` insertion
+- Update metadata images
+- Simplify saving current time or duration/increment
+- Do not use an interface with a single concrete class
+
 ## [1.5.1] - 2024-03-11
 
 This release fixes a bug introduced in version [1.5.0] where changing the language would change the default duration and time increment.
@@ -335,6 +352,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.2]: https://github.com/ldeso/blitz/releases/tag/v1.5.2
 [1.5.1]: https://github.com/ldeso/blitz/releases/tag/v1.5.1
 [1.5.0]: https://github.com/ldeso/blitz/releases/tag/v1.5.0
 [1.4.9]: https://github.com/ldeso/blitz/releases/tag/v1.4.9

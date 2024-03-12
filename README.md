@@ -1,12 +1,14 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/ldeso/blitz/master/metadata/en-US/images/icon.png" height="128">
+    <img src="https://raw.githubusercontent.com/ldeso/blitz/HEAD/metadata/en-US/images/icon.png" height="128">
 </p>
 
 <p align="center">
-    <a href="https://github.com/ldeso/blitz/releases/latest" alt="Latest release">
-        <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github" /></a>
-    <a href="https://f-droid.org/packages/net.leodesouza.blitz/" alt="F-Droid listing">
-        <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid" /></a>
+    <a href="https://github.com/ldeso/blitz/releases/latest" alt="GitHub">
+        <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" /></a>
+    <a href="https://f-droid.org/packages/net.leodesouza.blitz/" alt="F-Droid">
+        <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" /></a>
+    <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz" alt="Google">
+        <img src="https://img.shields.io/badge/Google-Testing-red?logo=Google-Play" /></a>
 </p>
 
 # Blitz
@@ -24,7 +26,6 @@ The source code is entirely contained in the file [MainActivity.kt](app/src/main
 ## Screenshots
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/ldeso/blitz/master/metadata/en-US/images/phoneScreenshots/1.png" height="389">&nbsp;
-    <img src="https://raw.githubusercontent.com/ldeso/blitz/master/metadata/en-US/images/phoneScreenshots/2.png" height="389">&nbsp;
-    <img src="https://raw.githubusercontent.com/ldeso/blitz/master/metadata/en-US/images/phoneScreenshots/3.png" height="389">
+    <img src="https://raw.githubusercontent.com/ldeso/blitz/HEAD/metadata/en-US/images/phoneScreenshots/1.png" height="311">&nbsp;
+    <img src="https://raw.githubusercontent.com/ldeso/blitz/HEAD/metadata/en-US/images/phoneScreenshots/2.png" height="311">
 </p>

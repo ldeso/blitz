@@ -117,72 +117,28 @@ class MainActivity : ComponentActivity() {
             window.attributes.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
         setContent {
-            val clock = rememberChessClockModel(
+            val clockModel = rememberChessClockModel(
                 durationMinutes = 5,
                 incrementSeconds = 3,
                 tickPeriodMillis = 100,
                 onStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
                 onPause = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
             )
-            ChessClockController(clock, { isLeaningRight.value }) { whiteTime, blackTime ->
+            ChessClockController(clockModel, { isLeaningRight.value }) { whiteTime, blackTime ->
                 ChessClockView(whiteTime, blackTime, isLeaningRight.value)
             }
         }
     }
 }
 
-/** Interface describing public properties and methods for a chess clock model. */
-@Stable
-interface ChessClockModel {
-    /** Time for the first player in milliseconds. */
-    val whiteTime: Long
-
-    /** Time for the second player in milliseconds. */
-    val blackTime: Long
-
-    /** Whether the clock has started ticking. */
-    val isStarted: Boolean
-
-    /** Whether the clock is currently ticking. */
-    val isTicking: Boolean
-
-    /** Whether the clock is currently paused. */
-    val isPaused: Boolean
-
-    /** Whether the duration and time increment are set to their default value. */
-    val isDefaults: Boolean
-
-    /** Set the clock as having started ticking. */
-    fun start()
-
-    /** Set the clock as being paused. */
-    fun pause()
-
-    /** If the clock [isTicking], wait until next tick and update the time of the current player. */
-    suspend fun tick()
-
-    /** If the clock [isTicking], switch between ticking for the first and second player. */
-    fun nextTurn()
-
-    /** Reset the time of each player to their initial value. */
-    fun resetTime()
-
-    /** Restore the duration and time increment to their default value. */
-    fun restoreDefaultConfig()
-
-    /** Save the current time or duration/increment as a reference to add seconds or minutes to. */
-    fun saveTime()
-
-    /** Add [minutes] to the current or saved time depending on whether [isAddedToSavedTime]. */
-    fun addMinutes(minutes: Float, isAddedToSavedTime: Boolean = false)
-
-    /** Add [seconds] to the current or saved time depending on whether [isAddedToSavedTime]. */
-    fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean = false)
-}
-
 /**
- * Chess clock model that implements the [ChessClockModel] interface.
+ * Chess clock model that notifies composition when one of its public properties changes.
  *
+ * @param[defaultDuration] Default initial time for each player in milliseconds.
+ * @param[defaultIncrement] Default time increment in milliseconds.
+ * @param[tickPeriod] Period between each tick in milliseconds.
+ * @param[onStart] Callback called when the clock starts ticking.
+ * @param[onPause] Callback called when the clock stops ticking.
  * @param[durationState] Mutable state holding the initial time for each player in milliseconds.
  * @param[incrementState] Mutable state holding the time increment in milliseconds.
  * @param[whiteTimeState] Mutable state holding the time for the first player in milliseconds.
@@ -191,14 +147,14 @@ interface ChessClockModel {
  * @param[isWhiteTurnState] Mutable state holding whether it is the turn of the first player.
  * @param[isStartedState] Mutable state holding whether the clock has started ticking.
  * @param[isTickingState] Mutable state holding whether the clock is currently ticking.
- * @param[defaultDuration] The default initial time for each player in milliseconds.
- * @param[defaultIncrement] The default time increment in milliseconds.
- * @param[tickPeriod] Period between each tick in milliseconds.
- * @param[onStart] Callback called when the clock starts ticking.
- * @param[onPause] Callback called when the clock stops ticking.
  */
 @Stable
-class ChessClockModelImpl(
+class ChessClockModel(
+    private val defaultDuration: Long,
+    private val defaultIncrement: Long,
+    private val tickPeriod: Long,
+    private val onStart: () -> Unit,
+    private val onPause: () -> Unit,
     durationState: MutableLongState,
     incrementState: MutableLongState,
     whiteTimeState: MutableLongState,
@@ -207,32 +163,48 @@ class ChessClockModelImpl(
     isWhiteTurnState: MutableState<Boolean>,
     isStartedState: MutableState<Boolean>,
     isTickingState: MutableState<Boolean>,
-    private val defaultDuration: Long,
-    private val defaultIncrement: Long,
-    private val tickPeriod: Long,
-    private val onStart: () -> Unit,
-    private val onPause: () -> Unit,
-) : ChessClockModel {
+) {
+    /** Initial time for each player in milliseconds. */
     private var duration: Long by durationState
-    private var increment: Long by incrementState
-    override var whiteTime: Long by whiteTimeState
-    override var blackTime: Long by blackTimeState
-    private var targetRealtime: Long by targetRealtimeState
-    private var isWhiteTurn: Boolean by isWhiteTurnState
-    override var isStarted: Boolean by isStartedState
-    override var isTicking: Boolean by isTickingState
-    private var savedMinutes: Float = 0F
-    private var savedSeconds: Float = 0F
 
+    /** Time increment for each player in milliseconds. */
+    private var increment: Long by incrementState
+
+    /** Time for the first player in milliseconds. */
+    var whiteTime: Long by whiteTimeState
+        private set
+
+    /** Time for the second player in milliseconds. */
+    var blackTime: Long by blackTimeState
+        private set
+
+    /** Time since boot where the clock should end. */
+    private var targetRealtime: Long by targetRealtimeState
+
+    /** Whether it is the turn of the first player. */
+    private var isWhiteTurn: Boolean by isWhiteTurnState
+
+    /** Whether the clock has started ticking. */
+    var isStarted: Boolean by isStartedState
+        private set
+
+    /** Whether the clock is currently ticking. */
+    var isTicking: Boolean by isTickingState
+        private set
+
+    /** Whether the clock has finished ticking. */
     private val isFinished: Boolean
         get() = whiteTime <= 0L || blackTime <= 0L
 
-    override val isPaused: Boolean
+    /** Whether the clock is currently paused. */
+    val isPaused: Boolean
         get() = !isTicking && !isFinished
 
-    override val isDefaults: Boolean
+    /** Whether the duration and time increment are set to their default value. */
+    val isDefaultConfig: Boolean
         get() = duration == defaultDuration && increment == defaultIncrement
 
+    /** Time of the current player. */
     private var currentTime: Long
         get() = if (isWhiteTurn) whiteTime else blackTime
         set(newTime) {
@@ -243,20 +215,23 @@ class ChessClockModelImpl(
             }
         }
 
-    override fun start() {
+    /** Set the clock as having started ticking. */
+    fun start() {
         targetRealtime = elapsedRealtime() + currentTime
         isStarted = true
         isTicking = true
         onStart.invoke()
     }
 
-    override fun pause() {
+    /** Set the clock on pause. */
+    fun pause() {
         currentTime = targetRealtime - elapsedRealtime()
         isTicking = false
         onPause.invoke()
     }
 
-    override suspend fun tick() {
+    /** If the clock is ticking, wait until next tick and update the time of the current player. */
+    suspend fun tick() {
         if (isTicking) {
             if (isFinished) {
                 pause()
@@ -269,7 +244,8 @@ class ChessClockModelImpl(
         }
     }
 
-    override fun nextTurn() {
+    /** If the clock is ticking, switch between ticking for the first and for the second player. */
+    fun nextTurn() {
         if (isTicking) {
             val remainingTime = targetRealtime - elapsedRealtime()
             currentTime = if (remainingTime > 0L) (remainingTime + increment) else 0L
@@ -278,35 +254,46 @@ class ChessClockModelImpl(
         }
     }
 
+    /** Set the time for each player according to the current duration and time increment. */
     private fun applyConfig() {
         val newTime = duration + increment
         whiteTime = newTime
         blackTime = newTime
     }
 
-    override fun resetTime() {
+    /** Reset the time for each player to their initial value. */
+    fun resetTime() {
         isWhiteTurn = true
         isStarted = false
         applyConfig()
     }
 
-    override fun restoreDefaultConfig() {
+    /** Restore the duration and time increment to their default value. */
+    fun restoreDefaultConfig() {
         duration = defaultDuration
         increment = defaultIncrement
         applyConfig()
     }
 
-    override fun saveTime() {
+    /** Saved minutes or duration that can be used as a reference to add minutes to. */
+    private var savedMinutes: Float = 0F
+
+    /** Saved seconds or increment that can be used as a reference to add seconds to. */
+    private var savedSeconds: Float = 0F
+
+    /** Save the current time or duration/increment as a reference to add seconds or minutes to. */
+    fun saveTime() {
         if (isStarted) {
             savedMinutes = (currentTime / 60_000L).toFloat()
-            savedSeconds = currentTime % 60_000L / 1_000F
+            savedSeconds = (currentTime % 60_000L / 1_000L).toFloat()
         } else {
             savedMinutes = duration / 60_000F
             savedSeconds = increment / 1_000F
         }
     }
 
-    override fun addMinutes(minutes: Float, isAddedToSavedTime: Boolean) {
+    /** Add [minutes] to the current or saved time depending on whether [isAddedToSavedTime]. */
+    fun addMinutes(minutes: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         if (isStarted) {
             val newSeconds = savedSeconds.roundToLong()
@@ -323,7 +310,8 @@ class ChessClockModelImpl(
         }
     }
 
-    override fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean) {
+    /** Add [seconds] to the current or saved time depending on whether [isAddedToSavedTime]. */
+    fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         if (isStarted) {
             val newMinutes = savedMinutes.roundToLong()
@@ -360,7 +348,12 @@ fun rememberChessClockModel(
 ): ChessClockModel {
     val duration = durationMinutes * 60_000L
     val increment = incrementSeconds * 1_000L
-    return ChessClockModelImpl(
+    return ChessClockModel(
+        defaultDuration = duration,
+        defaultIncrement = increment,
+        tickPeriod = tickPeriodMillis,
+        onStart = onStart,
+        onPause = onPause,
         durationState = rememberSaveable { mutableLongStateOf(duration) },
         incrementState = rememberSaveable { mutableLongStateOf(increment) },
         whiteTimeState = rememberSaveable { mutableLongStateOf(duration + increment) },
@@ -369,11 +362,6 @@ fun rememberChessClockModel(
         isWhiteTurnState = rememberSaveable { mutableStateOf(true) },
         isStartedState = rememberSaveable { mutableStateOf(false) },
         isTickingState = rememberSaveable { mutableStateOf(false) },
-        defaultDuration = duration,
-        defaultIncrement = increment,
-        tickPeriod = tickPeriodMillis,
-        onStart = onStart,
-        onPause = onPause,
     )
 }
 
@@ -398,7 +386,7 @@ fun ChessClockController(
 
     BackHandler(!clock.isTicking && clock.isStarted) { clock.resetTime() }
 
-    BackHandler(!clock.isStarted && !clock.isDefaults) { clock.restoreDefaultConfig() }
+    BackHandler(!clock.isStarted && !clock.isDefaultConfig) { clock.restoreDefaultConfig() }
 
     Box(modifier = Modifier
         .clickable(
@@ -409,7 +397,7 @@ fun ChessClockController(
         .pointerInput(Unit) {
             detectHorizontalDragGestures(
                 onDragStart = { if (clock.isPaused) clock.saveTime() },
-                onDragEnd = { clock.nextTurn() },
+                onDragEnd = { if (!clock.isPaused) clock.nextTurn() },
                 onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
                     if (clock.isPaused) {
                         if (isLandscape) {
@@ -428,7 +416,7 @@ fun ChessClockController(
         .pointerInput(Unit) {
             detectVerticalDragGestures(
                 onDragStart = { if (clock.isPaused) clock.saveTime() },
-                onDragEnd = { clock.nextTurn() },
+                onDragEnd = { if (!clock.isPaused) clock.nextTurn() },
                 onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
                     if (clock.isPaused) {
                         if (isLandscape) {
@@ -499,7 +487,7 @@ fun BasicTime(
 
 /**
  * Minimal chess clock displaying remaining [whiteTime] and [blackTime] with a ninety degree
- * rotation in portrait mode that depends on whether the device [isLeaningRight].
+ * rotation in portrait mode in an orientation that depends on whether the device [isLeaningRight].
  */
 @Preview
 @Composable

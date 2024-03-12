@@ -186,14 +186,14 @@ class ChessClockModel(
         private set
 
     /** Time for the first player in milliseconds. */
-    var whiteTime: Long by mutableLongStateOf(currentDuration + currentIncrement)
+    var whiteTime: Long by mutableLongStateOf(defaultDuration + defaultIncrement)
         private set
 
     /** Time for the second player in milliseconds. */
     var blackTime: Long by mutableLongStateOf(whiteTime)
         private set
 
-    /** Time returned by [elapsedRealtime] when the time of the current player should reach zero. */
+    /** Time that should be returned by [elapsedRealtime] when the current time reaches zero. */
     var targetRealtime: Long by mutableLongStateOf(0L)
         private set
 
@@ -217,7 +217,7 @@ class ChessClockModel(
     val isPaused: Boolean
         get() = !isTicking && !isFinished
 
-    /** Whether the current duration and time increment are set to their default value. */
+    /** Whether the current duration and time increment are set to their default configuration. */
     val isDefaultConfig: Boolean
         get() = currentDuration == defaultDuration && currentIncrement == defaultIncrement
 
@@ -247,7 +247,7 @@ class ChessClockModel(
         onPause.invoke()
     }
 
-    /** If the clock is ticking, wait until next tick and update the time of the current player. */
+    /** If the clock is ticking and has not finished, wait until next tick and update the time. */
     suspend fun tick() {
         if (isTicking) {
             if (isFinished) {
@@ -278,21 +278,21 @@ class ChessClockModel(
         blackTime = newTime
     }
 
-    /** Reset the time for each player to their initial value. */
+    /** Reset the clock to its initial state with the current duration and time increment. */
     fun resetTime() {
         isWhiteTurn = true
         isStarted = false
         applyConfig()
     }
 
-    /** Restore the default duration and time increment. */
-    fun restoreDefaultConfig() {
+    /** Restore the the default duration and time increment. */
+    fun resetConfig() {
         currentDuration = defaultDuration
         currentIncrement = defaultIncrement
         applyConfig()
     }
 
-    /** Saved duration in minutes that can be used as a reference by [addMinutes]. */
+    /** Duration in minutes that can be used as a reference to add minutes to with [addMinutes]. */
     private var savedDurationMinutes: Float = 0F
         set(minutes) {
             field = minutes.coerceIn(
@@ -301,7 +301,7 @@ class ChessClockModel(
             )
         }
 
-    /** Saved increment in seconds that can be used as a reference by [addSeconds]. */
+    /** Increment in seconds that can be used as a reference to add seconds to with [addSeconds]. */
     private var savedIncrementSeconds: Float = 0F
         set(seconds) {
             field = seconds.coerceIn(
@@ -310,23 +310,23 @@ class ChessClockModel(
             )
         }
 
-    /** Saved minutes for the current player that can be used as a reference by [addMinutes]. */
+    /** Remaining minutes that can be used as a reference to add minutes to with [addMinutes]. */
     private var savedMinutes: Float = 0F
         set(minutes) {
             val seconds = savedSeconds.roundToLong()
             field = minutes.coerceIn(
-                minimumValue = -seconds / 60L + if (seconds % 60L == 0L) 1F else 0F,
-                maximumValue = 599F - seconds / 60L,
+                minimumValue = (-seconds / 60L).toFloat() + if (seconds % 60L == 0L) 1F else 0F,
+                maximumValue = (599L - seconds / 60L).toFloat(),
             )
         }
 
-    /** Saved seconds for the current player that can be used as a reference by [addSeconds]. */
+    /** Remaining seconds that can be used as a reference to add seconds to with [addSeconds]. */
     private var savedSeconds: Float = 0F
         set(seconds) {
             val minutes = savedMinutes.roundToLong()
             field = seconds.coerceIn(
-                minimumValue = 1F - minutes * 60L,
-                maximumValue = 35_999F - minutes * 60L,
+                minimumValue = (1L - minutes * 60L).toFloat(),
+                maximumValue = (35_999L - minutes * 60L).toFloat(),
             )
         }
 
@@ -341,7 +341,7 @@ class ChessClockModel(
         }
     }
 
-    /** Add [minutes] to the current or saved time depending on whether [isAddedToSavedTime]. */
+    /** Add [minutes] to the current or saved minutes depending on whether [isAddedToSavedTime]. */
     fun addMinutes(minutes: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         if (isStarted) {
@@ -354,7 +354,7 @@ class ChessClockModel(
         }
     }
 
-    /** Add [seconds] to the current or saved time depending on whether [isAddedToSavedTime]. */
+    /** Add [seconds] to the current or saved seconds depending on whether [isAddedToSavedTime]. */
     fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         if (isStarted) {
@@ -440,7 +440,7 @@ fun ChessClockController(
 
     BackHandler(!clock.isTicking && clock.isStarted) { clock.resetTime() }
 
-    BackHandler(!clock.isStarted && !clock.isDefaultConfig) { clock.restoreDefaultConfig() }
+    BackHandler(!clock.isStarted && !clock.isDefaultConfig) { clock.resetConfig() }
 
     Box(modifier = Modifier
         .clickable(

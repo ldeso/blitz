@@ -285,27 +285,59 @@ class ChessClockModel(
         applyConfig()
     }
 
-    /** Restore the duration and time increment to their default value. */
+    /** Restore the default duration and time increment. */
     fun restoreDefaultConfig() {
-        duration = defaultDuration
-        increment = defaultIncrement
+        currentDuration = defaultDuration
+        currentIncrement = defaultIncrement
         applyConfig()
     }
 
-    /** Saved minutes or duration that can be used as a reference to add minutes to. */
+    /** Saved duration in minutes that can be used as a reference by [addMinutes]. */
+    private var savedDurationMinutes: Float = 0F
+        set(minutes) {
+            field = minutes.coerceIn(
+                minimumValue = if (currentIncrement < 1_000L) 1F else 0F,
+                maximumValue = 180F,
+            )
+        }
+
+    /** Saved increment in seconds that can be used as a reference by [addSeconds]. */
+    private var savedIncrementSeconds: Float = 0F
+        set(seconds) {
+            field = seconds.coerceIn(
+                minimumValue = if (currentDuration < 60_000L) 1F else 0F,
+                maximumValue = 30F,
+            )
+        }
+
+    /** Saved minutes for the current player that can be used as a reference by [addMinutes]. */
     private var savedMinutes: Float = 0F
+        set(minutes) {
+            val seconds = savedSeconds.roundToLong()
+            field = minutes.coerceIn(
+                minimumValue = -seconds / 60L + if (seconds % 60L == 0L) 1F else 0F,
+                maximumValue = 599F - seconds / 60L,
+            )
+        }
 
-    /** Saved seconds or increment that can be used as a reference to add seconds to. */
+    /** Saved seconds for the current player that can be used as a reference by [addSeconds]. */
     private var savedSeconds: Float = 0F
+        set(seconds) {
+            val minutes = savedMinutes.roundToLong()
+            field = seconds.coerceIn(
+                minimumValue = 1F - minutes * 60L,
+                maximumValue = 35_999F - minutes * 60L,
+            )
+        }
 
-    /** Save the current time or duration/increment as a reference to add seconds or minutes to. */
+    /** Save current time or duration/increment as a reference for [addMinutes] and [addSeconds]. */
     fun saveTime() {
         if (isStarted) {
             savedMinutes = (currentTime / 60_000L).toFloat()
             savedSeconds = (currentTime % 60_000L / 1_000L).toFloat()
         } else {
-            savedMinutes = duration / 60_000F
-            savedSeconds = increment / 1_000F
+            savedDurationMinutes = (currentDuration / 60_000L).toFloat()
+            savedIncrementSeconds = (currentIncrement / 1_000L).toFloat()
         }
     }
 
@@ -313,16 +345,11 @@ class ChessClockModel(
     fun addMinutes(minutes: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         if (isStarted) {
-            val newSeconds = savedSeconds.roundToLong()
-            val minMinutes = -newSeconds / 60L + if (newSeconds % 60L == 0L) 1F else 0F
-            val maxMinutes = 599F - newSeconds / 60L
-            savedMinutes = (savedMinutes + minutes).coerceIn(minMinutes, maxMinutes)
-            val newMinutes = savedMinutes.roundToLong()
-            currentTime = newMinutes * 60_000L + newSeconds * 1_000L
+            savedMinutes += minutes
+            currentTime = savedMinutes.roundToLong() * 60_000L + savedSeconds.roundToLong() * 1_000L
         } else {
-            val minMinutes = if (increment < 1_000L) 1F else 0F
-            savedMinutes = (savedMinutes + minutes).coerceIn(minMinutes, 180F)
-            duration = savedMinutes.roundToLong() * 60_000L
+            savedDurationMinutes += minutes
+            currentDuration = savedDurationMinutes.roundToLong() * 60_000L
             applyConfig()
         }
     }
@@ -331,16 +358,11 @@ class ChessClockModel(
     fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         if (isStarted) {
-            val newMinutes = savedMinutes.roundToLong()
-            val minSeconds = 1F - newMinutes * 60L
-            val maxSeconds = 35_999F - newMinutes * 60L
-            savedSeconds = (savedSeconds + seconds).coerceIn(minSeconds, maxSeconds)
-            val newSeconds = savedSeconds.roundToLong()
-            currentTime = newMinutes * 60_000L + newSeconds * 1_000L
+            savedSeconds += seconds
+            currentTime = savedMinutes.roundToLong() * 60_000L + savedSeconds.roundToLong() * 1_000L
         } else {
-            val minSeconds = if (duration < 60_000L) 1F else 0F
-            savedSeconds = (savedSeconds + seconds).coerceIn(minSeconds, 30F)
-            increment = savedSeconds.roundToLong() * 1_000L
+            savedIncrementSeconds += seconds
+            currentIncrement = savedIncrementSeconds.roundToLong() * 1_000L
             applyConfig()
         }
     }

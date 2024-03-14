@@ -1,5 +1,20 @@
 ## Changelog
 
+### [1.5.3] - 2024-03-14
+
+This release updates Compose dependencies and introduces the website https://blitz.leodesouza.net built with GitHub Pages.
+
+#### Enhancement
+
+- Update dependencies
+
+#### Notes
+
+- Set up https://blitz.leodesouza.net with GitHub Pages
+- Add Apache License 2.0 boilerplate notice
+- Add "Install" section to README.md
+- Add `alt` attribute to images in README.md
+
 ### [1.5.2] - 2024-03-12
 
 This release simplifies the codebase and updates metadata.
@@ -352,6 +367,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.3]: https://github.com/ldeso/blitz/releases/tag/v1.5.3
 [1.5.2]: https://github.com/ldeso/blitz/releases/tag/v1.5.2
 [1.5.1]: https://github.com/ldeso/blitz/releases/tag/v1.5.1
 [1.5.0]: https://github.com/ldeso/blitz/releases/tag/v1.5.0

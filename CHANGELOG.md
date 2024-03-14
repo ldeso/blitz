@@ -1,5 +1,19 @@
 ## Changelog
 
+### [1.5.4] - 2024-03-14
+
+This release fixes a bug introduced in version [1.5.3] where per-app languages preferences were not supported anymore.
+
+#### Bug Fix
+
+- Restore per-app language support
+
+#### Notes
+
+- Use version catalog for JDK and Compose compiler
+- Align screenshots vertically
+- Remove whitespace
+
 ### [1.5.3] - 2024-03-14
 
 This release updates Compose dependencies and introduces the website https://blitz.leodesouza.net built with GitHub Pages.
@@ -367,6 +381,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.4]: https://github.com/ldeso/blitz/releases/tag/v1.5.4
 [1.5.3]: https://github.com/ldeso/blitz/releases/tag/v1.5.3
 [1.5.2]: https://github.com/ldeso/blitz/releases/tag/v1.5.2
 [1.5.1]: https://github.com/ldeso/blitz/releases/tag/v1.5.1

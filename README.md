@@ -36,6 +36,6 @@ The app can be installed from three different sources:
 ## Screenshots
 
 <p align="center">
-  <img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Initial view" height="622" width="350">&emsp;
-  <img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Time is over" height="622" width="350">
+  &emsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Portrait screenshot of the initial view" height="622" width="350">&emsp;&#8203;
+  &emsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Portrait screenshot of when time is over" height="622" width="350">&emsp;
 </p>

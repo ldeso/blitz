@@ -3,12 +3,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ldeso/blitz/releases/latest" alt="GitHub">
-    <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" /></a>
-  <a href="https://f-droid.org/packages/net.leodesouza.blitz/" alt="F-Droid">
-    <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" /></a>
-  <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz" alt="Play Store">
-    <img src="https://img.shields.io/badge/Play%20Store-v1.5.2-blue?logo=Google-Play" /></a>
+  <a href="https://github.com/ldeso/blitz/releases/latest">
+    <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" alt="GitHub" /></a>
+  <a href="https://f-droid.org/packages/net.leodesouza.blitz/">
+    <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" alt="F-Droid" /></a>
+  <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz">
+    <img src="https://img.shields.io/badge/Play%20Store-v1.5.2-blue?logo=Google-Play" alt="Play Store" /></a>
 </p>
 
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
@@ -36,6 +36,6 @@ The app can be installed from three different sources:
 ## Screenshots
 
 <p align="center">
-  <img src="metadata/en-US/images/phoneScreenshots/1.png" height="622" width="350">&emsp;
-  <img src="metadata/en-US/images/phoneScreenshots/2.png" height="622" width="350">
+  <img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Initial view" height="622" width="350">&emsp;
+  <img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Time is over" height="622" width="350">
 </p>

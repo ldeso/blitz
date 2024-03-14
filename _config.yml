@@ -1,0 +1,40 @@
+title: "Blitz: Fischer chess clock"
+
+defaults:
+  - scope:
+      path: CHANGELOG.md
+    values:
+      permalink: /changelog/
+  - scope:
+      path: PRIVACY_POLICY.md
+    values:
+      permalink: /privacy-policy/
+
+exclude:
+  - /app/src/main/res
+  - /app/src/main/AndroidManifest.xml
+  - /app/build.gradle.kts
+  - /gradle
+  - /metadata/en-US/changelogs
+  - /metadata/en-US/images/phoneScreenshots/3.png
+  - /metadata/en-US/images/phoneScreenshots/4.png
+  - /metadata/en-US/images/sevenInchScreenshots
+  - /metadata/en-US/images/tenInchScreenshots
+  - /metadata/en-US/images/featureGraphic.png
+  - /metadata/en-US/full_description.txt
+  - /metadata/en-US/short_description.txt
+  - /metadata/en-US/title.txt
+  - /metadata/fr-FR
+  - build.gradle.kts
+  - CNAME
+  - gradle.properties
+  - gradlew
+  - gradlew.bat
+  - LICENSE
+  - settings.gradle.kts
+
+optional_front_matter:
+  remove_originals: true
+
+readme_index:
+  remove_originals: true

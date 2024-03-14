@@ -11,8 +11,6 @@
     <img src="https://img.shields.io/badge/Play%20Store-v1.5.2-blue?logo=Google-Play" /></a>
 </p>
 
-# Blitz: Fischer chess clock
-
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
 
 The source code is entirely contained in the file [MainActivity.kt](app/src/main/java/net/leodesouza/blitz/MainActivity.kt).
@@ -33,7 +31,7 @@ The app can be installed from three different sources:
 
 ## Links
 
-[License: Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md)
+[License: Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)
 
 ## Screenshots
 

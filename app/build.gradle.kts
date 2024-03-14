@@ -34,23 +34,20 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.9"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    androidResources {
-        generateLocaleConfig = true
-    }
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
-    implementation(composeBom)
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
 }

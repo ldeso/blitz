@@ -13,11 +13,12 @@
 
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
 
-The source code is entirely contained in the file [MainActivity.kt](app/src/main/java/net/leodesouza/blitz/MainActivity.kt).
+This app is free software.
+Its source code is available [on GitHub](https://github.com/ldeso/blitz) under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 ## Features
 
-  - Defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move).
+  - Defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move).
   - Total time and increment can be set by horizontal and vertical dragging.
   - The back action pauses or resets the clock.
 
@@ -29,13 +30,16 @@ The app can be installed from three different sources:
   2. [F-Droid](https://f-droid.org/packages/net.leodesouza.blitz/): built and signed by the developer and [verified by F-Droid](https://f-droid.org/docs/Reproducible_Builds/) to correspond to the available source code.
   3. [Play Store](https://play.google.com/store/apps/details?id=net.leodesouza.blitz): built and signed by Google, who is [allowed to modify](https://play.google/play-app-signing-terms/) the application to optimise its performance, security and/or size.
 
+All sources are using the same app signing key, so the app can be updated using a different source to the one it was installed from.
+For example, an app installed from F-Droid can be updated to a newer version downloaded from the Play Store.
+
 ## Links
 
-[License: Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)
 
 ## Screenshots
 
 <p align="center">
-  &emsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Portrait screenshot of the initial view" height="622" width="350">&emsp;&#8203;
-  &emsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Portrait screenshot of when time is over" height="622" width="350">&emsp;
+  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Portrait screenshot of the initial view" height="622" width="350">&nbsp;&#8203;
+  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Portrait screenshot of when time is over" height="622" width="350">&nbsp;
 </p>

@@ -1,5 +1,19 @@
 ## Changelog
 
+### [1.5.5] - 2024-03-21
+
+This release updates dependencies and refactors the code to hold the state and logic in a ViewModel instead of a plain class.
+
+#### Improvement
+
+- Update dependencies
+
+#### Notes
+
+- Hold the state and logic in a ViewModel
+- Clarify that all sources use the same app signing key
+- Capitalize title
+
 ### [1.5.4] - 2024-03-14
 
 This release fixes a bug introduced in version [1.5.3] where per-app languages preferences were not supported anymore.
@@ -381,6 +395,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.5]: https://github.com/ldeso/blitz/releases/tag/v1.5.5
 [1.5.4]: https://github.com/ldeso/blitz/releases/tag/v1.5.4
 [1.5.3]: https://github.com/ldeso/blitz/releases/tag/v1.5.3
 [1.5.2]: https://github.com/ldeso/blitz/releases/tag/v1.5.2

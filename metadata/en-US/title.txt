@@ -1,1 +1,1 @@
-Blitz: Fischer chess clock
+Blitz: Fischer Chess Clock

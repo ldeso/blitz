@@ -30,14 +30,16 @@ import net.leodesouza.blitz.ui.ChessClockScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(TRANSPARENT),
             navigationBarStyle = SystemBarStyle.light(TRANSPARENT, BLACK),
         )
-        super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.attributes.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
+
         setContent {
             ChessClockScreen(
                 onStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },

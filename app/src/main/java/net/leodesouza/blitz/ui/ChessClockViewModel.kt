@@ -59,15 +59,11 @@ data class ChessClockUiState(
  * @param[durationMinutes] Initial time for each player in minutes.
  * @param[incrementSeconds] Time increment in seconds.
  * @param[tickPeriod] Period between each tick in milliseconds.
- * @param[onStart] Callback called when the clock starts ticking.
- * @param[onPause] Callback called when the clock stops ticking.
  */
 class ChessClockViewModel(
     durationMinutes: Long,
     incrementSeconds: Long,
     private val tickPeriod: Long,
-    private val onStart: () -> Unit = {},
-    private val onPause: () -> Unit = {},
 ) : ViewModel() {
     private val defaultDuration = durationMinutes * 60_000L
     private val defaultIncrement = incrementSeconds * 1_000L
@@ -87,7 +83,6 @@ class ChessClockViewModel(
             targetRealtime = elapsedRealtime() + it.currentTime
             it.copy(isStarted = true, isTicking = true)
         }
-        onStart.invoke()
     }
 
     fun pause() {
@@ -99,7 +94,6 @@ class ChessClockViewModel(
                 it.copy(blackTime = newTime, isTicking = false)
             }
         }
-        onPause.invoke()
     }
 
     suspend fun tick() {

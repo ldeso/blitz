@@ -76,8 +76,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * @param[incrementSeconds] Time increment in seconds.
  * @param[tickPeriod] Period between each tick in milliseconds.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
- * @param[onStart] Callback called when the clock starts ticking.
- * @param[onPause] Callback called when the clock stops ticking.
+ * @param[onClockStart] Callback called when the clock starts ticking.
+ * @param[onClockPause] Callback called when the clock stops ticking.
  * @param[clock] ViewModel holding the state and logic for this screen.
  */
 @Composable
@@ -86,10 +86,10 @@ fun ChessClockScreen(
     incrementSeconds: Long = 3L,
     tickPeriod: Long = 100L,
     dragSensitivity: Float = 0.01F,
-    onStart: () -> Unit = {},
-    onPause: () -> Unit = {},
+    onClockStart: () -> Unit = {},
+    onClockPause: () -> Unit = {},
     clock: ChessClockViewModel = viewModel {
-        ChessClockViewModel(durationMinutes, incrementSeconds, tickPeriod, onStart, onPause)
+        ChessClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
     },
 ) {
     val uiState by clock.uiState.collectAsState()
@@ -99,16 +99,24 @@ fun ChessClockScreen(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var isLeaningRight by remember { mutableStateOf(true) }
 
-    BackHandler(uiState.isTicking) { clock.pause() }
+    BackHandler(uiState.isTicking) {
+        clock.pause()
+        onClockPause.invoke()
+    }
 
-    BackHandler(uiState.isStarted && !uiState.isTicking) { clock.resetTime() }
+    BackHandler(uiState.isStarted && !uiState.isTicking) {
+        clock.resetTime()
+    }
 
-    BackHandler(!uiState.isStarted && !uiState.isDefaultConfig) { clock.resetConfig() }
+    BackHandler(!uiState.isStarted && !uiState.isDefaultConfig) {
+        clock.resetConfig()
+    }
 
     LaunchedEffect(uiState.isTicking, uiState.whiteTime, uiState.blackTime) {
         if (uiState.isTicking) {
             if (uiState.isFinished) {
                 clock.pause()
+                onClockPause.invoke()
             } else {
                 clock.tick()
             }
@@ -154,6 +162,7 @@ fun ChessClockScreen(
                 indication = null,
                 onClick = {
                     if (uiState.isPaused) {
+                        onClockStart.invoke()
                         clock.start()
                     } else if (uiState.isTicking) {
                         clock.nextPlayer()
@@ -225,8 +234,8 @@ fun ChessClockScreen(
 
 /**
  * Chess clock screen content displaying the remaining [whiteTime] and [blackTime], and where in
- * portrait configurations the text is rotated by ninety degrees in a direction that depends on
- * whether the device [isLeaningRight].
+ * portrait mode the text is rotated by ninety degrees in a direction that depends on whether the
+ * device [isLeaningRight].
  */
 @Preview
 @Composable

@@ -42,8 +42,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ChessClockScreen(
-                onStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
-                onPause = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
+                onClockStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
+                onClockPause = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
             )
         }
     }

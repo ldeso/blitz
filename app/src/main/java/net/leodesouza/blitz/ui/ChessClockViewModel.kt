@@ -130,23 +130,20 @@ class ChessClockViewModel(
         }
     }
 
-    private fun applyConfig() {
+    fun resetTime() {
         _uiState.update {
             val newTime = currentDuration + currentIncrement
-            it.copy(whiteTime = newTime, blackTime = newTime)
+            it.copy(whiteTime = newTime, blackTime = newTime, isWhiteTurn = true, isStarted = false)
         }
     }
 
-    fun resetTime() {
-        _uiState.update { it.copy(isWhiteTurn = true, isStarted = false) }
-        applyConfig()
-    }
-
     fun resetConfig() {
-        currentDuration = defaultDuration
-        currentIncrement = defaultIncrement
-        _uiState.update { it.copy(isDefaultConfig = true) }
-        applyConfig()
+        _uiState.update {
+            currentDuration = defaultDuration
+            currentIncrement = defaultIncrement
+            val newTime = currentDuration + currentIncrement
+            it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConfig = true)
+        }
     }
 
     private var savedDurationMinutes: Float = 0F

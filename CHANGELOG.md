@@ -1,5 +1,18 @@
 ## Changelog
 
+### [1.5.6] - 2024-03-22
+
+This release removes the permission net.leodesouza.blitz.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION because it is unnecessary as the only broadcast receiver used in the app is the ProfileInstallReceiver, whose only purpose is to install the baseline profile used to compile some parts of the app ahead of time during installation.
+
+#### Improvements
+
+- Remove unnecessary permission
+- Update dependency
+
+#### Note
+
+- Minor changes to README.md
+
 ### [1.5.5] - 2024-03-21
 
 This release updates dependencies and refactors the code to hold the state and logic in a ViewModel instead of a plain class.
@@ -395,6 +408,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.6]: https://github.com/ldeso/blitz/releases/tag/v1.5.6
 [1.5.5]: https://github.com/ldeso/blitz/releases/tag/v1.5.5
 [1.5.4]: https://github.com/ldeso/blitz/releases/tag/v1.5.4
 [1.5.3]: https://github.com/ldeso/blitz/releases/tag/v1.5.3

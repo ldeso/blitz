@@ -1,5 +1,21 @@
 ## Changelog
 
+### [1.5.8] - 2024-03-22
+
+This release allows the app to conserve app resources using the collectAsStateWithLifecycle API to collect the uiState in a lifecycle-aware manner.
+
+#### Improvement
+
+- Reduce app resources using collectAsStateWithLifecycle
+
+#### Notes
+
+- Simplify code for adjusting the time and configuration
+- Do not pass callbacks to ViewModel
+- Simplify code to reset configuration
+- Call `super.onCreate` before `enableEdgeToEdge`
+- Use single .gitignore
+
 ### [1.5.7] - 2024-03-22
 
 This release implements the official recommendation to use a LifecycleObserver in Compose instead of overriding lifecycle methods in the MainActivity.
@@ -421,6 +437,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.8]: https://github.com/ldeso/blitz/releases/tag/v1.5.8
 [1.5.7]: https://github.com/ldeso/blitz/releases/tag/v1.5.7
 [1.5.6]: https://github.com/ldeso/blitz/releases/tag/v1.5.6
 [1.5.5]: https://github.com/ldeso/blitz/releases/tag/v1.5.5

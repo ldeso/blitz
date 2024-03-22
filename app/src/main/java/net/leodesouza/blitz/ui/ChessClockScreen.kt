@@ -97,72 +97,77 @@ fun ChessClockScreen(
         }
     }
 
-    Box(modifier = Modifier
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = {
-                if (uiState.isPaused) {
-                    clock.start()
-                } else if (uiState.isTicking) {
-                    clock.nextPlayer()
-                }
-            },
-        )
-        .pointerInput(Unit) {
-            detectHorizontalDragGestures(
-                onDragStart = { if (uiState.isPaused) clock.saveTime() },
-                onDragEnd = { if (uiState.isTicking) clock.nextPlayer() },
-                onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
+    Box(
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {
                     if (uiState.isPaused) {
-                        if (isLandscape) {
+                        clock.start()
+                    } else if (uiState.isTicking) {
+                        clock.nextPlayer()
+                    }
+                },
+            )
+            .onKeyEvent(
+                onKeyEvent = {
+                    var isConsumed = false
+                    if (it.type == KeyEventType.KeyDown) {
+                        isConsumed = true
+                        if (uiState.isPaused) {
+                            clock.saveTime()
                             val sign = if (isRtl) -1F else 1F
-                            val minutes = sign * dragSensitivity * dragAmount
-                            clock.addMinutes(minutes, isAddedToSavedTime = true)
-                        } else {
-                            val sign = if (isLeaningRight.invoke()) -1F else 1F
-                            val seconds = sign * dragSensitivity * dragAmount
-                            clock.addSeconds(seconds, isAddedToSavedTime = true)
+                            when (it.key) {
+                                Key.DirectionUp -> clock.addSecondsToSavedTime(1F)
+                                Key.DirectionDown -> clock.addSecondsToSavedTime(-1F)
+                                Key.DirectionRight -> clock.addMinutesToSavedTime(sign * 1F)
+                                Key.DirectionLeft -> clock.addMinutesToSavedTime(sign * -1F)
+                                else -> isConsumed = false
+                            }
                         }
                     }
+                    isConsumed
                 },
             )
-        }
-        .pointerInput(Unit) {
-            detectVerticalDragGestures(
-                onDragStart = { if (uiState.isPaused) clock.saveTime() },
-                onDragEnd = { if (uiState.isTicking) clock.nextPlayer() },
-                onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
-                    if (uiState.isPaused) {
-                        if (isLandscape) {
-                            val sign = -1F
-                            val seconds = sign * dragSensitivity * dragAmount
-                            clock.addSeconds(seconds, isAddedToSavedTime = true)
-                        } else {
-                            val sign = if (isLeaningRight.invoke() xor isRtl) -1F else 1F
-                            val minutes = sign * dragSensitivity * dragAmount
-                            clock.addMinutes(minutes, isAddedToSavedTime = true)
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragStart = { if (uiState.isPaused) clock.saveTime() },
+                    onDragEnd = { if (uiState.isTicking) clock.nextPlayer() },
+                    onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
+                        if (uiState.isPaused) {
+                            if (isLandscape) {
+                                val sign = if (isRtl) -1F else 1F
+                                val minutes = sign * dragSensitivity * dragAmount
+                                clock.addMinutesToSavedTime(minutes)
+                            } else {
+                                val sign = if (isLeaningRight.invoke()) -1F else 1F
+                                val seconds = sign * dragSensitivity * dragAmount
+                                clock.addSecondsToSavedTime(seconds)
+                            }
                         }
-                    }
-                },
-            )
-        }
-        .onKeyEvent(onKeyEvent = {
-            var isConsumed = false
-            if (it.type == KeyEventType.KeyDown) {
-                isConsumed = true
-                if (uiState.isPaused) {
-                    when (it.key) {
-                        Key.DirectionUp -> clock.addSeconds(1F)
-                        Key.DirectionDown -> clock.addSeconds(-1F)
-                        Key.DirectionRight -> clock.addMinutes(if (isRtl) -1F else 1F)
-                        Key.DirectionLeft -> clock.addMinutes(if (isRtl) 1F else -1F)
-                        else -> isConsumed = false
-                    }
-                }
+                    },
+                )
             }
-            isConsumed
-        })
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = { if (uiState.isPaused) clock.saveTime() },
+                    onDragEnd = { if (uiState.isTicking) clock.nextPlayer() },
+                    onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
+                        if (uiState.isPaused) {
+                            if (isLandscape) {
+                                val sign = -1F
+                                val seconds = sign * dragSensitivity * dragAmount
+                                clock.addSecondsToSavedTime(seconds)
+                            } else {
+                                val sign = if (isLeaningRight.invoke() xor isRtl) -1F else 1F
+                                val minutes = sign * dragSensitivity * dragAmount
+                                clock.addMinutesToSavedTime(minutes)
+                            }
+                        }
+                    },
+                )
+            },
     ) {
         ChessClockContent(uiState.whiteTime, uiState.blackTime, isLeaningRight.invoke())
     }

@@ -194,8 +194,7 @@ class ChessClockViewModel(
         }
     }
 
-    fun addMinutes(minutes: Float, isAddedToSavedTime: Boolean = false) {
-        if (!isAddedToSavedTime) saveTime()
+    fun addMinutesToSavedTime(minutes: Float) {
         _uiState.update {
             if (it.isStarted) {
                 savedMinutes += minutes
@@ -215,8 +214,7 @@ class ChessClockViewModel(
         }
     }
 
-    fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean = false) {
-        if (!isAddedToSavedTime) saveTime()
+    fun addSecondsToSavedTime(seconds: Float) {
         _uiState.update {
             if (it.isStarted) {
                 savedSeconds += seconds

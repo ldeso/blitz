@@ -33,7 +33,7 @@ import kotlin.math.roundToLong
  * @param[isWhiteTurn] Whether it is the turn of the first or the second player.
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isTicking] Whether the clock is currently ticking.
- * @param[isDefaultConfig] Whether the clock is set to its default configuration.
+ * @param[isDefaultConf] Whether the clock is set to its default configuration.
  */
 data class ChessClockUiState(
     val whiteTime: Long,
@@ -41,7 +41,7 @@ data class ChessClockUiState(
     val isWhiteTurn: Boolean = true,
     val isStarted: Boolean = false,
     val isTicking: Boolean = false,
-    val isDefaultConfig: Boolean = true,
+    val isDefaultConf: Boolean = true,
 ) {
     val currentTime: Long
         get() = if (isWhiteTurn) whiteTime else blackTime
@@ -58,7 +58,7 @@ data class ChessClockUiState(
  *
  * @param[durationMinutes] Initial time for each player in minutes.
  * @param[incrementSeconds] Time increment in seconds.
- * @param[tickPeriod] Period between each tick in milliseconds.
+ * @param[tickPeriod] Period between ticks in milliseconds.
  */
 class ChessClockViewModel(
     durationMinutes: Long,
@@ -70,12 +70,50 @@ class ChessClockViewModel(
     private var currentDuration: Long = defaultDuration
     private var currentIncrement: Long = defaultIncrement
     private var targetRealtime: Long = 0L
+
+    private var savedDurationMinutes: Float = 0F
+        set(minutes) {
+            val incrementSeconds = savedIncrementSeconds.roundToLong()
+            field = minutes.coerceIn(
+                minimumValue = if (incrementSeconds == 0L) 1F else 0F,
+                maximumValue = 180F,
+            )
+        }
+
+    private var savedIncrementSeconds: Float = 0F
+        set(seconds) {
+            val durationMinutes = savedDurationMinutes.roundToLong()
+            field = seconds.coerceIn(
+                minimumValue = if (durationMinutes == 0L) 1F else 0F,
+                maximumValue = 30F,
+            )
+        }
+
+    private var savedMinutes: Float = 0F
+        set(minutes) {
+            val seconds = savedSeconds.roundToLong()
+            field = minutes.coerceIn(
+                minimumValue = (-seconds / 60L).toFloat() + if (seconds % 60L == 0L) 1F else 0F,
+                maximumValue = (599L - seconds / 60L).toFloat(),
+            )
+        }
+
+    private var savedSeconds: Float = 0F
+        set(seconds) {
+            val minutes = savedMinutes.roundToLong()
+            field = seconds.coerceIn(
+                minimumValue = (1L - minutes * 60L).toFloat(),
+                maximumValue = (35_999L - minutes * 60L).toFloat(),
+            )
+        }
+
     private val _uiState = MutableStateFlow(
         ChessClockUiState(
             whiteTime = defaultDuration + defaultIncrement,
             blackTime = defaultDuration + defaultIncrement,
         )
     )
+
     val uiState: StateFlow<ChessClockUiState> = _uiState.asStateFlow()
 
     fun start() {
@@ -124,6 +162,15 @@ class ChessClockViewModel(
         }
     }
 
+    fun resetConf() {
+        _uiState.update {
+            currentDuration = defaultDuration
+            currentIncrement = defaultIncrement
+            val newTime = currentDuration + currentIncrement
+            it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConf = true)
+        }
+    }
+
     fun resetTime() {
         _uiState.update {
             val newTime = currentDuration + currentIncrement
@@ -131,96 +178,37 @@ class ChessClockViewModel(
         }
     }
 
-    fun resetConfig() {
-        _uiState.update {
-            currentDuration = defaultDuration
-            currentIncrement = defaultIncrement
-            val newTime = currentDuration + currentIncrement
-            it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConfig = true)
-        }
+    fun saveConf() {
+        savedDurationMinutes = (currentDuration / 60_000L).toFloat()
+        savedIncrementSeconds = (currentIncrement / 1_000L).toFloat()
     }
-
-    private var savedDurationMinutes: Float = 0F
-        set(minutes) {
-            field = minutes.coerceIn(
-                minimumValue = if (currentIncrement < 1_000L) 1F else 0F,
-                maximumValue = 180F,
-            )
-        }
-
-    private var savedIncrementSeconds: Float = 0F
-        set(seconds) {
-            field = seconds.coerceIn(
-                minimumValue = if (currentDuration < 60_000L) 1F else 0F,
-                maximumValue = 30F,
-            )
-        }
-
-    private var savedMinutes: Float = 0F
-        set(minutes) {
-            val seconds = savedSeconds.roundToLong()
-            field = minutes.coerceIn(
-                minimumValue = (-seconds / 60L).toFloat() + if (seconds % 60L == 0L) 1F else 0F,
-                maximumValue = (599L - seconds / 60L).toFloat(),
-            )
-        }
-
-    private var savedSeconds: Float = 0F
-        set(seconds) {
-            val minutes = savedMinutes.roundToLong()
-            field = seconds.coerceIn(
-                minimumValue = (1L - minutes * 60L).toFloat(),
-                maximumValue = (35_999L - minutes * 60L).toFloat(),
-            )
-        }
 
     fun saveTime() {
-        if (_uiState.value.isStarted) {
-            val currentTime = _uiState.value.currentTime
-            savedMinutes = (currentTime / 60_000L).toFloat()
-            savedSeconds = (currentTime % 60_000L / 1_000L).toFloat()
-        } else {
-            savedDurationMinutes = (currentDuration / 60_000L).toFloat()
-            savedIncrementSeconds = (currentIncrement / 1_000L).toFloat()
+        val currentTime = _uiState.value.currentTime
+        savedMinutes = (currentTime / 60_000L).toFloat()
+        savedSeconds = (currentTime % 60_000L / 1_000L).toFloat()
+    }
+
+    fun restoreSavedConf(addMinutes: Float = 0F, addSeconds: Float = 0F) {
+        _uiState.update {
+            savedDurationMinutes += addMinutes
+            savedIncrementSeconds += addSeconds
+            currentDuration = savedDurationMinutes.roundToLong() * 60_000L
+            currentIncrement = savedIncrementSeconds.roundToLong() * 1_000L
+            val newTime = currentDuration + currentIncrement
+            it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConf = false)
         }
     }
 
-    fun addMinutesToSavedTime(minutes: Float) {
+    fun restoreSavedTime(addMinutes: Float = 0F, addSeconds: Float = 0F) {
         _uiState.update {
-            if (it.isStarted) {
-                savedMinutes += minutes
-                val newTime =
-                    savedMinutes.roundToLong() * 60_000L + savedSeconds.roundToLong() * 1_000L
-                if (it.isWhiteTurn) {
-                    it.copy(whiteTime = newTime)
-                } else {
-                    it.copy(blackTime = newTime)
-                }
+            savedMinutes += addMinutes
+            savedSeconds += addSeconds
+            val newTime = savedMinutes.roundToLong() * 60_000L + savedSeconds.roundToLong() * 1_000L
+            if (it.isWhiteTurn) {
+                it.copy(whiteTime = newTime)
             } else {
-                savedDurationMinutes += minutes
-                currentDuration = savedDurationMinutes.roundToLong() * 60_000L
-                val newTime = currentDuration + currentIncrement
-                it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConfig = false)
-            }
-        }
-    }
-
-    fun addSecondsToSavedTime(seconds: Float) {
-        _uiState.update {
-            if (it.isStarted) {
-                savedSeconds += seconds
-                val newTime =
-                    savedMinutes.roundToLong() * 60_000L + savedSeconds.roundToLong() * 1_000L
-                if (it.isWhiteTurn) {
-                    it.copy(whiteTime = newTime)
-                } else {
-                    it.copy(blackTime = newTime)
-                }
-            } else {
-                savedIncrementSeconds += seconds
-                currentIncrement = savedIncrementSeconds.roundToLong() * 1_000L
-                val newTime = currentDuration + currentIncrement
-                it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConfig = false)
+                it.copy(blackTime = newTime)
             }
         }
     }

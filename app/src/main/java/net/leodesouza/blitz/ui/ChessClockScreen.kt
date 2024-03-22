@@ -18,7 +18,9 @@ package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.view.OrientationEventListener
-import android.view.Surface
+import android.view.Surface.ROTATION_0
+import android.view.Surface.ROTATION_180
+import android.view.Surface.ROTATION_90
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -74,10 +76,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  *
  * @param[durationMinutes] Initial time for each player in minutes.
  * @param[incrementSeconds] Time increment in seconds.
- * @param[tickPeriod] Period between each tick in milliseconds.
+ * @param[tickPeriod] Period between ticks in milliseconds.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
- * @param[onClockStart] Callback called when the clock starts ticking.
- * @param[onClockPause] Callback called when the clock stops ticking.
+ * @param[onClockStart] Callback called before the clock starts ticking.
+ * @param[onClockPause] Callback called after the clock stops ticking.
  * @param[clock] ViewModel holding the state and logic for this screen.
  */
 @Composable
@@ -108,8 +110,8 @@ fun ChessClockScreen(
         clock.resetTime()
     }
 
-    BackHandler(!uiState.isStarted && !uiState.isDefaultConfig) {
-        clock.resetConfig()
+    BackHandler(!uiState.isStarted && !uiState.isDefaultConf) {
+        clock.resetConf()
     }
 
     LaunchedEffect(uiState.isTicking, uiState.whiteTime, uiState.blackTime) {
@@ -123,16 +125,16 @@ fun ChessClockScreen(
         }
     }
 
-    DisposableEffect(lifecycleOwner, context) {
+    DisposableEffect(lifecycleOwner) {
         val lifecycleObserver = object : DefaultLifecycleObserver {
             private val orientationEventListener by lazy {
                 object : OrientationEventListener(context) {
                     override fun onOrientationChanged(orientation: Int) {
                         if (orientation == ORIENTATION_UNKNOWN) return
                         val rotation = when (ContextCompat.getDisplayOrDefault(context).rotation) {
-                            Surface.ROTATION_0 -> 0
-                            Surface.ROTATION_90 -> 90
-                            Surface.ROTATION_180 -> 180
+                            ROTATION_0 -> 0
+                            ROTATION_90 -> 90
+                            ROTATION_180 -> 180
                             else -> 270
                         }
                         when ((orientation + rotation) % 360) {
@@ -175,14 +177,25 @@ fun ChessClockScreen(
                     if (it.type == KeyEventType.KeyDown) {
                         isConsumed = true
                         if (uiState.isPaused) {
-                            clock.saveTime()
-                            val sign = if (isRtl) -1F else 1F
-                            when (it.key) {
-                                Key.DirectionUp -> clock.addSecondsToSavedTime(1F)
-                                Key.DirectionDown -> clock.addSecondsToSavedTime(-1F)
-                                Key.DirectionRight -> clock.addMinutesToSavedTime(sign * 1F)
-                                Key.DirectionLeft -> clock.addMinutesToSavedTime(sign * -1F)
-                                else -> isConsumed = false
+                            val unit = if (isRtl) -1F else 1F
+                            if (uiState.isStarted) {
+                                clock.saveTime()
+                                when (it.key) {
+                                    Key.DirectionUp -> clock.restoreSavedTime(addSeconds = 1F)
+                                    Key.DirectionDown -> clock.restoreSavedTime(addSeconds = -1F)
+                                    Key.DirectionRight -> clock.restoreSavedTime(addMinutes = unit)
+                                    Key.DirectionLeft -> clock.restoreSavedTime(addMinutes = -unit)
+                                    else -> isConsumed = false
+                                }
+                            } else {
+                                clock.saveConf()
+                                when (it.key) {
+                                    Key.DirectionUp -> clock.restoreSavedConf(addSeconds = 1F)
+                                    Key.DirectionDown -> clock.restoreSavedConf(addSeconds = -1F)
+                                    Key.DirectionRight -> clock.restoreSavedConf(addMinutes = unit)
+                                    Key.DirectionLeft -> clock.restoreSavedConf(addMinutes = -unit)
+                                    else -> isConsumed = false
+                                }
                             }
                         }
                     }
@@ -191,18 +204,38 @@ fun ChessClockScreen(
             )
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
-                    onDragStart = { if (uiState.isPaused) clock.saveTime() },
-                    onDragEnd = { if (uiState.isTicking) clock.nextPlayer() },
+                    onDragStart = {
+                        if (uiState.isPaused) {
+                            if (uiState.isStarted) {
+                                clock.saveTime()
+                            } else {
+                                clock.saveConf()
+                            }
+                        }
+                    },
+                    onDragEnd = {
+                        if (uiState.isTicking) {
+                            clock.nextPlayer()
+                        }
+                    },
                     onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
                         if (uiState.isPaused) {
                             if (isLandscape) {
-                                val sign = if (isRtl) -1F else 1F
-                                val minutes = sign * dragSensitivity * dragAmount
-                                clock.addMinutesToSavedTime(minutes)
+                                val unit = if (isRtl) -1F else 1F
+                                val minutes = dragSensitivity * dragAmount * unit
+                                if (uiState.isStarted) {
+                                    clock.restoreSavedTime(addMinutes = minutes)
+                                } else {
+                                    clock.restoreSavedConf(addMinutes = minutes)
+                                }
                             } else {
-                                val sign = if (isLeaningRight) -1F else 1F
-                                val seconds = sign * dragSensitivity * dragAmount
-                                clock.addSecondsToSavedTime(seconds)
+                                val unit = if (isLeaningRight) -1F else 1F
+                                val seconds = dragSensitivity * dragAmount * unit
+                                if (uiState.isStarted) {
+                                    clock.restoreSavedTime(addSeconds = seconds)
+                                } else {
+                                    clock.restoreSavedConf(addSeconds = seconds)
+                                }
                             }
                         }
                     },
@@ -210,18 +243,38 @@ fun ChessClockScreen(
             }
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
-                    onDragStart = { if (uiState.isPaused) clock.saveTime() },
-                    onDragEnd = { if (uiState.isTicking) clock.nextPlayer() },
+                    onDragStart = {
+                        if (uiState.isPaused) {
+                            if (uiState.isStarted) {
+                                clock.saveTime()
+                            } else {
+                                clock.saveConf()
+                            }
+                        }
+                    },
+                    onDragEnd = {
+                        if (uiState.isTicking) {
+                            clock.nextPlayer()
+                        }
+                    },
                     onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
                         if (uiState.isPaused) {
                             if (isLandscape) {
-                                val sign = -1F
-                                val seconds = sign * dragSensitivity * dragAmount
-                                clock.addSecondsToSavedTime(seconds)
+                                val unit = -1F
+                                val seconds = dragSensitivity * dragAmount * unit
+                                if (uiState.isStarted) {
+                                    clock.restoreSavedTime(addSeconds = seconds)
+                                } else {
+                                    clock.restoreSavedConf(addSeconds = seconds)
+                                }
                             } else {
-                                val sign = if (isLeaningRight xor isRtl) -1F else 1F
-                                val minutes = sign * dragSensitivity * dragAmount
-                                clock.addMinutesToSavedTime(minutes)
+                                val unit = if (isLeaningRight xor isRtl) -1F else 1F
+                                val minutes = dragSensitivity * dragAmount * unit
+                                if (uiState.isStarted) {
+                                    clock.restoreSavedTime(addMinutes = minutes)
+                                } else {
+                                    clock.restoreSavedConf(addMinutes = minutes)
+                                }
                             }
                         }
                     },
@@ -249,7 +302,9 @@ fun ChessClockContent(
         if (isLeaningRight) -90F else 90F
     }
     val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
-    val fontSize = with(LocalDensity.current) { textHeight.toSp() }
+    val fontSize = with(LocalDensity.current) {
+        textHeight.toSp()
+    }
 
     Column {
         BasicTime(

@@ -1,0 +1,1 @@
+• Do not override lifecycle methods in MainActivitiy

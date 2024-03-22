@@ -1,5 +1,18 @@
 ## Changelog
 
+### [1.5.7] - 2024-03-22
+
+This release implements the official recommendation to use a LifecycleObserver in Compose instead of overriding lifecycle methods in the MainActivity.
+
+#### Improvement
+
+- Do not override lifecycle methods in MainActivitiy
+
+#### Notes
+
+- Simplify addMinutes and addSeconds methods
+- Remove redundant documentation
+
 ### [1.5.6] - 2024-03-22
 
 This release removes the permission net.leodesouza.blitz.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION because it is unnecessary as the only broadcast receiver used in the app is the ProfileInstallReceiver, whose only purpose is to install the baseline profile used to compile some parts of the app ahead of time during installation.
@@ -408,6 +421,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.5.7]: https://github.com/ldeso/blitz/releases/tag/v1.5.7
 [1.5.6]: https://github.com/ldeso/blitz/releases/tag/v1.5.6
 [1.5.5]: https://github.com/ldeso/blitz/releases/tag/v1.5.5
 [1.5.4]: https://github.com/ldeso/blitz/releases/tag/v1.5.4

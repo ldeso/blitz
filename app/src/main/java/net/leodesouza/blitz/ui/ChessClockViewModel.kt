@@ -25,7 +25,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.math.roundToLong
 
-/** UiState for the chess clock screen. */
+/**
+ * UiState for the chess clock screen.
+ *
+ * @param[whiteTime] Remaining time for the first player in milliseconds.
+ * @param[blackTime] Remaining time for the second player in milliseconds.
+ * @param[isWhiteTurn] Whether it is the turn of the first or the second player.
+ * @param[isStarted] Whether the clock has started ticking.
+ * @param[isTicking] Whether the clock is currently ticking.
+ * @param[isDefaultConfig] Whether the clock is set to its default configuration.
+ */
 data class ChessClockUiState(
     val whiteTime: Long,
     val blackTime: Long,
@@ -206,7 +215,6 @@ class ChessClockViewModel(
         }
     }
 
-    /** Add [seconds] to the current or saved seconds depending on whether [isAddedToSavedTime]. */
     fun addSeconds(seconds: Float, isAddedToSavedTime: Boolean = false) {
         if (!isAddedToSavedTime) saveTime()
         _uiState.update {

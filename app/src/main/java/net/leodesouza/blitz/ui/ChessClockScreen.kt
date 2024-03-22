@@ -57,7 +57,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
- * Chess clock screen that can be controlled by clicking, dragging, key presses and back events.
+ * A minimalist Fischer chess clock for Android.
+ *
+ * Default to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
+ * set by horizontal and vertical dragging. The back action pauses or resets the clock.
  *
  * @param[isLeaningRight] Whether the dragging direction is reversed in portrait mode.
  * @param[onStart] Callback called when the clock starts ticking.
@@ -166,9 +169,9 @@ fun ChessClockScreen(
 }
 
 /**
- * Content for the chess clock screen that displays the remaining [whiteTime] and [blackTime], and
- * where in portrait configurations the text is rotated by ninety degrees in a direction that
- * depends on whether the device [isLeaningRight].
+ * Chess clock screen content displaying the remaining [whiteTime] and [blackTime], and where in
+ * portrait configurations the text is rotated by ninety degrees in a direction that depends on
+ * whether the device [isLeaningRight].
  */
 @Preview
 @Composable

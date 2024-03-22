@@ -34,17 +34,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat.getDisplayOrDefault
 import net.leodesouza.blitz.ui.ChessClockScreen
 
-/**
- * A minimalist Fischer chess clock for Android.
- *
- * Default to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
- * set by horizontal and vertical dragging. The back action pauses or resets the clock.
- */
 class MainActivity : ComponentActivity() {
-    /** Mutable state keeping track of the whether the device is leaning right. */
     private val isLeaningRight = mutableStateOf(true)
 
-    /** Event listener updating [isLeaningRight] based on the orientation of the device. */
     private val orientationEventListener by lazy {
         object : OrientationEventListener(this) {
             override fun onOrientationChanged(orientation: Int) {
@@ -63,19 +55,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Enable the [orientationEventListener] after [onCreate] or [onRestart]. */
     override fun onStart() {
         super.onStart()
         orientationEventListener.enable()
     }
 
-    /** Disable the [orientationEventListener] when the activity is no longer visible. */
     override fun onStop() {
         super.onStop()
         orientationEventListener.disable()
     }
 
-    /** Enable the edge-to edge display, start the activity and compose a chess clock. */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(TRANSPARENT),
@@ -87,7 +76,6 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             ChessClockScreen(
-                isLeaningRight = { isLeaningRight.value },
                 onStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
                 onPause = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
             )

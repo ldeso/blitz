@@ -17,6 +17,8 @@
 package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
+import android.view.OrientationEventListener
+import android.view.Surface
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,10 +33,13 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -46,54 +51,99 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
- * A minimalist Fischer chess clock for Android.
+ * Minimalist Fischer chess clock.
  *
  * Default to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
  * set by horizontal and vertical dragging. The back action pauses or resets the clock.
  *
- * @param[isLeaningRight] Whether the dragging direction is reversed in portrait mode.
+ * @param[durationMinutes] Initial time for each player in minutes.
+ * @param[incrementSeconds] Time increment in seconds.
+ * @param[tickPeriod] Period between each tick in milliseconds.
+ * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[onStart] Callback called when the clock starts ticking.
  * @param[onPause] Callback called when the clock stops ticking.
  * @param[clock] ViewModel holding the state and logic for this screen.
  */
 @Composable
 fun ChessClockScreen(
-    isLeaningRight: () -> Boolean,
+    durationMinutes: Long = 5L,
+    incrementSeconds: Long = 3L,
+    tickPeriod: Long = 100L,
+    dragSensitivity: Float = 0.01F,
     onStart: () -> Unit = {},
     onPause: () -> Unit = {},
     clock: ChessClockViewModel = viewModel {
-        ChessClockViewModel(
-            durationMinutes = 5L,
-            incrementSeconds = 3L,
-            tickPeriod = 100L,
-            onStart = onStart,
-            onPause = onPause,
-        )
+        ChessClockViewModel(durationMinutes, incrementSeconds, tickPeriod, onStart, onPause)
     },
 ) {
     val uiState by clock.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
     val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val dragSensitivity = 0.01F
+    var isLeaningRight by remember { mutableStateOf(true) }
 
     BackHandler(uiState.isTicking) { clock.pause() }
+
     BackHandler(uiState.isStarted && !uiState.isTicking) { clock.resetTime() }
+
     BackHandler(!uiState.isStarted && !uiState.isDefaultConfig) { clock.resetConfig() }
 
     LaunchedEffect(uiState.isTicking, uiState.whiteTime, uiState.blackTime) {
         if (uiState.isTicking) {
-            if (uiState.isFinished) clock.pause() else clock.tick()
+            if (uiState.isFinished) {
+                clock.pause()
+            } else {
+                clock.tick()
+            }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, context) {
+        val lifecycleObserver = object : DefaultLifecycleObserver {
+            private val orientationEventListener by lazy {
+                object : OrientationEventListener(context) {
+                    override fun onOrientationChanged(orientation: Int) {
+                        if (orientation == ORIENTATION_UNKNOWN) return
+                        val rotation = when (ContextCompat.getDisplayOrDefault(context).rotation) {
+                            Surface.ROTATION_0 -> 0
+                            Surface.ROTATION_90 -> 90
+                            Surface.ROTATION_180 -> 180
+                            else -> 270
+                        }
+                        when ((orientation + rotation) % 360) {
+                            in 10 until 170 -> isLeaningRight = true
+                            in 190 until 350 -> isLeaningRight = false
+                        }
+                    }
+                }
+            }
+
+            override fun onStart(owner: LifecycleOwner) = orientationEventListener.enable()
+
+            override fun onStop(owner: LifecycleOwner) = orientationEventListener.disable()
+        }
+
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
         }
     }
 
@@ -141,7 +191,7 @@ fun ChessClockScreen(
                                 val minutes = sign * dragSensitivity * dragAmount
                                 clock.addMinutesToSavedTime(minutes)
                             } else {
-                                val sign = if (isLeaningRight.invoke()) -1F else 1F
+                                val sign = if (isLeaningRight) -1F else 1F
                                 val seconds = sign * dragSensitivity * dragAmount
                                 clock.addSecondsToSavedTime(seconds)
                             }
@@ -160,7 +210,7 @@ fun ChessClockScreen(
                                 val seconds = sign * dragSensitivity * dragAmount
                                 clock.addSecondsToSavedTime(seconds)
                             } else {
-                                val sign = if (isLeaningRight.invoke() xor isRtl) -1F else 1F
+                                val sign = if (isLeaningRight xor isRtl) -1F else 1F
                                 val minutes = sign * dragSensitivity * dragAmount
                                 clock.addMinutesToSavedTime(minutes)
                             }
@@ -169,7 +219,7 @@ fun ChessClockScreen(
                 )
             },
     ) {
-        ChessClockContent(uiState.whiteTime, uiState.blackTime, isLeaningRight.invoke())
+        ChessClockContent(uiState.whiteTime, uiState.blackTime, isLeaningRight)
     }
 }
 

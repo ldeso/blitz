@@ -20,51 +20,15 @@ import android.graphics.Color.BLACK
 import android.graphics.Color.TRANSPARENT
 import android.os.Build
 import android.os.Bundle
-import android.view.OrientationEventListener
-import android.view.Surface.ROTATION_0
-import android.view.Surface.ROTATION_180
-import android.view.Surface.ROTATION_90
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat.getDisplayOrDefault
 import net.leodesouza.blitz.ui.ChessClockScreen
 
 class MainActivity : ComponentActivity() {
-    private val isLeaningRight = mutableStateOf(true)
-
-    private val orientationEventListener by lazy {
-        object : OrientationEventListener(this) {
-            override fun onOrientationChanged(orientation: Int) {
-                if (orientation == ORIENTATION_UNKNOWN) return
-                val rotation = when (getDisplayOrDefault(this@MainActivity).rotation) {
-                    ROTATION_0 -> 0
-                    ROTATION_90 -> 90
-                    ROTATION_180 -> 180
-                    else -> 270
-                }
-                when ((orientation + rotation) % 360) {
-                    in 10 until 170 -> isLeaningRight.value = true
-                    in 190 until 350 -> isLeaningRight.value = false
-                }
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        orientationEventListener.enable()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        orientationEventListener.disable()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(TRANSPARENT),

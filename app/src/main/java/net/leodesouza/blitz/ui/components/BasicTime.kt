@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.LayoutDirection
 /**
  * Basic element that displays the time returned by a [timeProvider] in the format "MM:SS.D" or
  * "H:MM:SS.D" depending on whether there is more than one hour, in a given [style] and accepting a
- * given [modifier] to apply to its layout node. Change the text color to [timeOverColor] when the
- * time is over if specified.
+ * given [modifier] to apply to its layout node. Display zero if the time is negative, and
+ * optionally change the text color to [timeOverColor] when the time is over.
  */
 @Composable
 fun BasicTime(
@@ -40,13 +40,13 @@ fun BasicTime(
     style: TextStyle = TextStyle.Default,
     timeOverColor: Color = style.color,
 ) {
-    val timeMillis = timeProvider()
+    val timeMillis = timeProvider().coerceAtLeast(0L)
     val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
     val hours = timeTenthsOfSeconds / 36_000L
     val minutes = timeTenthsOfSeconds % 36_000L / 600L
     val seconds = timeTenthsOfSeconds % 600L / 10L
     val tenthsOfSeconds = timeTenthsOfSeconds % 10L
-    val defaultStyle = if (timeMillis > 0L) style else style.merge(color = timeOverColor)
+    val defaultStyle = if (timeMillis == 0L) style.merge(color = timeOverColor) else style
     val monospaceStyle = defaultStyle.merge(fontFamily = FontFamily.Monospace)
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {

@@ -16,35 +16,23 @@
 
 package net.leodesouza.blitz.ui
 
-import android.content.res.Configuration.ORIENTATION_LANDSCAPE
-import android.view.OrientationEventListener
-import android.view.Surface.ROTATION_0
-import android.view.Surface.ROTATION_180
-import android.view.Surface.ROTATION_90
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -52,21 +40,11 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import net.leodesouza.blitz.ui.components.IsLeaningRightListener
 
 /**
  * Minimalist Fischer chess clock.
@@ -95,65 +73,136 @@ fun ChessClockScreen(
     },
 ) {
     val uiState by clock.uiState.collectAsStateWithLifecycle()
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
-    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
-    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var isLeaningRight by remember { mutableStateOf(true) }
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-    BackHandler(uiState.isTicking) {
+    fun startClockWithCallback() {
+        onClockStart()
+        clock.start()
+    }
+
+    fun pauseClockWithCallback() {
         clock.pause()
-        onClockPause.invoke()
+        onClockPause()
     }
 
-    BackHandler(uiState.isStarted && !uiState.isTicking) {
-        clock.resetTime()
-    }
+    RepeatedTicking(
+        isTickingProvider = { uiState.isTicking },
+        isFinishedProvider = { uiState.isFinished },
+        currentTimeProvider = { uiState.currentTime },
+        pause = ::pauseClockWithCallback,
+        tick = clock::tick,
+    )
 
-    BackHandler(!uiState.isStarted && !uiState.isDefaultConf) {
-        clock.resetConf()
-    }
+    IsLeaningRightListener(onLeaningChanged = { isLeaningRight = it })
 
-    LaunchedEffect(uiState.isTicking, uiState.whiteTime, uiState.blackTime) {
-        if (uiState.isTicking) {
-            if (uiState.isFinished) {
-                clock.pause()
-                onClockPause.invoke()
-            } else {
-                clock.tick()
-            }
+    ChessClockBackHandler(
+        isStartedProvider = { uiState.isStarted },
+        isTickingProvider = { uiState.isTicking },
+        isDefaultConfProvider = { uiState.isDefaultConf },
+        pause = {
+            clock.restoreSavedTime(isDecimalRestored = true)
+            pauseClockWithCallback()
+        },
+        resetTime = clock::resetTime,
+        resetConf = clock::resetConf,
+    )
+
+    fun onClick() {
+        if (uiState.isPaused) {
+            startClockWithCallback()
+        } else if (uiState.isTicking) {
+            clock.nextPlayer()
         }
     }
 
-    DisposableEffect(lifecycleOwner) {
-        val lifecycleObserver = object : DefaultLifecycleObserver {
-            private val orientationEventListener by lazy {
-                object : OrientationEventListener(context) {
-                    override fun onOrientationChanged(orientation: Int) {
-                        if (orientation == ORIENTATION_UNKNOWN) return
-                        val rotation = when (ContextCompat.getDisplayOrDefault(context).rotation) {
-                            ROTATION_0 -> 0
-                            ROTATION_90 -> 90
-                            ROTATION_180 -> 180
-                            else -> 270
-                        }
-                        when ((orientation + rotation) % 360) {
-                            in 10 until 170 -> isLeaningRight = true
-                            in 190 until 350 -> isLeaningRight = false
-                        }
+    fun onKeyEvent(keyEvent: KeyEvent): Boolean {
+        if (keyEvent.type == KeyEventType.KeyDown) {
+            if (uiState.isPaused) {
+                val sign = if (isRtl) -1F else 1F
+                if (uiState.isStarted) {
+                    clock.saveTime()
+                    when (keyEvent.key) {
+                        Key.DirectionUp -> clock.restoreSavedTime(addSeconds = 1F)
+                        Key.DirectionDown -> clock.restoreSavedTime(addSeconds = -1F)
+                        Key.DirectionRight -> clock.restoreSavedTime(addMinutes = sign * 1F)
+                        Key.DirectionLeft -> clock.restoreSavedTime(addMinutes = sign * -1F)
+                        else -> return false
+                    }
+                } else {
+                    clock.saveConf()
+                    when (keyEvent.key) {
+                        Key.DirectionUp -> clock.restoreSavedConf(addSeconds = 1F)
+                        Key.DirectionDown -> clock.restoreSavedConf(addSeconds = -1F)
+                        Key.DirectionRight -> clock.restoreSavedConf(addMinutes = sign * 1F)
+                        Key.DirectionLeft -> clock.restoreSavedConf(addMinutes = sign * -1F)
+                        else -> return false
                     }
                 }
+                return true
             }
-
-            override fun onStart(owner: LifecycleOwner) = orientationEventListener.enable()
-
-            override fun onStop(owner: LifecycleOwner) = orientationEventListener.disable()
         }
+        return false
+    }
 
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+    fun onDragStart(offset: Offset) {
+        if (uiState.isPaused) {
+            if (uiState.isStarted) {
+                clock.saveTime()
+            } else {
+                clock.saveConf()
+            }
+        }
+    }
 
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+    fun onDragEnd() {
+        if (uiState.isTicking) {
+            clock.nextPlayer()
+        }
+    }
+
+    fun onHorizontalDrag(change: PointerInputChange, dragAmount: Float) {
+        if (uiState.isPaused) {
+            if (isLandscape) {
+                val unit = if (isRtl) -1F else 1F
+                val minutes = dragSensitivity * dragAmount * unit
+                if (uiState.isStarted) {
+                    clock.restoreSavedTime(addMinutes = minutes)
+                } else {
+                    clock.restoreSavedConf(addMinutes = minutes)
+                }
+            } else {
+                val unit = if (isLeaningRight) -1F else 1F
+                val seconds = dragSensitivity * dragAmount * unit
+                if (uiState.isStarted) {
+                    clock.restoreSavedTime(addSeconds = seconds)
+                } else {
+                    clock.restoreSavedConf(addSeconds = seconds)
+                }
+            }
+        }
+    }
+
+    fun onVerticalDrag(change: PointerInputChange, dragAmount: Float) {
+        if (uiState.isPaused) {
+            if (isLandscape) {
+                val unit = -1F
+                val seconds = dragSensitivity * dragAmount * unit
+                if (uiState.isStarted) {
+                    clock.restoreSavedTime(addSeconds = seconds)
+                } else {
+                    clock.restoreSavedConf(addSeconds = seconds)
+                }
+            } else {
+                val unit = if (isLeaningRight xor isRtl) -1F else 1F
+                val minutes = dragSensitivity * dragAmount * unit
+                if (uiState.isStarted) {
+                    clock.restoreSavedTime(addMinutes = minutes)
+                } else {
+                    clock.restoreSavedConf(addMinutes = minutes)
+                }
+            }
         }
     }
 
@@ -162,210 +211,97 @@ fun ChessClockScreen(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = {
-                    if (uiState.isPaused) {
-                        onClockStart.invoke()
-                        clock.start()
-                    } else if (uiState.isTicking) {
-                        clock.nextPlayer()
-                    }
-                },
-            )
-            .onKeyEvent(
-                onKeyEvent = {
-                    var isConsumed = false
-                    if (it.type == KeyEventType.KeyDown) {
-                        isConsumed = true
-                        if (uiState.isPaused) {
-                            val unit = if (isRtl) -1F else 1F
-                            if (uiState.isStarted) {
-                                clock.saveTime()
-                                when (it.key) {
-                                    Key.DirectionUp -> clock.restoreSavedTime(addSeconds = 1F)
-                                    Key.DirectionDown -> clock.restoreSavedTime(addSeconds = -1F)
-                                    Key.DirectionRight -> clock.restoreSavedTime(addMinutes = unit)
-                                    Key.DirectionLeft -> clock.restoreSavedTime(addMinutes = -unit)
-                                    else -> isConsumed = false
-                                }
-                            } else {
-                                clock.saveConf()
-                                when (it.key) {
-                                    Key.DirectionUp -> clock.restoreSavedConf(addSeconds = 1F)
-                                    Key.DirectionDown -> clock.restoreSavedConf(addSeconds = -1F)
-                                    Key.DirectionRight -> clock.restoreSavedConf(addMinutes = unit)
-                                    Key.DirectionLeft -> clock.restoreSavedConf(addMinutes = -unit)
-                                    else -> isConsumed = false
-                                }
-                            }
-                        }
-                    }
-                    isConsumed
-                },
+                onClick = ::onClick,
             )
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
-                    onDragStart = {
-                        if (uiState.isPaused) {
-                            if (uiState.isStarted) {
-                                clock.saveTime()
-                            } else {
-                                clock.saveConf()
-                            }
-                        }
-                    },
-                    onDragEnd = {
-                        if (uiState.isTicking) {
-                            clock.nextPlayer()
-                        }
-                    },
-                    onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
-                        if (uiState.isPaused) {
-                            if (isLandscape) {
-                                val unit = if (isRtl) -1F else 1F
-                                val minutes = dragSensitivity * dragAmount * unit
-                                if (uiState.isStarted) {
-                                    clock.restoreSavedTime(addMinutes = minutes)
-                                } else {
-                                    clock.restoreSavedConf(addMinutes = minutes)
-                                }
-                            } else {
-                                val unit = if (isLeaningRight) -1F else 1F
-                                val seconds = dragSensitivity * dragAmount * unit
-                                if (uiState.isStarted) {
-                                    clock.restoreSavedTime(addSeconds = seconds)
-                                } else {
-                                    clock.restoreSavedConf(addSeconds = seconds)
-                                }
-                            }
-                        }
-                    },
+                    onDragStart = ::onDragStart,
+                    onDragEnd = ::onDragEnd,
+                    onHorizontalDrag = ::onHorizontalDrag,
                 )
             }
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
-                    onDragStart = {
-                        if (uiState.isPaused) {
-                            if (uiState.isStarted) {
-                                clock.saveTime()
-                            } else {
-                                clock.saveConf()
-                            }
-                        }
-                    },
-                    onDragEnd = {
-                        if (uiState.isTicking) {
-                            clock.nextPlayer()
-                        }
-                    },
-                    onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
-                        if (uiState.isPaused) {
-                            if (isLandscape) {
-                                val unit = -1F
-                                val seconds = dragSensitivity * dragAmount * unit
-                                if (uiState.isStarted) {
-                                    clock.restoreSavedTime(addSeconds = seconds)
-                                } else {
-                                    clock.restoreSavedConf(addSeconds = seconds)
-                                }
-                            } else {
-                                val unit = if (isLeaningRight xor isRtl) -1F else 1F
-                                val minutes = dragSensitivity * dragAmount * unit
-                                if (uiState.isStarted) {
-                                    clock.restoreSavedTime(addMinutes = minutes)
-                                } else {
-                                    clock.restoreSavedConf(addMinutes = minutes)
-                                }
-                            }
-                        }
-                    },
+                    onDragStart = ::onDragStart,
+                    onDragEnd = ::onDragEnd,
+                    onVerticalDrag = ::onVerticalDrag,
                 )
-            },
+            }
+            .onKeyEvent(onKeyEvent = ::onKeyEvent),
     ) {
-        ChessClockContent(uiState.whiteTime, uiState.blackTime, isLeaningRight)
-    }
-}
-
-/**
- * Chess clock screen content displaying the remaining [whiteTime] and [blackTime], and where in
- * portrait mode the text is rotated by ninety degrees in a direction that depends on whether the
- * device [isLeaningRight].
- */
-@Preview
-@Composable
-fun ChessClockContent(
-    whiteTime: Long = 303_000L, blackTime: Long = 303_000L, isLeaningRight: Boolean = true
-) {
-    val isLandscape = LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE
-    val rotation = if (isLandscape) {
-        0F
-    } else {
-        if (isLeaningRight) -90F else 90F
-    }
-    val textHeight = LocalConfiguration.current.screenHeightDp.dp / if (isLandscape) 3 else 8
-    val fontSize = with(LocalDensity.current) {
-        textHeight.toSp()
-    }
-
-    Column {
-        BasicTime(
-            blackTime,
-            modifier = Modifier
-                .background(Color.Black)
-                .rotate(rotation)
-                .weight(1F)
-                .fillMaxSize()
-                .wrapContentSize(),
-            style = TextStyle(
-                color = if (blackTime > 0L) Color.White else Color.Red,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Bold
-            ),
-        )
-        BasicTime(
-            whiteTime,
-            modifier = Modifier
-                .background(Color.White)
-                .rotate(rotation)
-                .weight(1F)
-                .fillMaxSize()
-                .wrapContentSize(),
-            style = TextStyle(
-                color = if (whiteTime > 0L) Color.Black else Color.Red,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Bold
-            ),
+        ChessClockContent(
+            whiteTimeProvider = { uiState.whiteTime },
+            blackTimeProvider = { uiState.blackTime },
+            isWhiteTurnProvider = { uiState.isWhiteTurn },
+            isTickingProvider = { uiState.isTicking },
+            isLeaningRightProvider = { isLeaningRight },
         )
     }
 }
 
 /**
- * Basic element that displays a [timeMillis] in the format "MM:SS.D" or "H:MM:SS.D", in a given
- * [style] and accepting a given [modifier] to apply to its layout node.
+ * Effect taking care of repeatedly waiting for the next tick or pausing the clock when it has
+ * finished ticking.
+ *
+ * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
+ * @param[isFinishedProvider] Lambda for whether the clock has finished ticking.
+ * @param[currentTimeProvider] Lambda for the time of the current player.
+ * @param[pause] Callback called to pause the clock.
+ * @param[tick] Callback called to wait until next tick.
  */
 @Composable
-fun BasicTime(
-    timeMillis: Long, modifier: Modifier = Modifier, style: TextStyle = TextStyle.Default
+fun RepeatedTicking(
+    isTickingProvider: () -> Boolean,
+    isFinishedProvider: () -> Boolean,
+    currentTimeProvider: () -> Long,
+    pause: () -> Unit,
+    tick: suspend () -> Unit,
 ) {
-    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
-    val hours = timeTenthsOfSeconds / 36_000L
-    val minutes = timeTenthsOfSeconds % 36_000L / 600L
-    val seconds = timeTenthsOfSeconds % 600L / 10L
-    val tenthsOfSeconds = timeTenthsOfSeconds % 10L
-    val monospace = style.merge(fontFamily = FontFamily.Monospace)
+    val isTicking = isTickingProvider()
+    val isFinished = isFinishedProvider()
+    val currentTime = currentTimeProvider()
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Row(modifier) {
-            if (hours != 0L) {
-                BasicText("$hours", style = monospace)
-                BasicText(":", style = style)
+    LaunchedEffect(isTicking, currentTime) {
+        if (isTicking) {
+            if (isFinished) {
+                pause()
+            } else {
+                tick()
             }
-            BasicText("$minutes".padStart(2, '0'), style = monospace)
-            BasicText(":", style = style)
-            BasicText("$seconds".padStart(2, '0'), style = monospace)
-            if (hours == 0L) {
-                BasicText(".", style = style)
-                BasicText("$tenthsOfSeconds", style = monospace)
-            }
+        }
+    }
+}
+
+/**
+ * Effect making the clock handle system back gestures.
+ *
+ * @param[isStartedProvider] Lambda for whether the clock has started ticking.
+ * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
+ * @param[isDefaultConfProvider] Lambda for whether the clock is set to its default configuration.
+ * @param[pause] Callback called to pause the clock.
+ * @param[resetTime] Callback called to reset the time.
+ * @param[resetConf] Callback called to reset the configuration.
+ */
+@Composable
+fun ChessClockBackHandler(
+    isStartedProvider: () -> Boolean,
+    isTickingProvider: () -> Boolean,
+    isDefaultConfProvider: () -> Boolean,
+    pause: () -> Unit,
+    resetTime: () -> Unit,
+    resetConf: () -> Unit,
+) {
+    val isStarted = isStartedProvider()
+    val isTicking = isTickingProvider()
+    val isDefaultConf = isDefaultConfProvider()
+
+    BackHandler(enabled = isTicking || isStarted || !isDefaultConf) {
+        if (isTicking) {
+            pause()
+        } else if (isStarted) {
+            resetTime()
+        } else {
+            resetConf()
         }
     }
 }

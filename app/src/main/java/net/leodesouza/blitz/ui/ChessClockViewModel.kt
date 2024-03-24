@@ -26,34 +26,6 @@ import kotlinx.coroutines.flow.update
 import kotlin.math.roundToLong
 
 /**
- * UiState for the chess clock screen.
- *
- * @param[whiteTime] Remaining time for the first player in milliseconds.
- * @param[blackTime] Remaining time for the second player in milliseconds.
- * @param[isWhiteTurn] Whether it is the turn of the first or the second player.
- * @param[isStarted] Whether the clock has started ticking.
- * @param[isTicking] Whether the clock is currently ticking.
- * @param[isDefaultConf] Whether the clock is set to its default configuration.
- */
-data class ChessClockUiState(
-    val whiteTime: Long,
-    val blackTime: Long,
-    val isWhiteTurn: Boolean = true,
-    val isStarted: Boolean = false,
-    val isTicking: Boolean = false,
-    val isDefaultConf: Boolean = true,
-) {
-    val currentTime: Long
-        get() = if (isWhiteTurn) whiteTime else blackTime
-
-    val isFinished: Boolean
-        get() = whiteTime <= 0L || blackTime <= 0L
-
-    val isPaused: Boolean
-        get() = !isTicking && !isFinished
-}
-
-/**
  * ViewModel for the chess clock screen.
  *
  * @param[durationMinutes] Initial time for each player in minutes.
@@ -65,11 +37,20 @@ class ChessClockViewModel(
     incrementSeconds: Long,
     private val tickPeriod: Long,
 ) : ViewModel() {
-    private val defaultDuration = durationMinutes * 60_000L
-    private val defaultIncrement = incrementSeconds * 1_000L
+    private val defaultDuration: Long = durationMinutes * 60_000L
+    private val defaultIncrement: Long = incrementSeconds * 1_000L
     private var currentDuration: Long = defaultDuration
     private var currentIncrement: Long = defaultIncrement
     private var targetRealtime: Long = 0L
+
+    private val _uiState: MutableStateFlow<ChessClockUiState> = MutableStateFlow(
+        ChessClockUiState(
+            whiteTime = defaultDuration + defaultIncrement,
+            blackTime = defaultDuration + defaultIncrement,
+        )
+    )
+
+    val uiState: StateFlow<ChessClockUiState> = _uiState.asStateFlow()
 
     private var savedDurationMinutes: Float = 0F
         set(minutes) {
@@ -106,15 +87,6 @@ class ChessClockViewModel(
                 maximumValue = (35_999L - minutes * 60L).toFloat(),
             )
         }
-
-    private val _uiState = MutableStateFlow(
-        ChessClockUiState(
-            whiteTime = defaultDuration + defaultIncrement,
-            blackTime = defaultDuration + defaultIncrement,
-        )
-    )
-
-    val uiState: StateFlow<ChessClockUiState> = _uiState.asStateFlow()
 
     fun start() {
         _uiState.update {
@@ -162,6 +134,13 @@ class ChessClockViewModel(
         }
     }
 
+    fun resetTime() {
+        _uiState.update {
+            val newTime = currentDuration + currentIncrement
+            it.copy(whiteTime = newTime, blackTime = newTime, isWhiteTurn = true, isStarted = false)
+        }
+    }
+
     fun resetConf() {
         _uiState.update {
             currentDuration = defaultDuration
@@ -171,11 +150,10 @@ class ChessClockViewModel(
         }
     }
 
-    fun resetTime() {
-        _uiState.update {
-            val newTime = currentDuration + currentIncrement
-            it.copy(whiteTime = newTime, blackTime = newTime, isWhiteTurn = true, isStarted = false)
-        }
+    fun saveTime() {
+        val currentTime = targetRealtime - elapsedRealtime()
+        savedMinutes = (currentTime / 60_000L).toFloat()
+        savedSeconds = (currentTime % 60_000L).toFloat() / 1_000F
     }
 
     fun saveConf() {
@@ -183,10 +161,24 @@ class ChessClockViewModel(
         savedIncrementSeconds = (currentIncrement / 1_000L).toFloat()
     }
 
-    fun saveTime() {
-        val currentTime = _uiState.value.currentTime
-        savedMinutes = (currentTime / 60_000L).toFloat()
-        savedSeconds = (currentTime % 60_000L / 1_000L).toFloat()
+    fun restoreSavedTime(
+        addMinutes: Float = 0F, addSeconds: Float = 0F, isDecimalRestored: Boolean = false,
+    ) {
+        _uiState.update {
+            savedMinutes += addMinutes
+            savedSeconds += addSeconds
+            val newTime = savedMinutes.roundToLong() * 60_000L + if (isDecimalRestored) {
+                (savedSeconds * 1_000F).roundToLong()
+            } else {
+                savedSeconds.roundToLong() * 1_000L
+            }
+            targetRealtime = elapsedRealtime() + newTime
+            if (it.isWhiteTurn) {
+                it.copy(whiteTime = newTime)
+            } else {
+                it.copy(blackTime = newTime)
+            }
+        }
     }
 
     fun restoreSavedConf(addMinutes: Float = 0F, addSeconds: Float = 0F) {
@@ -197,19 +189,6 @@ class ChessClockViewModel(
             currentIncrement = savedIncrementSeconds.roundToLong() * 1_000L
             val newTime = currentDuration + currentIncrement
             it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConf = false)
-        }
-    }
-
-    fun restoreSavedTime(addMinutes: Float = 0F, addSeconds: Float = 0F) {
-        _uiState.update {
-            savedMinutes += addMinutes
-            savedSeconds += addSeconds
-            val newTime = savedMinutes.roundToLong() * 60_000L + savedSeconds.roundToLong() * 1_000L
-            if (it.isWhiteTurn) {
-                it.copy(whiteTime = newTime)
-            } else {
-                it.copy(blackTime = newTime)
-            }
         }
     }
 }

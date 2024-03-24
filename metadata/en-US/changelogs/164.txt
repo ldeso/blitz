@@ -1,0 +1,2 @@
+• Fix bug where a negative time would be displayed if the clock reached zero in the background
+• Fix bug where position would not reset when canceling back gestures

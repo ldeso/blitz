@@ -1,5 +1,13 @@
 ## Changelog
 
+### [1.6.3] - 2024-03-24
+
+This release adds a delay to improve the predictive back gesture animation.
+
+#### Improvement
+
+- Add delay to improve predictive back gesture animation
+
 ### [1.6.2] - 2024-03-24
 
 This release fixes a bug introduced in version [1.6.0] where dragging to change the time would give unexpected values.
@@ -470,6 +478,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.6.3]: https://github.com/ldeso/blitz/releases/tag/v1.6.3
 [1.6.2]: https://github.com/ldeso/blitz/releases/tag/v1.6.2
 [1.6.1]: https://github.com/ldeso/blitz/releases/tag/v1.6.1
 [1.6.0]: https://github.com/ldeso/blitz/releases/tag/v1.6.0

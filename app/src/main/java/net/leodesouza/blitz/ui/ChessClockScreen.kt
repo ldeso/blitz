@@ -80,6 +80,7 @@ fun ChessClockScreen(
     var isLeaningRight by remember { mutableStateOf(true) }
     var backProgress by remember { mutableFloatStateOf(0F) }
     var backSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_RIGHT) }
+    var isBackToPause by remember { mutableStateOf(false) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -93,7 +94,7 @@ fun ChessClockScreen(
         onClockPause()
     }
 
-    RepeatedTicking(
+    ChessClockTicking(
         isTickingProvider = { uiState.isTicking },
         isFinishedProvider = { uiState.isFinished },
         currentTimeProvider = { uiState.currentTime },
@@ -116,6 +117,7 @@ fun ChessClockScreen(
         resetConf = clock::resetConf,
         updateProgress = { backProgress = it },
         updateSwipeEdge = { backSwipeEdge = it },
+        updateIsBackToPause = { isBackToPause = it },
     )
 
     fun onClick() {
@@ -242,7 +244,7 @@ fun ChessClockScreen(
             whiteTimeProvider = { uiState.whiteTime },
             blackTimeProvider = { uiState.blackTime },
             isWhiteTurnProvider = { uiState.isWhiteTurn },
-            isTickingProvider = { uiState.isTicking },
+            isBackToPauseProvider = { isBackToPause },
             isLeaningRightProvider = { isLeaningRight },
             backProgressProvider = { backProgress },
             backSwipeEdgeProvider = { backSwipeEdge },
@@ -261,7 +263,7 @@ fun ChessClockScreen(
  * @param[tick] Callback called to wait until next tick.
  */
 @Composable
-fun RepeatedTicking(
+fun ChessClockTicking(
     isTickingProvider: () -> Boolean,
     isFinishedProvider: () -> Boolean,
     currentTimeProvider: () -> Long,
@@ -289,12 +291,13 @@ fun RepeatedTicking(
  * @param[isStartedProvider] Lambda for whether the clock has started ticking.
  * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isDefaultConfProvider] Lambda for whether the clock is set to its default configuration.
- * @param[preparePause] Callback called at the beginning of the back gesture.
+ * @param[preparePause] Callback called at the beginning of the progressive back gesture.
  * @param[pause] Callback called to pause the clock.
  * @param[resetTime] Callback called to reset the time.
  * @param[resetConf] Callback called to reset the configuration.
- * @param[updateProgress] Callback called to update the progress of a progressive back event.
- * @param[updateSwipeEdge] Callback called to update the swipe edge of a back event.
+ * @param[updateProgress] Callback called to update the progress of the progressive back gesture.
+ * @param[updateSwipeEdge] Callback called to update the swipe edge of the back gesture.
+ * @param[updateIsBackToPause] Callback called to update whether the back gesture pauses the clock.
  */
 @Composable
 fun ChessClockBackHandler(
@@ -307,6 +310,7 @@ fun ChessClockBackHandler(
     resetConf: () -> Unit,
     updateProgress: (Float) -> Unit,
     updateSwipeEdge: (Int) -> Unit,
+    updateIsBackToPause: (Boolean) -> Unit,
 ) {
     val isStarted = isStartedProvider()
     val isTicking = isTickingProvider()
@@ -316,6 +320,9 @@ fun ChessClockBackHandler(
     PredictiveBackHandler(enabled = enabled) { progress: Flow<BackEventCompat> ->
         if (isTicking) {
             preparePause()
+            updateIsBackToPause(true)
+        } else {
+            updateIsBackToPause(false)
         }
         try {
             progress.collect { backEvent ->

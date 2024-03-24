@@ -151,7 +151,7 @@ class ChessClockViewModel(
     }
 
     fun saveTime() {
-        val currentTime = targetRealtime - elapsedRealtime()
+        val currentTime = _uiState.value.currentTime
         savedMinutes = (currentTime / 60_000L).toFloat()
         savedSeconds = (currentTime % 60_000L).toFloat() / 1_000F
     }
@@ -167,10 +167,11 @@ class ChessClockViewModel(
         _uiState.update {
             savedMinutes += addMinutes
             savedSeconds += addSeconds
-            val newTime = savedMinutes.roundToLong() * 60_000L + if (isDecimalRestored) {
-                (savedSeconds * 1_000F).roundToLong()
-            } else {
+            val isRoundedToTheSecond = !isDecimalRestored && addSeconds < 1F
+            val newTime = savedMinutes.roundToLong() * 60_000L + if (isRoundedToTheSecond) {
                 savedSeconds.roundToLong() * 1_000L
+            } else {
+                (savedSeconds * 1_000F).roundToLong()
             }
             targetRealtime = elapsedRealtime() + newTime
             if (it.isWhiteTurn) {

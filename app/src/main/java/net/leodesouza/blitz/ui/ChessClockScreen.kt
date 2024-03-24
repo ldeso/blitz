@@ -17,7 +17,8 @@
 package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration
-import androidx.activity.compose.BackHandler
+import androidx.activity.BackEventCompat
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -26,6 +27,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,6 +47,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.Flow
 import net.leodesouza.blitz.ui.components.IsLeaningRightListener
 
 /**
@@ -74,6 +78,8 @@ fun ChessClockScreen(
 ) {
     val uiState by clock.uiState.collectAsStateWithLifecycle()
     var isLeaningRight by remember { mutableStateOf(true) }
+    var backProgress by remember { mutableFloatStateOf(0F) }
+    var backSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_RIGHT) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -101,12 +107,15 @@ fun ChessClockScreen(
         isStartedProvider = { uiState.isStarted },
         isTickingProvider = { uiState.isTicking },
         isDefaultConfProvider = { uiState.isDefaultConf },
+        preparePause = clock::saveTime,
         pause = {
             clock.restoreSavedTime(isDecimalRestored = true)
             pauseClockWithCallback()
         },
         resetTime = clock::resetTime,
         resetConf = clock::resetConf,
+        updateProgress = { backProgress = it },
+        updateSwipeEdge = { backSwipeEdge = it },
     )
 
     fun onClick() {
@@ -235,6 +244,8 @@ fun ChessClockScreen(
             isWhiteTurnProvider = { uiState.isWhiteTurn },
             isTickingProvider = { uiState.isTicking },
             isLeaningRightProvider = { isLeaningRight },
+            backProgressProvider = { backProgress },
+            backSwipeEdgeProvider = { backSwipeEdge },
         )
     }
 }
@@ -278,30 +289,48 @@ fun RepeatedTicking(
  * @param[isStartedProvider] Lambda for whether the clock has started ticking.
  * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isDefaultConfProvider] Lambda for whether the clock is set to its default configuration.
+ * @param[preparePause] Callback called at the beginning of the back gesture.
  * @param[pause] Callback called to pause the clock.
  * @param[resetTime] Callback called to reset the time.
  * @param[resetConf] Callback called to reset the configuration.
+ * @param[updateProgress] Callback called to update the progress of a progressive back event.
+ * @param[updateSwipeEdge] Callback called to update the swipe edge of a back event.
  */
 @Composable
 fun ChessClockBackHandler(
     isStartedProvider: () -> Boolean,
     isTickingProvider: () -> Boolean,
     isDefaultConfProvider: () -> Boolean,
+    preparePause: () -> Unit,
     pause: () -> Unit,
     resetTime: () -> Unit,
     resetConf: () -> Unit,
+    updateProgress: (Float) -> Unit,
+    updateSwipeEdge: (Int) -> Unit,
 ) {
     val isStarted = isStartedProvider()
     val isTicking = isTickingProvider()
     val isDefaultConf = isDefaultConfProvider()
+    val enabled = isTicking || isStarted || !isDefaultConf
 
-    BackHandler(enabled = isTicking || isStarted || !isDefaultConf) {
+    PredictiveBackHandler(enabled = enabled) { progress: Flow<BackEventCompat> ->
         if (isTicking) {
-            pause()
-        } else if (isStarted) {
-            resetTime()
-        } else {
-            resetConf()
+            preparePause()
+        }
+        try {
+            progress.collect { backEvent ->
+                updateProgress(backEvent.progress)
+                updateSwipeEdge(backEvent.swipeEdge)
+            }
+            if (isTicking) {
+                pause()
+            } else if (isStarted) {
+                resetTime()
+            } else {
+                resetConf()
+            }
+        } finally {
+            updateProgress(0F)
         }
     }
 }

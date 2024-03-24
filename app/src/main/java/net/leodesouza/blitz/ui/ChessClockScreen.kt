@@ -319,7 +319,6 @@ fun ChessClockBackHandler(
     val enabled = isTicking || isStarted || !isDefaultConf
 
     PredictiveBackHandler(enabled = enabled) { progress: Flow<BackEventCompat> ->
-        var backEventProgress = 0F
         if (isTicking) {
             preparePause()
             updateIsBackToPause(true)
@@ -327,17 +326,11 @@ fun ChessClockBackHandler(
             updateIsBackToPause(false)
         }
         try {
+            var backEventProgress = 0F
             progress.collect { backEvent ->
                 backEventProgress = backEvent.progress
                 updateProgress(backEventProgress)
                 updateSwipeEdge(backEvent.swipeEdge)
-            }
-            if (isTicking) {
-                pause()
-            } else if (isStarted) {
-                resetTime()
-            } else {
-                resetConf()
             }
             while (backEventProgress < 1F) {
                 backEventProgress += 0.01F
@@ -345,6 +338,13 @@ fun ChessClockBackHandler(
                 delay(1L)
             }
             delay(100L)
+            if (isTicking) {
+                pause()
+            } else if (isStarted) {
+                resetTime()
+            } else {
+                resetConf()
+            }
         } finally {
             updateProgress(0F)
         }

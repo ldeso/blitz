@@ -1,5 +1,14 @@
 ## Changelog
 
+### [1.6.1] - 2024-03-11
+
+This release fixes two bugs introduced in version [1.6.0] that were triggered by predictive back gestures and the clock reaching zero.
+
+#### Bug Fixes
+
+- Fix bug where wrong animation was shown if time ended during back gesture
+- Fix bug where time would not change color when reaching zero
+
 ### [1.6.0] - 2024-03-24
 
 This release introduces predictive back gestures within the app and drastically reduces the number of recompositions by hoisting state the closest to where it is consumed.
@@ -453,6 +462,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.6.1]: https://github.com/ldeso/blitz/releases/tag/v1.6.1
 [1.6.0]: https://github.com/ldeso/blitz/releases/tag/v1.6.0
 [1.5.8]: https://github.com/ldeso/blitz/releases/tag/v1.5.8
 [1.5.7]: https://github.com/ldeso/blitz/releases/tag/v1.5.7

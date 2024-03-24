@@ -67,14 +67,14 @@ fun ChessClockContent(
     } else {
         90F
     }
-    val timeOverColor = Color.Red //.copy(alpha = alpha)
+    val swipeSpeed = 1F
     val density = LocalDensity.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val textHeight = screenHeight / if (isLandscape) 3 else 8
     val fontSize = with(density) { textHeight.toSp() }
     val fontWeight = FontWeight.Bold
-    val swipeSpeed = 3F
+    val timeOverColor = Color.Red
 
     Column {
         val reusableItemModifier = Modifier
@@ -100,11 +100,8 @@ fun ChessClockContent(
                     )
                 }
                 .then(reusableItemModifier),
-            style = TextStyle(
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                color = Color.White //.copy(alpha = alpha),
-            ),
+            style = TextStyle(fontSize = fontSize, fontWeight = fontWeight, color = Color.White),
+            timeOverColor = timeOverColor,
         )
         BasicTime(
             timeProvider = whiteTimeProvider,
@@ -125,6 +122,7 @@ fun ChessClockContent(
                 }
                 .then(reusableItemModifier),
             style = TextStyle(fontSize = fontSize, fontWeight = fontWeight, color = Color.Black),
+            timeOverColor = timeOverColor,
         )
     }
 }

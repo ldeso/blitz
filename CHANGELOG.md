@@ -1,5 +1,13 @@
 ## Changelog
 
+### [1.6.2] - 2024-03-11
+
+This release fixes a bug introduced in version [1.6.0] where dragging to change the time would give unexpected values.
+
+#### Bug Fix
+
+- Fix a bug where dragging to change the time would yield incorrect values
+
 ### [1.6.1] - 2024-03-11
 
 This release fixes two bugs introduced in version [1.6.0] that were triggered by predictive back gestures and the clock reaching zero.
@@ -462,6 +470,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.6.2]: https://github.com/ldeso/blitz/releases/tag/v1.6.2
 [1.6.1]: https://github.com/ldeso/blitz/releases/tag/v1.6.1
 [1.6.0]: https://github.com/ldeso/blitz/releases/tag/v1.6.0
 [1.5.8]: https://github.com/ldeso/blitz/releases/tag/v1.5.8

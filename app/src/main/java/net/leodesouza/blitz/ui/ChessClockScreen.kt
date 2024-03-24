@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import net.leodesouza.blitz.ui.components.IsLeaningRightListener
 
@@ -318,6 +319,7 @@ fun ChessClockBackHandler(
     val enabled = isTicking || isStarted || !isDefaultConf
 
     PredictiveBackHandler(enabled = enabled) { progress: Flow<BackEventCompat> ->
+        var backEventProgress = 0F
         if (isTicking) {
             preparePause()
             updateIsBackToPause(true)
@@ -326,7 +328,8 @@ fun ChessClockBackHandler(
         }
         try {
             progress.collect { backEvent ->
-                updateProgress(backEvent.progress)
+                backEventProgress = backEvent.progress
+                updateProgress(backEventProgress)
                 updateSwipeEdge(backEvent.swipeEdge)
             }
             if (isTicking) {
@@ -337,6 +340,12 @@ fun ChessClockBackHandler(
                 resetConf()
             }
         } finally {
+            while (backEventProgress < 1F) {
+                backEventProgress += 0.01F
+                updateProgress(backEventProgress)
+                delay(1L)
+            }
+            delay(100L)
             updateProgress(0F)
         }
     }

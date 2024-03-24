@@ -339,13 +339,13 @@ fun ChessClockBackHandler(
             } else {
                 resetConf()
             }
-        } finally {
             while (backEventProgress < 1F) {
                 backEventProgress += 0.01F
                 updateProgress(backEventProgress)
                 delay(1L)
             }
             delay(100L)
+        } finally {
             updateProgress(0F)
         }
     }

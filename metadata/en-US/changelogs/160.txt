@@ -1,0 +1,2 @@
+• Enable predictive back gestures
+• Drastically reduce recompositions

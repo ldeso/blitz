@@ -1,5 +1,21 @@
 ## Changelog
 
+### [1.6.0] - 2024-03-24
+
+This release introduces predictive back gestures within the app and drastically reduces the number of recompositions by hoisting state the closest to where it is consumed.
+
+#### New Feature
+
+- Enable predictive back gestures
+
+#### Improvement
+
+- Drastically reduce recompositions
+
+#### Note
+
+- Add parameter names
+
 ### [1.5.8] - 2024-03-22
 
 This release allows the app to conserve app resources using the collectAsStateWithLifecycle API to collect the uiState in a lifecycle-aware manner.
@@ -437,6 +453,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.6.0]: https://github.com/ldeso/blitz/releases/tag/v1.6.0
 [1.5.8]: https://github.com/ldeso/blitz/releases/tag/v1.5.8
 [1.5.7]: https://github.com/ldeso/blitz/releases/tag/v1.5.7
 [1.5.6]: https://github.com/ldeso/blitz/releases/tag/v1.5.6

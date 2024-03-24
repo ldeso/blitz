@@ -33,8 +33,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.light(TRANSPARENT, BLACK),
+            statusBarStyle = SystemBarStyle.dark(scrim = TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(scrim = TRANSPARENT, darkScrim = BLACK),
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.attributes.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES

@@ -1,5 +1,13 @@
 ## Changelog
 
+### [1.6.5] - 2024-03-24
+
+This release fixes a bug introduced in version [1.6.3] where the time could change before the end of the predictive back gesture animation.
+
+#### Bug Fix
+
+- Fix bug where time could change before end of predictive back gesture animation
+
 ### [1.6.4] - 2024-03-24
 
 This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0] where the position of the time would not reset when canceling a predictive back gesture.
@@ -491,6 +499,7 @@ This release fixes a bug where the time could still be incremented after reachin
 
 Initial release.
 
+[1.6.5]: https://github.com/ldeso/blitz/releases/tag/v1.6.5
 [1.6.4]: https://github.com/ldeso/blitz/releases/tag/v1.6.4
 [1.6.3]: https://github.com/ldeso/blitz/releases/tag/v1.6.3
 [1.6.2]: https://github.com/ldeso/blitz/releases/tag/v1.6.2

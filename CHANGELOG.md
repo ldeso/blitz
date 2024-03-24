@@ -1,6 +1,6 @@
 ## Changelog
 
-### [1.6.2] - 2024-03-11
+### [1.6.2] - 2024-03-24
 
 This release fixes a bug introduced in version [1.6.0] where dragging to change the time would give unexpected values.
 
@@ -8,7 +8,7 @@ This release fixes a bug introduced in version [1.6.0] where dragging to change 
 
 - Fix a bug where dragging to change the time would yield incorrect values
 
-### [1.6.1] - 2024-03-11
+### [1.6.1] - 2024-03-24
 
 This release fixes two bugs introduced in version [1.6.0] that were triggered by predictive back gestures and the clock reaching zero.
 

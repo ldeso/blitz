@@ -18,31 +18,39 @@ package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration
 import androidx.activity.BackEventCompat
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.leodesouza.blitz.ui.components.BasicTime
-import kotlin.math.roundToInt
 
 /**
- * Minimalist content for the chess clock screen.
+ * Chess clock screen content consisting of the time of each player in different colors.
  *
  * @param[whiteTimeProvider] Lambda for the remaining time for the first player.
  * @param[blackTimeProvider] Lambda for the remaining time for the second player.
  * @param[isWhiteTurnProvider] Lambda for whether it is the turn of the first or the second player.
+ * @param[isStartedProvider] Lambda for whether the clock has started ticking.
+ * @param[isPausedProvider] Lambda for whether the clock is on pause.
  * @param[isLeaningRightProvider] Lambda for whether the device is leaning right.
  * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
  * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
@@ -60,27 +68,27 @@ fun ChessClockContent(
     backEventSwipeEdgeProvider: () -> Int,
     isBackEventPausingProvider: () -> Boolean,
 ) {
-    val isLeaningRight = isLeaningRightProvider()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val rotation = if (isLandscape) {
-        0F
-    } else if (isLeaningRight) {
-        -90F
-    } else {
-        90F
-    }
-    val swipeSpeed = 1F
-    val density = LocalDensity.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val density = LocalDensity.current
     val textHeight = screenHeight / if (isLandscape) 3 else 8
     val fontSize = with(density) { textHeight.toSp() }
     val fontWeight = FontWeight.Bold
     val timeOverColor = Color.Red
+    val infiniteTransition = rememberInfiniteTransition(label = "OscillatingAlphaTransition")
+    val oscillatingAlpha by infiniteTransition.animateFloat(
+        initialValue = 1F,
+        targetValue = 0.5F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "OscillatingAlphaAnimation",
+    )
 
     Column {
         val reusableItemModifier = Modifier
-            .rotate(rotation)
             .weight(1F)
             .fillMaxSize()
             .wrapContentSize()
@@ -88,57 +96,110 @@ fun ChessClockContent(
             timeProvider = blackTimeProvider,
             modifier = Modifier
                 .background(Color.Black)
-                .absoluteOffset {
-                    IntOffset(
-                        x = if (!isBackEventPausingProvider() || !isWhiteTurnProvider()) {
-                            val backEventProgress = backEventProgressProvider()
-                            val backEventSwipeEdge = backEventSwipeEdgeProvider()
-                            val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
-                            sign * (backEventProgress * swipeSpeed * screenWidth.toPx()).roundToInt()
-                        } else {
-                            0
-                        },
-                        y = 0,
+                .graphicsLayer {
+                    setBasicTimeGraphics(
+                        screenWidth = screenWidth,
+                        currentlyAdjustedAlpha = oscillatingAlpha,
+                        isPlayerTurn = !isWhiteTurnProvider(),
+                        isStarted = isStartedProvider(),
+                        isPaused = isPausedProvider(),
+                        isLeaningRight = isLeaningRightProvider(),
+                        backEventProgress = backEventProgressProvider(),
+                        backEventSwipeEdge = backEventSwipeEdgeProvider(),
+                        isBackEventPausing = isBackEventPausingProvider(),
+                        isLandscape = isLandscape,
                     )
                 }
                 .then(reusableItemModifier),
-            style = TextStyle(fontSize = fontSize, fontWeight = fontWeight, color = Color.White),
+            style = TextStyle(color = Color.White, fontSize = fontSize, fontWeight = fontWeight),
             timeOverColor = timeOverColor,
         )
         BasicTime(
             timeProvider = whiteTimeProvider,
             modifier = Modifier
                 .background(Color.White)
-                .absoluteOffset {
-                    IntOffset(
-                        x = if (!isBackEventPausingProvider() || isWhiteTurnProvider()) {
-                            val backEventProgress = backEventProgressProvider()
-                            val backEventSwipeEdge = backEventSwipeEdgeProvider()
-                            val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
-                            sign * (backEventProgress * swipeSpeed * screenWidth.toPx()).roundToInt()
-                        } else {
-                            0
-                        },
-                        y = 0,
+                .graphicsLayer {
+                    setBasicTimeGraphics(
+                        screenWidth = screenWidth,
+                        currentlyAdjustedAlpha = oscillatingAlpha,
+                        isPlayerTurn = isWhiteTurnProvider(),
+                        isStarted = isStartedProvider(),
+                        isPaused = isPausedProvider(),
+                        isLeaningRight = isLeaningRightProvider(),
+                        backEventProgress = backEventProgressProvider(),
+                        backEventSwipeEdge = backEventSwipeEdgeProvider(),
+                        isBackEventPausing = isBackEventPausingProvider(),
+                        isLandscape = isLandscape,
                     )
                 }
                 .then(reusableItemModifier),
-            style = TextStyle(fontSize = fontSize, fontWeight = fontWeight, color = Color.Black),
+            style = TextStyle(color = Color.Black, fontSize = fontSize, fontWeight = fontWeight),
             timeOverColor = timeOverColor,
         )
     }
 }
 
+/** Preview the chess clock screen content in Android Studio. */
 @Preview
 @Composable
-fun ChessClockContentPreview() {
+private fun ChessClockContentPreview() {
     ChessClockContent(
-        whiteTimeProvider = { 303_000L },
-        blackTimeProvider = { 303_000L },
+        whiteTimeProvider = { 5L * 60_000L },
+        blackTimeProvider = { 3L * 1_000L },
         isWhiteTurnProvider = { true },
         isLeaningRightProvider = { true },
-        backProgressProvider = { 0F },
-        backSwipeEdgeProvider = { BackEventCompat.EDGE_RIGHT },
-        isBackToPauseProvider = { false },
+        isStartedProvider = { false },
+        isPausedProvider = { true },
+        backEventProgressProvider = { 0F },
+        backEventSwipeEdgeProvider = { BackEventCompat.EDGE_RIGHT },
+        isBackEventPausingProvider = { false },
     )
+}
+
+/**
+ * Set the rotation, translation and opacity of a BasicTime element in a graphics layer scope.
+ *
+ * @param[screenWidth] Current width of the screen in the Dp unit.
+ * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
+ * @param[isPlayerTurn] Whether it is the turn of the player corresponding to this element.
+ * @param[isStarted] Whether the clock has started ticking.
+ * @param[isPaused] Whether the clock is on pause.
+ * @param[isLeaningRight] Whether the device is currently leaning right.
+ * @param[backEventProgress] Progress of the back gesture.
+ * @param[backEventSwipeEdge] Swipe edge where the back gesture starts
+ * @param[isBackEventPausing] Whether the back gesture is pausing the clock
+ * @param[isLandscape] Whether the device is in landscape mode.
+ */
+private fun GraphicsLayerScope.setBasicTimeGraphics(
+    screenWidth: Dp,
+    currentlyAdjustedAlpha: Float,
+    isPlayerTurn: Boolean,
+    isStarted: Boolean,
+    isPaused: Boolean,
+    isLeaningRight: Boolean,
+    backEventProgress: Float,
+    backEventSwipeEdge: Int,
+    isBackEventPausing: Boolean,
+    isLandscape: Boolean,
+) {
+    rotationZ = if (isLandscape) {
+        0F
+    } else if (isLeaningRight) {
+        -90F
+    } else {
+        90F
+    }
+
+    translationX = if (isBackEventPausing && !isPlayerTurn) {
+        0F
+    } else {
+        val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
+        sign * backEventProgress * screenWidth.toPx()
+    }
+
+    alpha = if (isPlayerTurn && isStarted && isPaused) {
+        currentlyAdjustedAlpha
+    } else {
+        1F
+    }
 }

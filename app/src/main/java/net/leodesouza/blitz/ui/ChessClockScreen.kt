@@ -131,6 +131,8 @@ fun ChessClockScreen(
             whiteTimeProvider = { uiState.whiteTime },
             blackTimeProvider = { uiState.blackTime },
             isWhiteTurnProvider = { uiState.isWhiteTurn },
+            isStartedProvider = { uiState.isStarted },
+            isPausedProvider = { uiState.isPaused },
             isLeaningRightProvider = { isLeaningRight },
             backEventProgressProvider = { backEventProgress },
             backEventSwipeEdgeProvider = { backEventSwipeEdge },

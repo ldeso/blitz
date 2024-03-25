@@ -19,9 +19,6 @@ package net.leodesouza.blitz.ui
 import android.content.res.Configuration
 import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -33,15 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -85,16 +73,6 @@ fun ChessClockScreen(
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-    fun startClockWithCallback() {
-        onClockStart()
-        clock.start()
-    }
-
-    fun pauseClockWithCallback() {
-        clock.pause()
-        onClockPause()
-    }
-
     IsLeaningRightHandler(
         isLeaningRightProvider = { isLeaningRight },
         onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
@@ -104,7 +82,10 @@ fun ChessClockScreen(
         isTickingProvider = { uiState.isTicking },
         isFinishedProvider = { uiState.isFinished },
         currentTimeProvider = { uiState.currentTime },
-        pause = ::pauseClockWithCallback,
+        pause = {
+            clock.pause()
+            onClockPause()
+        },
         tick = clock::tick,
     )
 
@@ -114,8 +95,9 @@ fun ChessClockScreen(
         isDefaultConfProvider = { uiState.isDefaultConf },
         preparePause = clock::saveTime,
         pause = {
+            clock.pause()
             clock.restoreSavedTime(isDecimalRestored = true)
-            pauseClockWithCallback()
+            onClockPause()
         },
         resetTime = clock::resetTime,
         resetConf = clock::resetConf,
@@ -124,125 +106,26 @@ fun ChessClockScreen(
         updateIsBackToPause = { isBackToPause = it },
     )
 
-    fun onClick() {
-        if (uiState.isPaused) {
-            startClockWithCallback()
-        } else if (uiState.isTicking) {
-            clock.nextPlayer()
-        }
-    }
-
-    fun onKeyEvent(keyEvent: KeyEvent): Boolean {
-        if (keyEvent.type == KeyEventType.KeyDown) {
-            if (uiState.isPaused) {
-                val sign = if (isRtl) -1F else 1F
-                if (uiState.isStarted) {
-                    clock.saveTime()
-                    when (keyEvent.key) {
-                        Key.DirectionUp -> clock.restoreSavedTime(addSeconds = 1F)
-                        Key.DirectionDown -> clock.restoreSavedTime(addSeconds = -1F)
-                        Key.DirectionRight -> clock.restoreSavedTime(addMinutes = sign * 1F)
-                        Key.DirectionLeft -> clock.restoreSavedTime(addMinutes = sign * -1F)
-                        else -> return false
-                    }
-                } else {
-                    clock.saveConf()
-                    when (keyEvent.key) {
-                        Key.DirectionUp -> clock.restoreSavedConf(addSeconds = 1F)
-                        Key.DirectionDown -> clock.restoreSavedConf(addSeconds = -1F)
-                        Key.DirectionRight -> clock.restoreSavedConf(addMinutes = sign * 1F)
-                        Key.DirectionLeft -> clock.restoreSavedConf(addMinutes = sign * -1F)
-                        else -> return false
-                    }
-                }
-                return true
-            }
-        }
-        return false
-    }
-
-    fun onDragStart(offset: Offset) {
-        if (uiState.isPaused) {
-            if (uiState.isStarted) {
-                clock.saveTime()
-            } else {
-                clock.saveConf()
-            }
-        }
-    }
-
-    fun onDragEnd() {
-        if (uiState.isTicking) {
-            clock.nextPlayer()
-        }
-    }
-
-    fun onHorizontalDrag(change: PointerInputChange, dragAmount: Float) {
-        if (uiState.isPaused) {
-            if (isLandscape) {
-                val unit = if (isRtl) -1F else 1F
-                val minutes = dragSensitivity * dragAmount * unit
-                if (uiState.isStarted) {
-                    clock.restoreSavedTime(addMinutes = minutes)
-                } else {
-                    clock.restoreSavedConf(addMinutes = minutes)
-                }
-            } else {
-                val unit = if (isLeaningRight) -1F else 1F
-                val seconds = dragSensitivity * dragAmount * unit
-                if (uiState.isStarted) {
-                    clock.restoreSavedTime(addSeconds = seconds)
-                } else {
-                    clock.restoreSavedConf(addSeconds = seconds)
-                }
-            }
-        }
-    }
-
-    fun onVerticalDrag(change: PointerInputChange, dragAmount: Float) {
-        if (uiState.isPaused) {
-            if (isLandscape) {
-                val unit = -1F
-                val seconds = dragSensitivity * dragAmount * unit
-                if (uiState.isStarted) {
-                    clock.restoreSavedTime(addSeconds = seconds)
-                } else {
-                    clock.restoreSavedConf(addSeconds = seconds)
-                }
-            } else {
-                val unit = if (isLeaningRight xor isRtl) -1F else 1F
-                val minutes = dragSensitivity * dragAmount * unit
-                if (uiState.isStarted) {
-                    clock.restoreSavedTime(addMinutes = minutes)
-                } else {
-                    clock.restoreSavedConf(addMinutes = minutes)
-                }
-            }
-        }
-    }
-
     Box(
-        modifier = Modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = ::onClick,
-            )
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragStart = ::onDragStart,
-                    onDragEnd = ::onDragEnd,
-                    onHorizontalDrag = ::onHorizontalDrag,
-                )
-            }
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onDragStart = ::onDragStart,
-                    onDragEnd = ::onDragEnd,
-                    onVerticalDrag = ::onVerticalDrag,
-                )
-            }
-            .onKeyEvent(onKeyEvent = ::onKeyEvent),
+        modifier = Modifier.chessClockInput(
+            dragSensitivity = dragSensitivity,
+            interactionSource = remember { MutableInteractionSource() },
+            isStartedProvider = { uiState.isStarted },
+            isTickingProvider = { uiState.isTicking },
+            isPausedProvider = { uiState.isPaused },
+            isLeaningRightProvider = { isLeaningRight },
+            isLandscape = isLandscape,
+            isRtl = isRtl,
+            start = {
+                onClockStart()
+                clock.start()
+            },
+            nextPlayer = clock::nextPlayer,
+            saveTime = clock::saveTime,
+            saveConf = clock::saveConf,
+            restoreSavedTime = clock::restoreSavedTime,
+            restoreSavedConf = clock::restoreSavedConf,
+        ),
     ) {
         ChessClockContent(
             whiteTimeProvider = { uiState.whiteTime },

@@ -167,11 +167,10 @@ class ChessClockViewModel(
         _uiState.update {
             savedMinutes += addMinutes
             savedSeconds += addSeconds
-            val isRoundedToTheSecond = !isDecimalRestored && addSeconds < 1F
-            val newTime = savedMinutes.roundToLong() * 60_000L + if (isRoundedToTheSecond) {
-                savedSeconds.roundToLong() * 1_000L
-            } else {
+            val newTime = savedMinutes.roundToLong() * 60_000L + if (isDecimalRestored) {
                 (savedSeconds * 1_000F).roundToLong()
+            } else {
+                savedSeconds.roundToLong() * 1_000L
             }
             targetRealtime = elapsedRealtime() + newTime
             if (it.isWhiteTurn) {

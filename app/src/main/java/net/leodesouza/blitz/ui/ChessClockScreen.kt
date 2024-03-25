@@ -69,7 +69,6 @@ fun ChessClockScreen(
     var isLeaningRight by remember { mutableStateOf(true) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_RIGHT) }
-    var isBackEventPausing by remember { mutableStateOf(false) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -103,7 +102,6 @@ fun ChessClockScreen(
         saveTime = chessClockViewModel::saveTime,
         updateProgress = { backEventProgress = it },
         updateSwipeEdge = { backEventSwipeEdge = it },
-        updateIsPausing = { isBackEventPausing = it },
     )
 
     Box(
@@ -132,11 +130,11 @@ fun ChessClockScreen(
             blackTimeProvider = { uiState.blackTime },
             isWhiteTurnProvider = { uiState.isWhiteTurn },
             isStartedProvider = { uiState.isStarted },
+            isTickingProvider = { uiState.isTicking },
             isPausedProvider = { uiState.isPaused },
             isLeaningRightProvider = { isLeaningRight },
             backEventProgressProvider = { backEventProgress },
             backEventSwipeEdgeProvider = { backEventSwipeEdge },
-            isBackEventPausingProvider = { isBackEventPausing },
         )
     }
 }
@@ -186,7 +184,6 @@ private fun ChessClockTickingEffect(
  * @param[saveTime] Callback called to save the time.
  * @param[updateProgress] Callback called to update the progress of the back gesture.
  * @param[updateSwipeEdge] Callback called to update the swipe edge where the back gesture starts.
- * @param[updateIsPausing] Callback called to update whether the back gesture is pausing the clock.
  */
 @Composable
 private fun ChessClockBackHandler(
@@ -199,7 +196,6 @@ private fun ChessClockBackHandler(
     saveTime: () -> Unit,
     updateProgress: (Float) -> Unit,
     updateSwipeEdge: (Int) -> Unit,
-    updateIsPausing: (Boolean) -> Unit,
 ) {
     val isStarted = isStartedProvider()
     val isTicking = isTickingProvider()
@@ -210,7 +206,6 @@ private fun ChessClockBackHandler(
         if (isTicking) {
             saveTime()
         }
-        updateIsPausing(isTicking)
         try {
             var backEventProgress = 0F
             progress.collect { backEvent ->

@@ -50,11 +50,11 @@ import net.leodesouza.blitz.ui.components.BasicTime
  * @param[blackTimeProvider] Lambda for the remaining time for the second player.
  * @param[isWhiteTurnProvider] Lambda for whether it is the turn of the first or the second player.
  * @param[isStartedProvider] Lambda for whether the clock has started ticking.
+ * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isPausedProvider] Lambda for whether the clock is on pause.
  * @param[isLeaningRightProvider] Lambda for whether the device is leaning right.
  * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
  * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
- * @param[isBackEventPausingProvider] Lambda for whether the back gesture is pausing the clock.
  */
 @Composable
 fun ChessClockContent(
@@ -62,11 +62,11 @@ fun ChessClockContent(
     blackTimeProvider: () -> Long,
     isWhiteTurnProvider: () -> Boolean,
     isStartedProvider: () -> Boolean,
+    isTickingProvider: () -> Boolean,
     isPausedProvider: () -> Boolean,
     isLeaningRightProvider: () -> Boolean,
     backEventProgressProvider: () -> Float,
     backEventSwipeEdgeProvider: () -> Int,
-    isBackEventPausingProvider: () -> Boolean,
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -102,11 +102,11 @@ fun ChessClockContent(
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         isPlayerTurn = !isWhiteTurnProvider(),
                         isStarted = isStartedProvider(),
+                        isTicking = isTickingProvider(),
                         isPaused = isPausedProvider(),
                         isLeaningRight = isLeaningRightProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
-                        isBackEventPausing = isBackEventPausingProvider(),
                         isLandscape = isLandscape,
                     )
                 }
@@ -124,11 +124,11 @@ fun ChessClockContent(
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         isPlayerTurn = isWhiteTurnProvider(),
                         isStarted = isStartedProvider(),
+                        isTicking = isTickingProvider(),
                         isPaused = isPausedProvider(),
                         isLeaningRight = isLeaningRightProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
-                        isBackEventPausing = isBackEventPausingProvider(),
                         isLandscape = isLandscape,
                     )
                 }
@@ -149,10 +149,10 @@ private fun ChessClockContentPreview() {
         isWhiteTurnProvider = { true },
         isLeaningRightProvider = { true },
         isStartedProvider = { false },
+        isTickingProvider = { false },
         isPausedProvider = { true },
         backEventProgressProvider = { 0F },
         backEventSwipeEdgeProvider = { BackEventCompat.EDGE_RIGHT },
-        isBackEventPausingProvider = { false },
     )
 }
 
@@ -163,11 +163,11 @@ private fun ChessClockContentPreview() {
  * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
  * @param[isPlayerTurn] Whether it is the turn of the player corresponding to this element.
  * @param[isStarted] Whether the clock has started ticking.
+ * @param[isTicking] Whether the clock is currently ticking.
  * @param[isPaused] Whether the clock is on pause.
  * @param[isLeaningRight] Whether the device is currently leaning right.
  * @param[backEventProgress] Progress of the back gesture.
- * @param[backEventSwipeEdge] Swipe edge where the back gesture starts
- * @param[isBackEventPausing] Whether the back gesture is pausing the clock
+ * @param[backEventSwipeEdge] Swipe edge where the back gesture starts.
  * @param[isLandscape] Whether the device is in landscape mode.
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
@@ -175,11 +175,11 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     currentlyAdjustedAlpha: Float,
     isPlayerTurn: Boolean,
     isStarted: Boolean,
+    isTicking: Boolean,
     isPaused: Boolean,
     isLeaningRight: Boolean,
     backEventProgress: Float,
     backEventSwipeEdge: Int,
-    isBackEventPausing: Boolean,
     isLandscape: Boolean,
 ) {
     rotationZ = if (isLandscape) {
@@ -190,8 +190,8 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
         90F
     }
 
-    translationX = if (isBackEventPausing && !isPlayerTurn) {
-        0F
+    translationX = if (isTicking && !isPlayerTurn) {
+        0F  // on pause, no translation on the time of the other player
     } else {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
         sign * backEventProgress * screenWidth.toPx()

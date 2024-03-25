@@ -49,7 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import net.leodesouza.blitz.ui.components.IsLeaningRightListener
+import net.leodesouza.blitz.ui.components.IsLeaningRightHandler
 
 /**
  * Minimalist Fischer chess clock.
@@ -95,6 +95,11 @@ fun ChessClockScreen(
         onClockPause()
     }
 
+    IsLeaningRightHandler(
+        isLeaningRightProvider = { isLeaningRight },
+        onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
+    )
+
     ChessClockTicking(
         isTickingProvider = { uiState.isTicking },
         isFinishedProvider = { uiState.isFinished },
@@ -102,8 +107,6 @@ fun ChessClockScreen(
         pause = ::pauseClockWithCallback,
         tick = clock::tick,
     )
-
-    IsLeaningRightListener(onLeaningChanged = { isLeaningRight = it })
 
     ChessClockBackHandler(
         isStartedProvider = { uiState.isStarted },

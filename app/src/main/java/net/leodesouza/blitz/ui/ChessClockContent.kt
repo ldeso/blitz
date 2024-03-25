@@ -44,19 +44,21 @@ import kotlin.math.roundToInt
  * @param[blackTimeProvider] Lambda for the remaining time for the second player.
  * @param[isWhiteTurnProvider] Lambda for whether it is the turn of the first or the second player.
  * @param[isLeaningRightProvider] Lambda for whether the device is leaning right.
- * @param[backProgressProvider] Lambda for the progress of the progressive back gesture.
- * @param[backSwipeEdgeProvider] Lambda for the swipe edge of the back gesture.
- * @param[isBackToPauseProvider] Lambda for whether the back gesture pauses the clock.
+ * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
+ * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
+ * @param[isBackEventPausingProvider] Lambda for whether the back gesture is pausing the clock.
  */
 @Composable
 fun ChessClockContent(
     whiteTimeProvider: () -> Long,
     blackTimeProvider: () -> Long,
     isWhiteTurnProvider: () -> Boolean,
+    isStartedProvider: () -> Boolean,
+    isPausedProvider: () -> Boolean,
     isLeaningRightProvider: () -> Boolean,
-    backProgressProvider: () -> Float,
-    backSwipeEdgeProvider: () -> Int,
-    isBackToPauseProvider: () -> Boolean,
+    backEventProgressProvider: () -> Float,
+    backEventSwipeEdgeProvider: () -> Int,
+    isBackEventPausingProvider: () -> Boolean,
 ) {
     val isLeaningRight = isLeaningRightProvider()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -88,11 +90,11 @@ fun ChessClockContent(
                 .background(Color.Black)
                 .absoluteOffset {
                     IntOffset(
-                        x = if (!isBackToPauseProvider() || !isWhiteTurnProvider()) {
-                            val backProgress = backProgressProvider()
-                            val backSwipeEdge = backSwipeEdgeProvider()
-                            val sign = if (backSwipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
-                            sign * (backProgress * swipeSpeed * screenWidth.toPx()).roundToInt()
+                        x = if (!isBackEventPausingProvider() || !isWhiteTurnProvider()) {
+                            val backEventProgress = backEventProgressProvider()
+                            val backEventSwipeEdge = backEventSwipeEdgeProvider()
+                            val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
+                            sign * (backEventProgress * swipeSpeed * screenWidth.toPx()).roundToInt()
                         } else {
                             0
                         },
@@ -109,11 +111,11 @@ fun ChessClockContent(
                 .background(Color.White)
                 .absoluteOffset {
                     IntOffset(
-                        x = if (!isBackToPauseProvider() || isWhiteTurnProvider()) {
-                            val backProgress = backProgressProvider()
-                            val backSwipeEdge = backSwipeEdgeProvider()
-                            val sign = if (backSwipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
-                            sign * (backProgress * swipeSpeed * screenWidth.toPx()).roundToInt()
+                        x = if (!isBackEventPausingProvider() || isWhiteTurnProvider()) {
+                            val backEventProgress = backEventProgressProvider()
+                            val backEventSwipeEdge = backEventSwipeEdgeProvider()
+                            val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
+                            sign * (backEventProgress * swipeSpeed * screenWidth.toPx()).roundToInt()
                         } else {
                             0
                         },

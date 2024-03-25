@@ -51,7 +51,7 @@ import net.leodesouza.blitz.ui.components.IsLeaningRightHandler
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[onClockStart] Callback called before the clock starts ticking.
  * @param[onClockPause] Callback called after the clock stops ticking.
- * @param[clock] ViewModel holding the state and logic for this screen.
+ * @param[chessClockViewModel] ViewModel holding the state and logic for this screen.
  */
 @Composable
 fun ChessClockScreen(
@@ -61,11 +61,11 @@ fun ChessClockScreen(
     dragSensitivity: Float = 0.01F,
     onClockStart: () -> Unit = {},
     onClockPause: () -> Unit = {},
-    clock: ChessClockViewModel = viewModel {
+    chessClockViewModel: ChessClockViewModel = viewModel {
         ChessClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
     },
 ) {
-    val uiState by clock.uiState.collectAsStateWithLifecycle()
+    val uiState by chessClockViewModel.uiState.collectAsStateWithLifecycle()
     var isLeaningRight by remember { mutableStateOf(true) }
     var backProgress by remember { mutableFloatStateOf(0F) }
     var backSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_RIGHT) }
@@ -83,24 +83,24 @@ fun ChessClockScreen(
         isFinishedProvider = { uiState.isFinished },
         currentTimeProvider = { uiState.currentTime },
         pause = {
-            clock.pause()
+            chessClockViewModel.pause()
             onClockPause()
         },
-        tick = clock::tick,
+        tick = chessClockViewModel::tick,
     )
 
     ChessClockBackHandler(
         isStartedProvider = { uiState.isStarted },
         isTickingProvider = { uiState.isTicking },
         isDefaultConfProvider = { uiState.isDefaultConf },
-        preparePause = clock::saveTime,
+        preparePause = chessClockViewModel::saveTime,
         pause = {
-            clock.pause()
-            clock.restoreSavedTime(isDecimalRestored = true)
+            chessClockViewModel.pause()
+            chessClockViewModel.restoreSavedTime(isDecimalRestored = true)
             onClockPause()
         },
-        resetTime = clock::resetTime,
-        resetConf = clock::resetConf,
+        resetTime = chessClockViewModel::resetTime,
+        resetConf = chessClockViewModel::resetConf,
         updateProgress = { backProgress = it },
         updateSwipeEdge = { backSwipeEdge = it },
         updateIsBackToPause = { isBackToPause = it },
@@ -118,13 +118,13 @@ fun ChessClockScreen(
             isRtl = isRtl,
             start = {
                 onClockStart()
-                clock.start()
+                chessClockViewModel.start()
             },
-            nextPlayer = clock::nextPlayer,
-            saveTime = clock::saveTime,
-            saveConf = clock::saveConf,
-            restoreSavedTime = clock::restoreSavedTime,
-            restoreSavedConf = clock::restoreSavedConf,
+            nextPlayer = chessClockViewModel::nextPlayer,
+            saveTime = chessClockViewModel::saveTime,
+            saveConf = chessClockViewModel::saveConf,
+            restoreSavedTime = chessClockViewModel::restoreSavedTime,
+            restoreSavedConf = chessClockViewModel::restoreSavedConf,
         ),
     ) {
         ChessClockContent(

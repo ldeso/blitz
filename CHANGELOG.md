@@ -1,5 +1,24 @@
 ## Changelog
 
+### [1.7.0](https://github.com/ldeso/blitz/releases/tag/v1.7.0) - 2024-03-25
+
+This release adds a feature that animates the time of the current player when the clock is paused.
+
+#### New Feature
+
+- Add animation to the time of the current player when the clock is paused
+
+#### Notes
+
+- Add ChessClockInput.kt
+- Simplify BasicTime
+- Simplify ChessClockTickingEffect
+- Simplify ChessClockBackHandler
+- Simplify restoreSavedTime
+- Simplify IsLeaningRightHandler
+- Rename clock to chessClockViewModel
+- Improve links in CHANGELOG.md
+
 ### [1.6.5](https://github.com/ldeso/blitz/releases/tag/v1.6.5) - 2024-03-24
 
 This release fixes a bug introduced in version [1.6.3](#163---2024-03-24) where the time could change before the end of the predictive back gesture animation.

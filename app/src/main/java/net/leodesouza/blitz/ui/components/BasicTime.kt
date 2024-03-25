@@ -28,10 +28,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * Basic element that displays the time returned by a [timeProvider] in the format "MM:SS.D" or
- * "H:MM:SS.D" depending on whether there is more than one hour, in a given [style] and accepting a
- * given [modifier] to apply to its layout node. Display zero if the time is negative, and
- * optionally change the text color to [timeOverColor] when the time is over.
+ * Basic element that displays the time returned by a [timeProvider] in the format "H:MM:SS" or
+ * "MM:SS.D" depending on whether the time is higher than one hour, in a given [style] and accepting
+ * a given [modifier] to apply to its layout node. Display zero if the time is negative, and
+ * change the text color to [timeOverColor] when the time is over if specified.
  */
 @Composable
 fun BasicTime(
@@ -46,21 +46,21 @@ fun BasicTime(
     val minutes = timeTenthsOfSeconds % 36_000L / 600L
     val seconds = timeTenthsOfSeconds % 600L / 10L
     val tenthsOfSeconds = timeTenthsOfSeconds % 10L
-    val defaultStyle = if (timeMillis == 0L) style.merge(color = timeOverColor) else style
-    val monospaceStyle = defaultStyle.merge(fontFamily = FontFamily.Monospace)
+    val punctuationStyle = if (timeMillis == 0L) style.merge(color = timeOverColor) else style
+    val digitStyle = punctuationStyle.merge(fontFamily = FontFamily.Monospace)
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(modifier) {
             if (hours != 0L) {
-                BasicText(text = "$hours", style = monospaceStyle)
-                BasicText(text = ":", style = defaultStyle)
+                BasicText(text = "$hours", style = digitStyle)
+                BasicText(text = ":", style = punctuationStyle)
             }
-            BasicText(text = "$minutes".padStart(length = 2, padChar = '0'), style = monospaceStyle)
-            BasicText(text = ":", style = defaultStyle)
-            BasicText(text = "$seconds".padStart(length = 2, padChar = '0'), style = monospaceStyle)
+            BasicText(text = "$minutes".padStart(length = 2, padChar = '0'), style = digitStyle)
+            BasicText(text = ":", style = punctuationStyle)
+            BasicText(text = "$seconds".padStart(length = 2, padChar = '0'), style = digitStyle)
             if (hours == 0L) {
-                BasicText(text = ".", style = defaultStyle)
-                BasicText(text = "$tenthsOfSeconds", style = monospaceStyle)
+                BasicText(text = ".", style = punctuationStyle)
+                BasicText(text = "$tenthsOfSeconds", style = digitStyle)
             }
         }
     }

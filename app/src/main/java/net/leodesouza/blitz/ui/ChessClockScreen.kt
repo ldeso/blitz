@@ -78,10 +78,10 @@ fun ChessClockScreen(
         onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
     )
 
-    ChessClockTicking(
+    ChessClockTickingEffect(
+        currentTimeProvider = { uiState.currentTime },
         isTickingProvider = { uiState.isTicking },
         isFinishedProvider = { uiState.isFinished },
-        currentTimeProvider = { uiState.currentTime },
         pause = {
             chessClockViewModel.pause()
             onClockPause()
@@ -140,31 +140,32 @@ fun ChessClockScreen(
 }
 
 /**
- * Effect taking care of repeatedly waiting for the next tick or pausing the clock when it has
+ * Effect taking care of repeatedly waiting until next tick or pausing the clock when it has
  * finished ticking.
  *
+ * @param[currentTimeProvider] Lambda for the time of the current player.
  * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isFinishedProvider] Lambda for whether the clock has finished ticking.
  * @param[pause] Callback called to pause the clock.
  * @param[tick] Callback called to wait until next tick.
  */
 @Composable
-fun ChessClockTicking(
+private fun ChessClockTickingEffect(
+    currentTimeProvider: () -> Long,
     isTickingProvider: () -> Boolean,
     isFinishedProvider: () -> Boolean,
-    currentTimeProvider: () -> Long,
     pause: () -> Unit,
     tick: suspend () -> Unit,
 ) {
+    val currentTime = currentTimeProvider()
     val isTicking = isTickingProvider()
     val isFinished = isFinishedProvider()
-    val currentTime = currentTimeProvider()
 
-    LaunchedEffect(isTicking, currentTime) {
-        if (isTicking) {
-            if (isFinished) {
-                pause()
-            } else {
+    if (isTicking) {
+        if (isFinished) {
+            pause()
+        } else {
+            LaunchedEffect(currentTime) {
                 tick()
             }
         }

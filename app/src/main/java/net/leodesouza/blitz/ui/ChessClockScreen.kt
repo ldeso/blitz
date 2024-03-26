@@ -23,10 +23,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -68,6 +68,8 @@ fun ChessClockScreen(
     val uiState by chessClockViewModel.uiState.collectAsStateWithLifecycle()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    var orientation by remember { mutableIntStateOf(0) }
+    var isLeaningRight by remember { mutableStateOf(true) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventSwipeEdge by remember {
         if (isRtl) {
@@ -76,11 +78,14 @@ fun ChessClockScreen(
             mutableIntStateOf(BackEventCompat.EDGE_LEFT)
         }
     }
-    var orientation by remember { mutableIntStateOf(0) }
 
     OrientationHandler(onOrientationChanged = { orientation = it })
 
-    val isLeaningRight by remember { derivedStateOf { orientation < 180 } }
+    IsLeaningRightHandler(
+        orientationProvider = { orientation },
+        isLeaningRightProvider = { isLeaningRight },
+        onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
+    )
 
     ChessClockTickingEffect(
         currentTimeProvider = { uiState.currentTime },
@@ -145,7 +150,30 @@ fun ChessClockScreen(
 }
 
 /**
- * Effect taking care of repeatedly waiting until next tick or pausing the clock when it has
+ * Handle whether the device is currently leaning towards its right side.
+ *
+ * @param[orientationProvider] Lambda for the orientation of the device in degrees.
+ * @param[isLeaningRightProvider] Lambda for whether the device is currently leaning right.
+ * @param[onLeaningSideChanged] Callback called when the leaning side of the device changes.
+ */
+@Composable
+private fun IsLeaningRightHandler(
+    orientationProvider: () -> Int,
+    isLeaningRightProvider: () -> Boolean,
+    onLeaningSideChanged: () -> Unit,
+) {
+    val orientation = orientationProvider()
+    val isLeaningRight = isLeaningRightProvider()
+
+    val isChangingFromRightToLeft = isLeaningRight && orientation in 10 until 170
+    val isChangingFromLeftToRight = !isLeaningRight && orientation in 190 until 350
+    if (isChangingFromRightToLeft || isChangingFromLeftToRight) {
+        onLeaningSideChanged()
+    }
+}
+
+/**
+ * Effect taking care of repeatedly waiting until the next tick or pausing the clock when it has
  * finished ticking.
  *
  * @param[currentTimeProvider] Lambda for the time of the current player.

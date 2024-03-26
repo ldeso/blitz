@@ -1,5 +1,13 @@
 ## Changelog
 
+### [1.7.4](https://github.com/ldeso/blitz/releases/tag/v1.7.4) - 2024-03-26
+
+This release fixes a bug introduced in version [1.7.3](#173---2024-03-26) where the time was displayed upside down.
+
+#### Bug Fix
+
+- Fix bug where time was displayed upside down
+
 ### [1.7.3](https://github.com/ldeso/blitz/releases/tag/v1.7.3) - 2024-03-26
 
 This release restores a feature that was removed in version [1.7.2](#172---2024-03-26) where the orientation of the device must cross a threshold of 10 degrees to be able to change the display orientation.

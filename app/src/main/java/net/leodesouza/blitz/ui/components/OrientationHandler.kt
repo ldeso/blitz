@@ -43,12 +43,14 @@ fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
                 object : OrientationEventListener(context) {
                     override fun onOrientationChanged(orientation: Int) {
                         if (orientation == ORIENTATION_UNKNOWN) return
+
                         val rotation = when (display.rotation) {
                             Surface.ROTATION_0 -> 0
                             Surface.ROTATION_90 -> 90
                             Surface.ROTATION_180 -> 180
                             else -> 270
                         }
+
                         onOrientationChanged((orientation + rotation) % 360)
                     }
                 }

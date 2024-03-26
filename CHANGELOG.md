@@ -1,5 +1,17 @@
 ## Changelog
 
+### [1.7.3](https://github.com/ldeso/blitz/releases/tag/v1.7.3) - 2024-03-26
+
+This release restores a feature that was removed in version [1.7.2](#172---2024-03-26) where the orientation of the device must cross a threshold of 10 degrees to be able to change the display orientation.
+
+#### Bug Fix
+
+- Restore threshold of 10 degrees before changing display orientation
+
+#### Note
+
+- Add whitespace
+
 ### [1.7.2](https://github.com/ldeso/blitz/releases/tag/v1.7.2) - 2024-03-26
 
 This release fixes a long-standing bug where the time could be updated in the wrong direction due to rounding.

@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.math.roundToLong
+import kotlin.math.sign
 
 /**
  * ViewModel for the chess clock screen.
@@ -172,11 +173,18 @@ class ChessClockViewModel(
             } else {
                 savedSeconds.roundToLong() * 1_000L
             }
-            targetRealtime = elapsedRealtime() + newTime
-            if (it.isWhiteTurn) {
-                it.copy(whiteTime = newTime)
+            val isGoodMinutesUpdate = addMinutes.sign == (newTime - it.currentTime).sign.toFloat()
+            val isGoodSecondsUpdate = addSeconds.sign == (newTime - it.currentTime).sign.toFloat()
+            val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F
+            if (isGoodMinutesUpdate || isGoodSecondsUpdate || isNotAnUpdate) {
+                targetRealtime = elapsedRealtime() + newTime
+                if (it.isWhiteTurn) {
+                    it.copy(whiteTime = newTime)
+                } else {
+                    it.copy(blackTime = newTime)
+                }
             } else {
-                it.copy(blackTime = newTime)
+                it
             }
         }
     }

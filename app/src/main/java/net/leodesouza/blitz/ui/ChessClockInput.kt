@@ -242,7 +242,7 @@ private fun onChessClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
  * Add seconds (in portrait orientation) or minutes (in landscape orientation) to the current time
  * or configuration of the clock during drag events.
  *
- * @param[dragAmount]
+ * @param[dragAmount] How many pixels are dragged during the drag gesture.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isPaused] Whether the clock is on pause.
@@ -290,7 +290,7 @@ private fun onChessClockHorizontalDrag(
  * Add minutes (in portrait orientation) or seconds (in landscape orientation) to the current time
  * or configuration of the clock during drag events.
  *
- * @param[dragAmount]
+ * @param[dragAmount] How many pixels are dragged during the drag gesture.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isPaused] Whether the clock is on pause.

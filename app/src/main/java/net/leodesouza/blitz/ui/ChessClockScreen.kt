@@ -66,11 +66,17 @@ fun ChessClockScreen(
     },
 ) {
     val uiState by chessClockViewModel.uiState.collectAsStateWithLifecycle()
-    var isLeaningRight by remember { mutableStateOf(true) }
-    var backEventProgress by remember { mutableFloatStateOf(0F) }
-    var backEventSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_RIGHT) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    var isLeaningRight by remember { mutableStateOf(true) }
+    var backEventProgress by remember { mutableFloatStateOf(0F) }
+    var backEventSwipeEdge by remember {
+        if (isRtl) {
+            mutableIntStateOf(BackEventCompat.EDGE_RIGHT)
+        } else {
+            mutableIntStateOf(BackEventCompat.EDGE_LEFT)
+        }
+    }
 
     IsLeaningRightHandler(
         isLeaningRightProvider = { isLeaningRight },

@@ -23,10 +23,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -37,7 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import net.leodesouza.blitz.ui.components.IsLeaningRightHandler
+import net.leodesouza.blitz.ui.components.OrientationHandler
 
 /**
  * Minimalist Fischer chess clock.
@@ -68,7 +68,6 @@ fun ChessClockScreen(
     val uiState by chessClockViewModel.uiState.collectAsStateWithLifecycle()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    var isLeaningRight by remember { mutableStateOf(true) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventSwipeEdge by remember {
         if (isRtl) {
@@ -77,11 +76,11 @@ fun ChessClockScreen(
             mutableIntStateOf(BackEventCompat.EDGE_LEFT)
         }
     }
+    var orientation by remember { mutableIntStateOf(0) }
 
-    IsLeaningRightHandler(
-        isLeaningRightProvider = { isLeaningRight },
-        onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
-    )
+    OrientationHandler(onOrientationChanged = { orientation = it })
+
+    val isLeaningRight by remember { derivedStateOf { orientation < 180 } }
 
     ChessClockTickingEffect(
         currentTimeProvider = { uiState.currentTime },

@@ -27,17 +27,15 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 /**
- * Effect to handle whether the device is currently leaning towards its right side.
- *
- * @param[isLeaningRightProvider] Lambda for whether the device is currently leaning right.
- * @param[onLeaningSideChanged] Callback called when the leaning side of the device changes.
+ * Observe the orientation of the device in a lifecycle-aware manner and call [onOrientationChanged]
+ * when the orientation of the device changes, with the new orientation in degrees as an argument.
+ * Take into account whether the screen is in its "natural" orientation.
  */
 @Composable
-fun IsLeaningRightHandler(
-    isLeaningRightProvider: () -> Boolean, onLeaningSideChanged: () -> Unit,
-) {
+fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+    val display = ContextCompat.getDisplayOrDefault(context)
 
     DisposableEffect(lifecycleOwner) {
         val lifecycleObserver = object : DefaultLifecycleObserver {
@@ -45,22 +43,13 @@ fun IsLeaningRightHandler(
                 object : OrientationEventListener(context) {
                     override fun onOrientationChanged(orientation: Int) {
                         if (orientation == ORIENTATION_UNKNOWN) return
-
-                        val rotation = when (ContextCompat.getDisplayOrDefault(context).rotation) {
+                        val rotation = when (display.rotation) {
                             Surface.ROTATION_0 -> 0
                             Surface.ROTATION_90 -> 90
                             Surface.ROTATION_180 -> 180
                             else -> 270
                         }
-
-                        val correctedOrientation = (orientation + rotation) % 360
-                        val isLeaningRight = isLeaningRightProvider()
-
-                        if (!isLeaningRight && correctedOrientation in 10 until 170) {
-                            onLeaningSideChanged()
-                        } else if (isLeaningRight && correctedOrientation in 190 until 350) {
-                            onLeaningSideChanged()
-                        }
+                        onOrientationChanged((orientation + rotation) % 360)
                     }
                 }
             }

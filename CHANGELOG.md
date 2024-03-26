@@ -1,5 +1,19 @@
 ## Changelog
 
+### [1.7.1](https://github.com/ldeso/blitz/releases/tag/v1.7.1) - 2024-03-26
+
+This release improves the experience for versions of Android below Android 14 by adding a default value for the starting side of back gestures, which depends on whether the layout is set from left to right or from right to left.
+
+#### Improvement
+
+- Provide correct default value for swipe side of back gestures for API < 34
+
+#### Notes
+
+- Add "About" section to README.md
+- Simplify chessClockInput
+- Remove redundant state
+
 ### [1.7.0](https://github.com/ldeso/blitz/releases/tag/v1.7.0) - 2024-03-25
 
 This release adds a feature that animates the time of the current player when the clock is paused.

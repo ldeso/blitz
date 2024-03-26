@@ -1,0 +1,1 @@
+• Provide correct default value for swipe side of back gestures for API < 34

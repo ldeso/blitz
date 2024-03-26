@@ -1,5 +1,19 @@
 ## Changelog
 
+### [1.7.2](https://github.com/ldeso/blitz/releases/tag/v1.7.2) - 2024-03-26
+
+This release fixes a long-standing bug where the time could be updated in the wrong direction due to rounding.
+
+#### Bug Fix
+
+- Fix bug where time could update in the wrong direction due to rounding
+
+#### Notes
+
+- Simplify dependencies
+- Create component OrientationHandler
+- Add missing documentation for `dragAmount`
+
 ### [1.7.1](https://github.com/ldeso/blitz/releases/tag/v1.7.1) - 2024-03-26
 
 This release improves the experience for versions of Android below Android 14 by adding a default value for the starting side of back gestures, which depends on whether the layout is set from left to right or from right to left.

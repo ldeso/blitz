@@ -1,0 +1,1 @@
+• Fix bug where time could update in the wrong direction due to rounding

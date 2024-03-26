@@ -33,6 +33,17 @@ The app can be installed from three different sources:
 All sources are using the same app signing key, so the app can be updated using a different source to the one it was installed from.
 For example, an app installed from F-Droid can be updated to a newer version downloaded from the Play Store.
 
+## About
+
+This is a native Android app that requires no permission and is compatible with Android 5.0+.
+It is built entirely with [Jetpack Compose](https://developer.android.com/develop/ui/compose) and implements:
+
+  - Predictive back gestures ([Android 14+](https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture))
+  - Per-app language preferences ([Android 13+](https://developer.android.com/guide/topics/resources/app-languages))
+  - Right-to-left layout support
+  - Precise orientation support
+  - Keyboard navigation
+
 ## Links
 
 [License: Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)

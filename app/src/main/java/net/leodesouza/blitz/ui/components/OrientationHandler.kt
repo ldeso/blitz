@@ -45,14 +45,11 @@ fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
     }
 
     DisposableEffect(lifecycleOwner) {
-        val lifecycleObserver = object : DefaultLifecycleObserver {
-            private val orientationEventListener by lazy {
-                object : OrientationEventListener(context) {
-                    override fun onOrientationChanged(orientation: Int) {
-                        if (orientation == ORIENTATION_UNKNOWN) return
-
-                        onOrientationChanged((orientation + rotation) % 360)
-                    }
+        val observer = object : DefaultLifecycleObserver {
+            private val orientationEventListener = object : OrientationEventListener(context) {
+                override fun onOrientationChanged(orientation: Int) {
+                    if (orientation == ORIENTATION_UNKNOWN) return
+                    onOrientationChanged((orientation + rotation) % 360)
                 }
             }
 
@@ -61,10 +58,10 @@ fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
             override fun onStop(owner: LifecycleOwner) = orientationEventListener.disable()
         }
 
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        lifecycleOwner.lifecycle.addObserver(observer)
 
         onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }

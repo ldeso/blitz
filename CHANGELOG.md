@@ -1,5 +1,20 @@
 ## Changelog
 
+### [1.7.5](https://github.com/ldeso/blitz/releases/tag/v1.7.5) - 2024-03-27
+
+This release disables back gesture animations below Android 14.
+
+#### Improvement
+
+- Do not animate back gestures below Android 14
+
+#### Notes
+
+- Fix typo in names of variables
+- Remember onOrientationChanged with rememberUpdatedState
+- Do not use lazy to create orientationEventListener
+- Move calculation of rotation out of DisposableEffect
+
 ### [1.7.4](https://github.com/ldeso/blitz/releases/tag/v1.7.4) - 2024-03-26
 
 This release fixes a bug introduced in version [1.7.3](#173---2024-03-26) where the time was displayed upside down.
@@ -77,7 +92,7 @@ This release fixes a bug introduced in version [1.6.3](#163---2024-03-24) where 
 
 ### [1.6.4](https://github.com/ldeso/blitz/releases/tag/v1.6.4) - 2024-03-24
 
-This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0] where the position of the time would not reset when canceling a predictive back gesture.
+This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0](#160---2024-03-24) where the position of the time would not reset when canceling a predictive back gesture.
 
 #### Bug Fixes
 

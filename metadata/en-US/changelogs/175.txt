@@ -1,0 +1,1 @@
+• Do not animate back gestures below Android 14

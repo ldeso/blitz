@@ -8,7 +8,7 @@
   <a href="https://f-droid.org/packages/net.leodesouza.blitz/">
     <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" alt="F-Droid" /></a>
   <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz">
-    <img src="https://img.shields.io/badge/Play%20Store-v1.7.4-blue?logo=Google-Play" alt="Play Store" /></a>
+    <img src="https://img.shields.io/badge/Play%20Store-v1.7.5-blue?logo=Google-Play" alt="Play Store" /></a>
 </p>
 
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.

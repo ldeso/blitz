@@ -165,9 +165,9 @@ private fun IsLeaningRightHandler(
     val orientation = orientationProvider()
     val isLeaningRight = isLeaningRightProvider()
 
-    val isChangingFromRightToLeft = !isLeaningRight && orientation in 10 until 170
-    val isChangingFromLeftToRight = isLeaningRight && orientation in 190 until 350
-    if (isChangingFromRightToLeft || isChangingFromLeftToRight) {
+    val isChangingFromLeftToRight = !isLeaningRight && orientation in 10 until 170
+    val isChangingFromRightToLeft = isLeaningRight && orientation in 190 until 350
+    if (isChangingFromLeftToRight || isChangingFromRightToLeft) {
         onLeaningSideChanged()
     }
 }

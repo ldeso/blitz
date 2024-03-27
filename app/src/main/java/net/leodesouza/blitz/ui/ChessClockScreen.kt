@@ -17,6 +17,7 @@
 package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration
+import android.os.Build
 import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -246,12 +247,14 @@ private fun ChessClockBackHandler(
                 updateProgress(backEventProgress)
                 updateSwipeEdge(backEvent.swipeEdge)
             }
-            while (backEventProgress < 1F) {
-                delay(1L)
-                backEventProgress += 0.01F
-                updateProgress(backEventProgress)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                while (backEventProgress < 1F) {
+                    delay(1L)
+                    backEventProgress += 0.01F
+                    updateProgress(backEventProgress)
+                }
+                delay(100L)
             }
-            delay(100L)
             if (isTicking) {
                 pause()
             } else if (isStarted) {

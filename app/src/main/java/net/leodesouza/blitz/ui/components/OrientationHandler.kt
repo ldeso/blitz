@@ -20,6 +20,8 @@ import android.view.OrientationEventListener
 import android.view.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
@@ -28,11 +30,12 @@ import androidx.lifecycle.LifecycleOwner
 
 /**
  * Observe the orientation of the device in a lifecycle-aware manner and call [onOrientationChanged]
- * when the orientation of the device changes, with the new orientation in degrees as an argument.
- * Take into account whether the screen is in its "natural" orientation.
+ * when it changes, with the new orientation in degrees as an argument. Take into account the
+ * rotation of the screen from its "natural" orientation.
  */
 @Composable
 fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
+    val currentOnOrientationChanged by rememberUpdatedState(onOrientationChanged)
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val display = ContextCompat.getDisplayOrDefault(context)
@@ -49,7 +52,7 @@ fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
             private val orientationEventListener = object : OrientationEventListener(context) {
                 override fun onOrientationChanged(orientation: Int) {
                     if (orientation == ORIENTATION_UNKNOWN) return
-                    onOrientationChanged((orientation + rotation) % 360)
+                    currentOnOrientationChanged((orientation + rotation) % 360)
                 }
             }
 

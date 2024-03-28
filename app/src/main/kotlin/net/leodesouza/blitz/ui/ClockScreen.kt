@@ -81,6 +81,7 @@ fun ClockScreen(
             mutableIntStateOf(BackEventCompat.EDGE_LEFT)
         }
     }
+    var backEventAction by remember { mutableStateOf(ClockBackAction.PAUSE) }
 
     OrientationHandler(onOrientationChanged = { orientation = it })
 
@@ -119,6 +120,7 @@ fun ClockScreen(
         resetTime = clockViewModel::resetTime,
         resetConf = clockViewModel::resetConf,
         saveTime = clockViewModel::saveTime,
+        updateAction = { backEventAction = it },
         updateProgress = { backEventProgress = it },
         updateSwipeEdge = { backEventSwipeEdge = it },
     )
@@ -149,9 +151,9 @@ fun ClockScreen(
             blackTimeProvider = { blackTime },
             isWhiteTurnProvider = { uiState.isWhiteTurn },
             isStartedProvider = { uiState.isStarted },
-            isTickingProvider = { uiState.isTicking },
             isPausedProvider = { uiState.isPaused },
             leaningSideProvider = { leaningSide },
+            backEventActionProvider = { backEventAction },
             backEventProgressProvider = { backEventProgress },
             backEventSwipeEdgeProvider = { backEventSwipeEdge },
         )

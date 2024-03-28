@@ -35,6 +35,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.delay
 import net.leodesouza.blitz.ui.components.LeaningSide
 
+/** What action is executed by a back gesture. */
+enum class ClockBackAction { PAUSE, RESET_TIME, RESET_CONF }
+
 /**
  * Effect making system back gestures pause or reset the clock.
  *
@@ -57,6 +60,7 @@ fun ClockBackHandler(
     resetTime: () -> Unit,
     resetConf: () -> Unit,
     saveTime: () -> Unit,
+    updateAction: (ClockBackAction) -> Unit,
     updateProgress: (Float) -> Unit,
     updateSwipeEdge: (Int) -> Unit,
 ) {
@@ -64,31 +68,35 @@ fun ClockBackHandler(
     val isTicking = isTickingProvider()
     val isDefaultConf = isDefaultConfProvider()
 
-    PredictiveBackHandler(enabled = isTicking || isStarted || !isDefaultConf) { progress ->
-        if (isTicking) saveTime()
+    PredictiveBackHandler(enabled = isTicking || isStarted || !isDefaultConf) {
+        val action = if (isTicking) {
+            saveTime()
+            ClockBackAction.PAUSE
+        } else if (isStarted) {
+            ClockBackAction.RESET_TIME
+        } else {
+            ClockBackAction.RESET_CONF
+        }
+        updateAction(action)
         try {
-            var backEventProgress = 0F
-            progress.collect { backEvent ->
-                backEventProgress = backEvent.progress
-                updateProgress(backEventProgress)
+            var progress = 0F
+            it.collect { backEvent ->
+                progress = backEvent.progress
+                updateProgress(progress)
                 updateSwipeEdge(backEvent.swipeEdge)
             }
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                while (backEventProgress < 1F) {
+                while (progress < 1F) {
                     delay(1L)
-                    backEventProgress += 0.01F
-                    updateProgress(backEventProgress)
+                    progress += 0.01F
+                    updateProgress(progress)
                 }
                 delay(100L)
             }
-
-            if (isTicking) {
-                pause()
-            } else if (isStarted) {
-                resetTime()
-            } else {
-                resetConf()
+            when (action) {
+                ClockBackAction.PAUSE -> pause()
+                ClockBackAction.RESET_TIME -> resetTime()
+                ClockBackAction.RESET_CONF -> resetConf()
             }
         } finally {
             updateProgress(0F)

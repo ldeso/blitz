@@ -51,9 +51,9 @@ import net.leodesouza.blitz.ui.components.LeaningSide
  * @param[blackTimeProvider] Lambda for the remaining time for the second player.
  * @param[isWhiteTurnProvider] Lambda for whether it is the turn of the first or the second player.
  * @param[isStartedProvider] Lambda for whether the clock has started ticking.
- * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isPausedProvider] Lambda for whether the clock is on pause.
  * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
+ * @param[backEventActionProvider] Lambda for what action is executed by the back gesture.
  * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
  * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
  */
@@ -63,9 +63,9 @@ fun ClockContent(
     blackTimeProvider: () -> Long,
     isWhiteTurnProvider: () -> Boolean,
     isStartedProvider: () -> Boolean,
-    isTickingProvider: () -> Boolean,
     isPausedProvider: () -> Boolean,
     leaningSideProvider: () -> LeaningSide,
+    backEventActionProvider: () -> ClockBackAction,
     backEventProgressProvider: () -> Float,
     backEventSwipeEdgeProvider: () -> Int,
 ) {
@@ -73,10 +73,12 @@ fun ClockContent(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val density = LocalDensity.current
+
     val textHeight = screenHeight / if (isLandscape) 3 else 8
     val fontSize = with(density) { textHeight.toSp() }
     val fontWeight = FontWeight.Bold
     val timeOverColor = Color.Red
+
     val infiniteTransition = rememberInfiniteTransition(label = "OscillatingAlphaTransition")
     val oscillatingAlpha by infiniteTransition.animateFloat(
         initialValue = 1F,
@@ -103,9 +105,9 @@ fun ClockContent(
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         isPlayerTurn = !isWhiteTurnProvider(),
                         isStarted = isStartedProvider(),
-                        isTicking = isTickingProvider(),
                         isPaused = isPausedProvider(),
                         leaningSide = leaningSideProvider(),
+                        backEventAction = backEventActionProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
                         isLandscape = isLandscape,
@@ -125,9 +127,9 @@ fun ClockContent(
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         isPlayerTurn = isWhiteTurnProvider(),
                         isStarted = isStartedProvider(),
-                        isTicking = isTickingProvider(),
                         isPaused = isPausedProvider(),
                         leaningSide = leaningSideProvider(),
+                        backEventAction = backEventActionProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
                         isLandscape = isLandscape,
@@ -150,8 +152,8 @@ private fun ClockContentPreview() {
         isWhiteTurnProvider = { true },
         leaningSideProvider = { LeaningSide.RIGHT },
         isStartedProvider = { false },
-        isTickingProvider = { false },
         isPausedProvider = { true },
+        backEventActionProvider = { ClockBackAction.PAUSE },
         backEventProgressProvider = { 0F },
         backEventSwipeEdgeProvider = { BackEventCompat.EDGE_LEFT },
     )
@@ -164,9 +166,9 @@ private fun ClockContentPreview() {
  * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
  * @param[isPlayerTurn] Whether it is the turn of the player corresponding to this element.
  * @param[isStarted] Whether the clock has started ticking.
- * @param[isTicking] Whether the clock is currently ticking.
  * @param[isPaused] Whether the clock is on pause.
  * @param[leaningSide] Which side the device is currently leaning towards.
+ * @param[backEventAction] What action is executed by the back gesture.
  * @param[backEventProgress] Progress of the back gesture.
  * @param[backEventSwipeEdge] Swipe edge where the back gesture starts.
  * @param[isLandscape] Whether the device is in landscape mode.
@@ -176,9 +178,9 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     currentlyAdjustedAlpha: Float,
     isPlayerTurn: Boolean,
     isStarted: Boolean,
-    isTicking: Boolean,
     isPaused: Boolean,
     leaningSide: LeaningSide,
+    backEventAction: ClockBackAction,
     backEventProgress: Float,
     backEventSwipeEdge: Int,
     isLandscape: Boolean,
@@ -190,8 +192,8 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
         LeaningSide.RIGHT -> -90F
     }
 
-    translationX = if (isTicking && !isPlayerTurn) {
-        0F  // when pausing, do not translate time of non-current player
+    translationX = if (backEventAction == ClockBackAction.PAUSE && !isPlayerTurn) {
+        0F
     } else {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
         sign * backEventProgress * screenWidth.toPx()

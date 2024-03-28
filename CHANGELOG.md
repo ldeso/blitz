@@ -1,5 +1,17 @@
 ## Changelog
 
+### [1.7.7](https://github.com/ldeso/blitz/releases/tag/v1.7.7) - 2024-03-28
+
+This release fixes a bug reintroduced in version [1.7.1](#171---2024-03-26) where the wrong animation was shown if the time ended during a back gesture.
+
+#### Bug Fix
+
+- Fix bug where wrong animation was shown if time ended during back gesture
+
+#### Note
+
+- Rename `nextTurn` to `play`
+
 ### [1.7.6](https://github.com/ldeso/blitz/releases/tag/v1.7.6) - 2024-03-28
 
 This release makes the time of each player independent from the UI state, which results in less frequent recompositions and an increased responsiveness.

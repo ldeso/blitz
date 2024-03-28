@@ -1,0 +1,1 @@
+• Fix bug where wrong animation was shown if time ended during back gesture

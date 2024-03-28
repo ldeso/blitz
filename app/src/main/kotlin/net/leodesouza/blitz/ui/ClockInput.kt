@@ -16,10 +16,13 @@
 
 package net.leodesouza.blitz.ui
 
+import android.os.Build
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -29,6 +32,66 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.delay
+
+/**
+ * Effect making system back gestures pause or reset the clock.
+ *
+ * @param[isStartedProvider] Lambda for whether the clock has started ticking.
+ * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
+ * @param[isDefaultConfProvider] Lambda for whether the clock is set to its default configuration.
+ * @param[pause] Callback called to pause the clock.
+ * @param[resetTime] Callback called to reset the time.
+ * @param[resetConf] Callback called to reset the configuration.
+ * @param[saveTime] Callback called to save the time.
+ * @param[updateProgress] Callback called to update the progress of the back gesture.
+ * @param[updateSwipeEdge] Callback called to update the swipe edge where the back gesture starts.
+ */
+@Composable
+fun ClockBackHandler(
+    isStartedProvider: () -> Boolean,
+    isTickingProvider: () -> Boolean,
+    isDefaultConfProvider: () -> Boolean,
+    pause: () -> Unit,
+    resetTime: () -> Unit,
+    resetConf: () -> Unit,
+    saveTime: () -> Unit,
+    updateProgress: (Float) -> Unit,
+    updateSwipeEdge: (Int) -> Unit,
+) {
+    val isStarted = isStartedProvider()
+    val isTicking = isTickingProvider()
+    val isDefaultConf = isDefaultConfProvider()
+
+    PredictiveBackHandler(enabled = isTicking || isStarted || !isDefaultConf) { progress ->
+        if (isTicking) saveTime()
+        try {
+            var backEventProgress = 0F
+            progress.collect { backEvent ->
+                backEventProgress = backEvent.progress
+                updateProgress(backEventProgress)
+                updateSwipeEdge(backEvent.swipeEdge)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                while (backEventProgress < 1F) {
+                    delay(1L)
+                    backEventProgress += 0.01F
+                    updateProgress(backEventProgress)
+                }
+                delay(100L)
+            }
+            if (isTicking) {
+                pause()
+            } else if (isStarted) {
+                resetTime()
+            } else {
+                resetConf()
+            }
+        } finally {
+            updateProgress(0F)
+        }
+    }
+}
 
 /**
  * Modifier to control the chess clock through click events, dragging events and key presses.

@@ -17,9 +17,7 @@
 package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration
-import android.os.Build
 import androidx.activity.BackEventCompat
-import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -36,8 +34,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import net.leodesouza.blitz.ui.components.OrientationHandler
 
 /**
@@ -72,13 +68,7 @@ fun ClockScreen(
     var orientation by remember { mutableIntStateOf(0) }
     var isLeaningRight by remember { mutableStateOf(true) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
-    var backEventSwipeEdge by remember {
-        if (isRtl) {
-            mutableIntStateOf(BackEventCompat.EDGE_RIGHT)
-        } else {
-            mutableIntStateOf(BackEventCompat.EDGE_LEFT)
-        }
-    }
+    var backEventSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
 
     OrientationHandler(onOrientationChanged = { orientation = it })
 
@@ -202,68 +192,6 @@ private fun ClockTickingEffect(
             LaunchedEffect(currentTime) {
                 tick()
             }
-        }
-    }
-}
-
-/**
- * Effect handling system back gestures to pause or reset the clock.
- *
- * @param[isStartedProvider] Lambda for whether the clock has started ticking.
- * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
- * @param[isDefaultConfProvider] Lambda for whether the clock is set to its default configuration.
- * @param[pause] Callback called to pause the clock.
- * @param[resetTime] Callback called to reset the time.
- * @param[resetConf] Callback called to reset the configuration.
- * @param[saveTime] Callback called to save the time.
- * @param[updateProgress] Callback called to update the progress of the back gesture.
- * @param[updateSwipeEdge] Callback called to update the swipe edge where the back gesture starts.
- */
-@Composable
-private fun ClockBackHandler(
-    isStartedProvider: () -> Boolean,
-    isTickingProvider: () -> Boolean,
-    isDefaultConfProvider: () -> Boolean,
-    pause: () -> Unit,
-    resetTime: () -> Unit,
-    resetConf: () -> Unit,
-    saveTime: () -> Unit,
-    updateProgress: (Float) -> Unit,
-    updateSwipeEdge: (Int) -> Unit,
-) {
-    val isStarted = isStartedProvider()
-    val isTicking = isTickingProvider()
-    val isDefaultConf = isDefaultConfProvider()
-    val enabled = isTicking || isStarted || !isDefaultConf
-
-    PredictiveBackHandler(enabled = enabled) { progress: Flow<BackEventCompat> ->
-        if (isTicking) {
-            saveTime()
-        }
-        try {
-            var backEventProgress = 0F
-            progress.collect { backEvent ->
-                backEventProgress = backEvent.progress
-                updateProgress(backEventProgress)
-                updateSwipeEdge(backEvent.swipeEdge)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                while (backEventProgress < 1F) {
-                    delay(1L)
-                    backEventProgress += 0.01F
-                    updateProgress(backEventProgress)
-                }
-                delay(100L)
-            }
-            if (isTicking) {
-                pause()
-            } else if (isStarted) {
-                resetTime()
-            } else {
-                resetConf()
-            }
-        } finally {
-            updateProgress(0F)
         }
     }
 }

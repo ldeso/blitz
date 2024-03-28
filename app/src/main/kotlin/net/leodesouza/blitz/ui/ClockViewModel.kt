@@ -183,6 +183,7 @@ class ClockViewModel(
             } else {
                 _blackTime.value = newTime
             }
+            _uiState.value = _uiState.value.copy(isFinished = false)
             targetRealtime = elapsedRealtime() + newTime
         }
     }

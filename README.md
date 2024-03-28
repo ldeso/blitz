@@ -35,13 +35,13 @@ For example, an app installed from F-Droid can be updated to a newer version dow
 
 ## About
 
-This is a native Android app that requires no permission and is compatible with Android 5.0+.
-It is built entirely with [Jetpack Compose](https://developer.android.com/develop/ui/compose) and implements:
+This native Android app requires no permission and is compatible with Android 5.0+.
+It is entirely built with [Jetpack Compose](https://developer.android.com/develop/ui/compose) and implements:
 
   - Predictive back gestures ([Android 14+](https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture))
   - Per-app language preferences ([Android 13+](https://developer.android.com/guide/topics/resources/app-languages))
-  - Right-to-left layout support
-  - Precise orientation support
+  - Support for right-to-left languages
+  - Precise orientation handling
   - Keyboard navigation
 
 ## Links

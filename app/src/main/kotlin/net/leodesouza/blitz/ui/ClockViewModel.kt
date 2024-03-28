@@ -53,7 +53,7 @@ class ClockViewModel(
     val blackTime: StateFlow<Long> = _blackTime.asStateFlow()
     val uiState: StateFlow<ClockUiState> = _uiState.asStateFlow()
 
-    private var savedDurationMinutes: Float = 0F
+    private var savedDurationMinutes: Float = durationMinutes.toFloat()
         set(minutes) {
             val incrementSeconds = savedIncrementSeconds.roundToLong()
             field = minutes.coerceIn(
@@ -62,7 +62,7 @@ class ClockViewModel(
             )
         }
 
-    private var savedIncrementSeconds: Float = 0F
+    private var savedIncrementSeconds: Float = incrementSeconds.toFloat()
         set(seconds) {
             val durationMinutes = savedDurationMinutes.roundToLong()
             field = seconds.coerceIn(
@@ -71,7 +71,7 @@ class ClockViewModel(
             )
         }
 
-    private var savedMinutes: Float = 0F
+    private var savedMinutes: Float = durationMinutes.toFloat()
         set(minutes) {
             val seconds = savedSeconds.roundToLong()
             field = minutes.coerceIn(
@@ -80,7 +80,7 @@ class ClockViewModel(
             )
         }
 
-    private var savedSeconds: Float = 0F
+    private var savedSeconds: Float = incrementSeconds.toFloat()
         set(seconds) {
             val minutes = savedMinutes.roundToLong()
             field = seconds.coerceIn(
@@ -102,7 +102,7 @@ class ClockViewModel(
         } else {
             _blackTime.value = newTime
         }
-        _uiState.value = _uiState.value.copy(isTicking = false, isFinished = newTime <= 0)
+        _uiState.value = _uiState.value.copy(isTicking = false, isFinished = newTime <= 0L)
     }
 
     suspend fun tick() {
@@ -115,7 +115,7 @@ class ClockViewModel(
         } else {
             _blackTime.value = newTime
         }
-        _uiState.value = _uiState.value.copy(isFinished = newTime <= 0)
+        _uiState.value = _uiState.value.copy(isFinished = newTime <= 0L)
     }
 
     fun play() {
@@ -128,7 +128,7 @@ class ClockViewModel(
             _blackTime.value = newTime
             targetRealtime = elapsedRealtime() + _whiteTime.value
         }
-        _uiState.update { it.copy(isWhiteTurn = !it.isWhiteTurn, isFinished = newTime <= 0) }
+        _uiState.update { it.copy(isWhiteTurn = !it.isWhiteTurn, isFinished = newTime <= 0L) }
     }
 
     fun resetTime() {

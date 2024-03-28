@@ -1,0 +1,2 @@
+• Fix bug where clock would be stuck if time ended during back gesture
+• Fix bug where the first time save could be off by one minute/second

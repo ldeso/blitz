@@ -1,5 +1,14 @@
 ## Changelog
 
+### [1.7.8](https://github.com/ldeso/blitz/releases/tag/v1.7.8) - 2024-03-28
+
+This release fixes two bugs that could be triggered by back gestures when the time was close to zero.
+
+#### Bug Fixes
+
+- Fix bug where clock would be stuck if time ended during back gesture
+- Fix bug where the first time save could be off by one minute/second
+
 ### [1.7.7](https://github.com/ldeso/blitz/releases/tag/v1.7.7) - 2024-03-28
 
 This release fixes a bug reintroduced in version [1.7.1](#171---2024-03-26) where the wrong animation was shown if the time ended during a back gesture.

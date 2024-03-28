@@ -48,7 +48,7 @@ import androidx.compose.ui.input.pointer.pointerInput
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[restoreSavedConf] Callback called to restore the saved configuration.
  */
-fun Modifier.chessClockInput(
+fun Modifier.clockInput(
     dragSensitivity: Float,
     interactionSource: MutableInteractionSource,
     isStartedProvider: () -> Boolean,
@@ -65,7 +65,7 @@ fun Modifier.chessClockInput(
     restoreSavedConf: (Float, Float) -> Unit,
 ): Modifier = then(
     clickable(interactionSource = interactionSource, indication = null) {
-        onChessClockClickEvent(
+        onClockClickEvent(
             isTicking = isTickingProvider(),
             isPaused = isPausedProvider(),
             start = start,
@@ -73,7 +73,7 @@ fun Modifier.chessClockInput(
         )
     }
         .onKeyEvent {
-            onChessClockKeyEvent(
+            onClockKeyEvent(
                 keyEvent = it,
                 isStarted = isStartedProvider(),
                 isPaused = isPausedProvider(),
@@ -87,7 +87,7 @@ fun Modifier.chessClockInput(
         .pointerInput(Unit) {
             detectHorizontalDragGestures(
                 onDragStart = {
-                    onChessClockDragStart(
+                    onClockDragStart(
                         isStarted = isStartedProvider(),
                         isPaused = isPausedProvider(),
                         saveTime = saveTime,
@@ -95,10 +95,10 @@ fun Modifier.chessClockInput(
                     )
                 },
                 onDragEnd = {
-                    onChessClockDragEnd(isTicking = isTickingProvider(), nextPlayer = nextPlayer)
+                    onClockDragEnd(isTicking = isTickingProvider(), nextPlayer = nextPlayer)
                 },
                 onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
-                    onChessClockHorizontalDrag(
+                    onClockHorizontalDrag(
                         dragAmount = dragAmount,
                         dragSensitivity = dragSensitivity,
                         isStarted = isStartedProvider(),
@@ -115,7 +115,7 @@ fun Modifier.chessClockInput(
         .pointerInput(Unit) {
             detectVerticalDragGestures(
                 onDragStart = {
-                    onChessClockDragStart(
+                    onClockDragStart(
                         isStarted = isStartedProvider(),
                         isPaused = isPausedProvider(),
                         saveTime = saveTime,
@@ -123,10 +123,10 @@ fun Modifier.chessClockInput(
                     )
                 },
                 onDragEnd = {
-                    onChessClockDragEnd(isTicking = isTickingProvider(), nextPlayer = nextPlayer)
+                    onClockDragEnd(isTicking = isTickingProvider(), nextPlayer = nextPlayer)
                 },
                 onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
-                    onChessClockVerticalDrag(
+                    onClockVerticalDrag(
                         dragAmount = dragAmount,
                         dragSensitivity = dragSensitivity,
                         isStarted = isStartedProvider(),
@@ -150,7 +150,7 @@ fun Modifier.chessClockInput(
  * @param[start] Callback called to start the clock.
  * @param[nextPlayer] Callback called to switch to the next player.
  */
-private fun onChessClockClickEvent(
+private fun onClockClickEvent(
     isTicking: Boolean, isPaused: Boolean, start: () -> Unit, nextPlayer: () -> Unit,
 ) {
     if (isPaused) {
@@ -172,7 +172,7 @@ private fun onChessClockClickEvent(
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[restoreSavedConf] Callback called to restore the saved configuration.
  */
-private fun onChessClockKeyEvent(
+private fun onClockKeyEvent(
     keyEvent: KeyEvent,
     isStarted: Boolean,
     isPaused: Boolean,
@@ -214,7 +214,7 @@ private fun onChessClockKeyEvent(
  * @param[saveTime] Callback called to save the time.
  * @param[saveConf] Callback called to save the configuration.
  */
-private fun onChessClockDragStart(
+private fun onClockDragStart(
     isStarted: Boolean, isPaused: Boolean, saveTime: () -> Unit, saveConf: () -> Unit,
 ) {
     if (isPaused) {
@@ -232,7 +232,7 @@ private fun onChessClockDragStart(
  * @param[isTicking] Whether the clock is currently ticking.
  * @param[nextPlayer] Callback called to switch to the next player.
  */
-private fun onChessClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
+private fun onClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
     if (isTicking) {
         nextPlayer()
     }
@@ -252,7 +252,7 @@ private fun onChessClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[restoreSavedConf] Callback called to restore the saved configuration.
  */
-private fun onChessClockHorizontalDrag(
+private fun onClockHorizontalDrag(
     dragAmount: Float,
     dragSensitivity: Float,
     isStarted: Boolean,
@@ -300,7 +300,7 @@ private fun onChessClockHorizontalDrag(
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[restoreSavedConf] Callback called to restore the saved configuration.
  */
-private fun onChessClockVerticalDrag(
+private fun onClockVerticalDrag(
     dragAmount: Float,
     dragSensitivity: Float,
     isStarted: Boolean,

@@ -57,7 +57,7 @@ import net.leodesouza.blitz.ui.components.BasicTime
  * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
  */
 @Composable
-fun ChessClockContent(
+fun ClockContent(
     whiteTimeProvider: () -> Long,
     blackTimeProvider: () -> Long,
     isWhiteTurnProvider: () -> Boolean,
@@ -142,8 +142,8 @@ fun ChessClockContent(
 /** Preview the chess clock screen content in Android Studio. */
 @Preview
 @Composable
-private fun ChessClockContentPreview() {
-    ChessClockContent(
+private fun ClockContentPreview() {
+    ClockContent(
         whiteTimeProvider = { 5L * 60_000L },
         blackTimeProvider = { 3L * 1_000L },
         isWhiteTurnProvider = { true },
@@ -152,7 +152,7 @@ private fun ChessClockContentPreview() {
         isTickingProvider = { false },
         isPausedProvider = { true },
         backEventProgressProvider = { 0F },
-        backEventSwipeEdgeProvider = { BackEventCompat.EDGE_RIGHT },
+        backEventSwipeEdgeProvider = { BackEventCompat.EDGE_LEFT },
     )
 }
 
@@ -191,7 +191,7 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     }
 
     translationX = if (isTicking && !isPlayerTurn) {
-        0F  // on pause, no translation on the time of the other player
+        0F  // do not translate the time of the other player if the back gesture pauses the clock
     } else {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
         sign * backEventProgress * screenWidth.toPx()

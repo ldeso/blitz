@@ -52,21 +52,21 @@ import net.leodesouza.blitz.ui.components.OrientationHandler
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[onClockStart] Callback called before the clock starts ticking.
  * @param[onClockPause] Callback called after the clock stops ticking.
- * @param[chessClockViewModel] ViewModel holding the state and logic for this screen.
+ * @param[clockViewModel] ViewModel holding the state and logic for this screen.
  */
 @Composable
-fun ChessClockScreen(
+fun ClockScreen(
     durationMinutes: Long = 5L,
     incrementSeconds: Long = 3L,
     tickPeriod: Long = 100L,
     dragSensitivity: Float = 0.01F,
     onClockStart: () -> Unit = {},
     onClockPause: () -> Unit = {},
-    chessClockViewModel: ChessClockViewModel = viewModel {
-        ChessClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
+    clockViewModel: ClockViewModel = viewModel {
+        ClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
     },
 ) {
-    val uiState by chessClockViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by clockViewModel.uiState.collectAsStateWithLifecycle()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var orientation by remember { mutableIntStateOf(0) }
@@ -88,35 +88,35 @@ fun ChessClockScreen(
         onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
     )
 
-    ChessClockTickingEffect(
+    ClockTickingEffect(
         currentTimeProvider = { uiState.currentTime },
         isTickingProvider = { uiState.isTicking },
         isFinishedProvider = { uiState.isFinished },
         pause = {
-            chessClockViewModel.pause()
+            clockViewModel.pause()
             onClockPause()
         },
-        tick = chessClockViewModel::tick,
+        tick = clockViewModel::tick,
     )
 
-    ChessClockBackHandler(
+    ClockBackHandler(
         isStartedProvider = { uiState.isStarted },
         isTickingProvider = { uiState.isTicking },
         isDefaultConfProvider = { uiState.isDefaultConf },
         pause = {
-            chessClockViewModel.pause()
-            chessClockViewModel.restoreSavedTime(isDecimalRestored = true)
+            clockViewModel.pause()
+            clockViewModel.restoreSavedTime(isDecimalRestored = true)
             onClockPause()
         },
-        resetTime = chessClockViewModel::resetTime,
-        resetConf = chessClockViewModel::resetConf,
-        saveTime = chessClockViewModel::saveTime,
+        resetTime = clockViewModel::resetTime,
+        resetConf = clockViewModel::resetConf,
+        saveTime = clockViewModel::saveTime,
         updateProgress = { backEventProgress = it },
         updateSwipeEdge = { backEventSwipeEdge = it },
     )
 
     Box(
-        modifier = Modifier.chessClockInput(
+        modifier = Modifier.clockInput(
             dragSensitivity = dragSensitivity,
             interactionSource = remember { MutableInteractionSource() },
             isStartedProvider = { uiState.isStarted },
@@ -127,16 +127,16 @@ fun ChessClockScreen(
             isRtl = isRtl,
             start = {
                 onClockStart()
-                chessClockViewModel.start()
+                clockViewModel.start()
             },
-            nextPlayer = chessClockViewModel::nextPlayer,
-            saveTime = chessClockViewModel::saveTime,
-            saveConf = chessClockViewModel::saveConf,
-            restoreSavedTime = chessClockViewModel::restoreSavedTime,
-            restoreSavedConf = chessClockViewModel::restoreSavedConf,
+            nextPlayer = clockViewModel::nextPlayer,
+            saveTime = clockViewModel::saveTime,
+            saveConf = clockViewModel::saveConf,
+            restoreSavedTime = clockViewModel::restoreSavedTime,
+            restoreSavedConf = clockViewModel::restoreSavedConf,
         ),
     ) {
-        ChessClockContent(
+        ClockContent(
             whiteTimeProvider = { uiState.whiteTime },
             blackTimeProvider = { uiState.blackTime },
             isWhiteTurnProvider = { uiState.isWhiteTurn },
@@ -184,7 +184,7 @@ private fun IsLeaningRightHandler(
  * @param[tick] Callback called to wait until next tick.
  */
 @Composable
-private fun ChessClockTickingEffect(
+private fun ClockTickingEffect(
     currentTimeProvider: () -> Long,
     isTickingProvider: () -> Boolean,
     isFinishedProvider: () -> Boolean,
@@ -220,7 +220,7 @@ private fun ChessClockTickingEffect(
  * @param[updateSwipeEdge] Callback called to update the swipe edge where the back gesture starts.
  */
 @Composable
-private fun ChessClockBackHandler(
+private fun ClockBackHandler(
     isStartedProvider: () -> Boolean,
     isTickingProvider: () -> Boolean,
     isDefaultConfProvider: () -> Boolean,

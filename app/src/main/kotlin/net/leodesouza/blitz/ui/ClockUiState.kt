@@ -17,7 +17,7 @@
 package net.leodesouza.blitz.ui
 
 /**
- * UiState for the chess clock screen.
+ * UI state for the chess clock screen.
  *
  * @param[whiteTime] Remaining time for the first player in milliseconds.
  * @param[blackTime] Remaining time for the second player in milliseconds.
@@ -26,7 +26,7 @@ package net.leodesouza.blitz.ui
  * @param[isTicking] Whether the clock is currently ticking.
  * @param[isDefaultConf] Whether the clock is set to its default configuration.
  */
-data class ChessClockUiState(
+data class ClockUiState(
     val whiteTime: Long,
     val blackTime: Long,
     val isWhiteTurn: Boolean = true,

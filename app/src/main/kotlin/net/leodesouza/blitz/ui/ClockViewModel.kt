@@ -33,7 +33,7 @@ import kotlin.math.sign
  * @param[incrementSeconds] Time increment in seconds.
  * @param[tickPeriod] Period between ticks in milliseconds.
  */
-class ChessClockViewModel(
+class ClockViewModel(
     durationMinutes: Long,
     incrementSeconds: Long,
     private val tickPeriod: Long,
@@ -44,14 +44,14 @@ class ChessClockViewModel(
     private var currentIncrement: Long = defaultIncrement
     private var targetRealtime: Long = 0L
 
-    private val _uiState: MutableStateFlow<ChessClockUiState> = MutableStateFlow(
-        ChessClockUiState(
+    private val _uiState: MutableStateFlow<ClockUiState> = MutableStateFlow(
+        ClockUiState(
             whiteTime = defaultDuration + defaultIncrement,
             blackTime = defaultDuration + defaultIncrement,
         )
     )
 
-    val uiState: StateFlow<ChessClockUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ClockUiState> = _uiState.asStateFlow()
 
     private var savedDurationMinutes: Float = 0F
         set(minutes) {

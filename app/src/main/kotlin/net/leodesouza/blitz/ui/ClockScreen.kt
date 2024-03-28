@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import net.leodesouza.blitz.ui.components.LeaningSide
+import net.leodesouza.blitz.ui.components.LeaningSideHandler
 import net.leodesouza.blitz.ui.components.OrientationHandler
 
 /**
@@ -70,16 +72,27 @@ fun ClockScreen(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     var orientation by remember { mutableIntStateOf(0) }
-    var isLeaningRight by remember { mutableStateOf(true) }
+    var leaningSide by remember { mutableStateOf(LeaningSide.RIGHT) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
-    var backEventSwipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
+    var backEventSwipeEdge by remember {
+        if (isRtl) {
+            mutableIntStateOf(BackEventCompat.EDGE_RIGHT)
+        } else {
+            mutableIntStateOf(BackEventCompat.EDGE_LEFT)
+        }
+    }
 
     OrientationHandler(onOrientationChanged = { orientation = it })
 
-    IsLeaningRightHandler(
+    LeaningSideHandler(
         orientationProvider = { orientation },
-        isLeaningRightProvider = { isLeaningRight },
-        onLeaningSideChanged = { isLeaningRight = !isLeaningRight },
+        leaningSideProvider = { leaningSide },
+        onLeaningSideChanged = {
+            leaningSide = when (leaningSide) {
+                LeaningSide.LEFT -> LeaningSide.RIGHT
+                LeaningSide.RIGHT -> LeaningSide.LEFT
+            }
+        },
     )
 
     ClockTickingEffect(
@@ -117,7 +130,7 @@ fun ClockScreen(
             isStartedProvider = { uiState.isStarted },
             isTickingProvider = { uiState.isTicking },
             isPausedProvider = { uiState.isPaused },
-            isLeaningRightProvider = { isLeaningRight },
+            leaningSideProvider = { leaningSide },
             isLandscape = isLandscape,
             isRtl = isRtl,
             start = {
@@ -138,33 +151,10 @@ fun ClockScreen(
             isStartedProvider = { uiState.isStarted },
             isTickingProvider = { uiState.isTicking },
             isPausedProvider = { uiState.isPaused },
-            isLeaningRightProvider = { isLeaningRight },
+            leaningSideProvider = { leaningSide },
             backEventProgressProvider = { backEventProgress },
             backEventSwipeEdgeProvider = { backEventSwipeEdge },
         )
-    }
-}
-
-/**
- * Handle whether the device is currently leaning towards its right side.
- *
- * @param[orientationProvider] Lambda for the orientation of the device in degrees.
- * @param[isLeaningRightProvider] Lambda for whether the device is currently leaning right.
- * @param[onLeaningSideChanged] Callback called when the leaning side of the device changes.
- */
-@Composable
-private fun IsLeaningRightHandler(
-    orientationProvider: () -> Int,
-    isLeaningRightProvider: () -> Boolean,
-    onLeaningSideChanged: () -> Unit,
-) {
-    val orientation = orientationProvider()
-    val isLeaningRight = isLeaningRightProvider()
-
-    val isChangingFromLeftToRight = !isLeaningRight && orientation in 10 until 170
-    val isChangingFromRightToLeft = isLeaningRight && orientation in 190 until 350
-    if (isChangingFromLeftToRight || isChangingFromRightToLeft) {
-        onLeaningSideChanged()
     }
 }
 

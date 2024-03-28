@@ -33,6 +33,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.delay
+import net.leodesouza.blitz.ui.components.LeaningSide
 
 /**
  * Effect making system back gestures pause or reset the clock.
@@ -72,6 +73,7 @@ fun ClockBackHandler(
                 updateProgress(backEventProgress)
                 updateSwipeEdge(backEvent.swipeEdge)
             }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 while (backEventProgress < 1F) {
                     delay(1L)
@@ -80,6 +82,7 @@ fun ClockBackHandler(
                 }
                 delay(100L)
             }
+
             if (isTicking) {
                 pause()
             } else if (isStarted) {
@@ -101,7 +104,7 @@ fun ClockBackHandler(
  * @param[isStartedProvider] Lambda for whether the clock has started ticking.
  * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isPausedProvider] Lambda for whether the clock is on pause.
- * @param[isLeaningRightProvider] Lambda for whether the device is leaning right.
+ * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
  * @param[isLandscape] Whether the device is in landscape mode.
  * @param[isRtl] Whether the layout direction is configured from right to left.
  * @param[start] Callback called to start the clock.
@@ -117,7 +120,7 @@ fun Modifier.clockInput(
     isStartedProvider: () -> Boolean,
     isTickingProvider: () -> Boolean,
     isPausedProvider: () -> Boolean,
-    isLeaningRightProvider: () -> Boolean,
+    leaningSideProvider: () -> LeaningSide,
     isLandscape: Boolean,
     isRtl: Boolean,
     start: () -> Unit,
@@ -166,7 +169,7 @@ fun Modifier.clockInput(
                         dragSensitivity = dragSensitivity,
                         isStarted = isStartedProvider(),
                         isPaused = isPausedProvider(),
-                        isLeaningRight = isLeaningRightProvider(),
+                        leaningSide = leaningSideProvider(),
                         isLandscape = isLandscape,
                         isRtl = isRtl,
                         restoreSavedTime = restoreSavedTime,
@@ -194,7 +197,7 @@ fun Modifier.clockInput(
                         dragSensitivity = dragSensitivity,
                         isStarted = isStartedProvider(),
                         isPaused = isPausedProvider(),
-                        isLeaningRight = isLeaningRightProvider(),
+                        leaningSide = leaningSideProvider(),
                         isLandscape = isLandscape,
                         isRtl = isRtl,
                         restoreSavedTime = restoreSavedTime,
@@ -281,11 +284,7 @@ private fun onClockDragStart(
     isStarted: Boolean, isPaused: Boolean, saveTime: () -> Unit, saveConf: () -> Unit,
 ) {
     if (isPaused) {
-        if (isStarted) {
-            saveTime()
-        } else {
-            saveConf()
-        }
+        if (isStarted) saveTime() else saveConf()
     }
 }
 
@@ -296,9 +295,7 @@ private fun onClockDragStart(
  * @param[nextPlayer] Callback called to switch to the next player.
  */
 private fun onClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
-    if (isTicking) {
-        nextPlayer()
-    }
+    if (isTicking) nextPlayer()
 }
 
 /**
@@ -309,7 +306,7 @@ private fun onClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isPaused] Whether the clock is on pause.
- * @param[isLeaningRight] Whether the device is leaning right.
+ * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[isLandscape] Whether the device is in landscape mode.
  * @param[isRtl] Whether the layout direction is configured from right to left.
  * @param[restoreSavedTime] Callback called to restore the saved time.
@@ -320,7 +317,7 @@ private fun onClockHorizontalDrag(
     dragSensitivity: Float,
     isStarted: Boolean,
     isPaused: Boolean,
-    isLeaningRight: Boolean,
+    leaningSide: LeaningSide,
     isLandscape: Boolean,
     isRtl: Boolean,
     restoreSavedTime: (Float, Float) -> Unit,
@@ -337,7 +334,10 @@ private fun onClockHorizontalDrag(
                 restoreSavedConf(addMinutes, addSeconds)
             }
         } else {
-            val sign = if (isLeaningRight) -1F else 1F
+            val sign = when (leaningSide) {
+                LeaningSide.LEFT -> 1F
+                LeaningSide.RIGHT -> -1F
+            }
             val addMinutes = 0F
             val addSeconds = sign * dragSensitivity * dragAmount
             if (isStarted) {
@@ -357,7 +357,7 @@ private fun onClockHorizontalDrag(
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isPaused] Whether the clock is on pause.
- * @param[isLeaningRight] Whether the device is leaning right.
+ * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[isLandscape] Whether the device is in landscape mode.
  * @param[isRtl] Whether the layout direction is configured from right to left.
  * @param[restoreSavedTime] Callback called to restore the saved time.
@@ -368,7 +368,7 @@ private fun onClockVerticalDrag(
     dragSensitivity: Float,
     isStarted: Boolean,
     isPaused: Boolean,
-    isLeaningRight: Boolean,
+    leaningSide: LeaningSide,
     isLandscape: Boolean,
     isRtl: Boolean,
     restoreSavedTime: (Float, Float) -> Unit,
@@ -385,7 +385,10 @@ private fun onClockVerticalDrag(
                 restoreSavedConf(addMinutes, addSeconds)
             }
         } else {
-            val sign = if (isLeaningRight xor isRtl) -1F else 1F
+            val sign = when (leaningSide) {
+                LeaningSide.LEFT -> if (isRtl) -1F else 1F
+                LeaningSide.RIGHT -> if (isRtl) 1F else -1F
+            }
             val addMinutes = sign * dragSensitivity * dragAmount
             val addSeconds = 0F
             if (isStarted) {

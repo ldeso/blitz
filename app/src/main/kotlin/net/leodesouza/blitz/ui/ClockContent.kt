@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.leodesouza.blitz.ui.components.BasicTime
+import net.leodesouza.blitz.ui.components.LeaningSide
 
 /**
  * Chess clock screen content consisting of the time of each player in different colors.
@@ -52,7 +53,7 @@ import net.leodesouza.blitz.ui.components.BasicTime
  * @param[isStartedProvider] Lambda for whether the clock has started ticking.
  * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isPausedProvider] Lambda for whether the clock is on pause.
- * @param[isLeaningRightProvider] Lambda for whether the device is leaning right.
+ * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
  * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
  * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
  */
@@ -64,7 +65,7 @@ fun ClockContent(
     isStartedProvider: () -> Boolean,
     isTickingProvider: () -> Boolean,
     isPausedProvider: () -> Boolean,
-    isLeaningRightProvider: () -> Boolean,
+    leaningSideProvider: () -> LeaningSide,
     backEventProgressProvider: () -> Float,
     backEventSwipeEdgeProvider: () -> Int,
 ) {
@@ -104,7 +105,7 @@ fun ClockContent(
                         isStarted = isStartedProvider(),
                         isTicking = isTickingProvider(),
                         isPaused = isPausedProvider(),
-                        isLeaningRight = isLeaningRightProvider(),
+                        leaningSide = leaningSideProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
                         isLandscape = isLandscape,
@@ -126,7 +127,7 @@ fun ClockContent(
                         isStarted = isStartedProvider(),
                         isTicking = isTickingProvider(),
                         isPaused = isPausedProvider(),
-                        isLeaningRight = isLeaningRightProvider(),
+                        leaningSide = leaningSideProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
                         isLandscape = isLandscape,
@@ -147,7 +148,7 @@ private fun ClockContentPreview() {
         whiteTimeProvider = { 5L * 60_000L },
         blackTimeProvider = { 3L * 1_000L },
         isWhiteTurnProvider = { true },
-        isLeaningRightProvider = { true },
+        leaningSideProvider = { LeaningSide.RIGHT },
         isStartedProvider = { false },
         isTickingProvider = { false },
         isPausedProvider = { true },
@@ -165,7 +166,7 @@ private fun ClockContentPreview() {
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isTicking] Whether the clock is currently ticking.
  * @param[isPaused] Whether the clock is on pause.
- * @param[isLeaningRight] Whether the device is currently leaning right.
+ * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[backEventProgress] Progress of the back gesture.
  * @param[backEventSwipeEdge] Swipe edge where the back gesture starts.
  * @param[isLandscape] Whether the device is in landscape mode.
@@ -177,21 +178,20 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     isStarted: Boolean,
     isTicking: Boolean,
     isPaused: Boolean,
-    isLeaningRight: Boolean,
+    leaningSide: LeaningSide,
     backEventProgress: Float,
     backEventSwipeEdge: Int,
     isLandscape: Boolean,
 ) {
     rotationZ = if (isLandscape) {
         0F
-    } else if (isLeaningRight) {
-        -90F
-    } else {
-        90F
+    } else when (leaningSide) {
+        LeaningSide.LEFT -> 90F
+        LeaningSide.RIGHT -> -90F
     }
 
     translationX = if (isTicking && !isPlayerTurn) {
-        0F  // do not translate the time of the other player if the back gesture pauses the clock
+        0F  // when pausing, do not translate time of non-current player
     } else {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
         sign * backEventProgress * screenWidth.toPx()

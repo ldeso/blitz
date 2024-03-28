@@ -1,0 +1,1 @@
+• Separate time from UI state to increase responsiveness

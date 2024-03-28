@@ -1,5 +1,22 @@
 ## Changelog
 
+### [1.7.6](https://github.com/ldeso/blitz/releases/tag/v1.7.6) - 2024-03-28
+
+This release makes the time of each player independent from the UI state, which results in less frequent recompositions and an increased responsiveness.
+
+#### Improvement
+
+- Separate time from UI state to increase responsiveness
+
+#### Notes
+
+- Rename source directory from java to kotlin
+- Rename "ChessClock" to "Clock"
+- Move `ClockBackHandler` to ClockInput.kt
+- Create LeaningSideHandler
+- Add favicon.ico
+- Update "About" section in README.md
+
 ### [1.7.5](https://github.com/ldeso/blitz/releases/tag/v1.7.5) - 2024-03-27
 
 This release disables back gesture animations below Android 14.

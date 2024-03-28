@@ -116,7 +116,7 @@ fun ClockBackHandler(
  * @param[isLandscape] Whether the device is in landscape mode.
  * @param[isRtl] Whether the layout direction is configured from right to left.
  * @param[start] Callback called to start the clock.
- * @param[nextPlayer] Callback called to switch to the next player.
+ * @param[play] Callback called to switch to the next player.
  * @param[saveTime] Callback called to save the time.
  * @param[saveConf] Callback called to save the configuration.
  * @param[restoreSavedTime] Callback called to restore the saved time.
@@ -132,7 +132,7 @@ fun Modifier.clockInput(
     isLandscape: Boolean,
     isRtl: Boolean,
     start: () -> Unit,
-    nextPlayer: () -> Unit,
+    play: () -> Unit,
     saveTime: () -> Unit,
     saveConf: () -> Unit,
     restoreSavedTime: (Float, Float) -> Unit,
@@ -143,7 +143,7 @@ fun Modifier.clockInput(
             isTicking = isTickingProvider(),
             isPaused = isPausedProvider(),
             start = start,
-            nextPlayer = nextPlayer,
+            play = play,
         )
     }
         .onKeyEvent {
@@ -168,9 +168,7 @@ fun Modifier.clockInput(
                         saveConf = saveConf,
                     )
                 },
-                onDragEnd = {
-                    onClockDragEnd(isTicking = isTickingProvider(), nextPlayer = nextPlayer)
-                },
+                onDragEnd = { onClockDragEnd(isTicking = isTickingProvider(), play = play) },
                 onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
                     onClockHorizontalDrag(
                         dragAmount = dragAmount,
@@ -196,9 +194,7 @@ fun Modifier.clockInput(
                         saveConf = saveConf,
                     )
                 },
-                onDragEnd = {
-                    onClockDragEnd(isTicking = isTickingProvider(), nextPlayer = nextPlayer)
-                },
+                onDragEnd = { onClockDragEnd(isTicking = isTickingProvider(), play = play) },
                 onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
                     onClockVerticalDrag(
                         dragAmount = dragAmount,
@@ -222,15 +218,15 @@ fun Modifier.clockInput(
  * @param[isTicking] Whether the clock is currently ticking.
  * @param[isPaused] Whether the clock is on pause.
  * @param[start] Callback called to start the clock.
- * @param[nextPlayer] Callback called to switch to the next player.
+ * @param[play] Callback called to switch to the next player.
  */
 private fun onClockClickEvent(
-    isTicking: Boolean, isPaused: Boolean, start: () -> Unit, nextPlayer: () -> Unit,
+    isTicking: Boolean, isPaused: Boolean, start: () -> Unit, play: () -> Unit,
 ) {
     if (isPaused) {
         start()
     } else if (isTicking) {
-        nextPlayer()
+        play()
     }
 }
 
@@ -300,10 +296,10 @@ private fun onClockDragStart(
  * Switch to the next player if the clock is ticking at the end of a drag gesture.
  *
  * @param[isTicking] Whether the clock is currently ticking.
- * @param[nextPlayer] Callback called to switch to the next player.
+ * @param[play] Callback called to switch to the next player.
  */
-private fun onClockDragEnd(isTicking: Boolean, nextPlayer: () -> Unit) {
-    if (isTicking) nextPlayer()
+private fun onClockDragEnd(isTicking: Boolean, play: () -> Unit) {
+    if (isTicking) play()
 }
 
 /**

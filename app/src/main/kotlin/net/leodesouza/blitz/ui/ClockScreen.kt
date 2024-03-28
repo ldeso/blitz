@@ -139,7 +139,7 @@ fun ClockScreen(
                 onClockStart()
                 clockViewModel.start()
             },
-            nextPlayer = clockViewModel::nextPlayer,
+            play = clockViewModel::play,
             saveTime = clockViewModel::saveTime,
             saveConf = clockViewModel::saveConf,
             restoreSavedTime = clockViewModel::restoreSavedTime,

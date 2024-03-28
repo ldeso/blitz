@@ -118,7 +118,7 @@ class ClockViewModel(
         _uiState.value = _uiState.value.copy(isFinished = newTime <= 0)
     }
 
-    fun nextPlayer() {
+    fun play() {
         val remainingTime = targetRealtime - elapsedRealtime()
         val newTime = if (remainingTime > 0L) (remainingTime + currentIncrement) else 0L
         if (_uiState.value.isWhiteTurn) {

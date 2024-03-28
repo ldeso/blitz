@@ -19,27 +19,19 @@ package net.leodesouza.blitz.ui
 /**
  * UI state for the chess clock screen.
  *
- * @param[whiteTime] Remaining time for the first player in milliseconds.
- * @param[blackTime] Remaining time for the second player in milliseconds.
  * @param[isWhiteTurn] Whether it is the turn of the first or the second player.
  * @param[isStarted] Whether the clock has started ticking.
  * @param[isTicking] Whether the clock is currently ticking.
+ * @param[isFinished] Whether the clock has finished ticking.
  * @param[isDefaultConf] Whether the clock is set to its default configuration.
  */
 data class ClockUiState(
-    val whiteTime: Long,
-    val blackTime: Long,
     val isWhiteTurn: Boolean = true,
     val isStarted: Boolean = false,
     val isTicking: Boolean = false,
+    val isFinished: Boolean = false,
     val isDefaultConf: Boolean = true,
 ) {
-    val currentTime: Long
-        get() = if (isWhiteTurn) whiteTime else blackTime
-
-    val isFinished: Boolean
-        get() = whiteTime <= 0L || blackTime <= 0L
-
     val isPaused: Boolean
         get() = !isTicking && !isFinished
 }

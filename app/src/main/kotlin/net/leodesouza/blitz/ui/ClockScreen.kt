@@ -62,9 +62,13 @@ fun ClockScreen(
         ClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
     },
 ) {
+    val whiteTime by clockViewModel.whiteTime.collectAsStateWithLifecycle()
+    val blackTime by clockViewModel.blackTime.collectAsStateWithLifecycle()
     val uiState by clockViewModel.uiState.collectAsStateWithLifecycle()
+
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
     var orientation by remember { mutableIntStateOf(0) }
     var isLeaningRight by remember { mutableStateOf(true) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
@@ -79,7 +83,8 @@ fun ClockScreen(
     )
 
     ClockTickingEffect(
-        currentTimeProvider = { uiState.currentTime },
+        whiteTimeProvider = { whiteTime },
+        blackTimeProvider = { blackTime },
         isTickingProvider = { uiState.isTicking },
         isFinishedProvider = { uiState.isFinished },
         pause = {
@@ -127,8 +132,8 @@ fun ClockScreen(
         ),
     ) {
         ClockContent(
-            whiteTimeProvider = { uiState.whiteTime },
-            blackTimeProvider = { uiState.blackTime },
+            whiteTimeProvider = { whiteTime },
+            blackTimeProvider = { blackTime },
             isWhiteTurnProvider = { uiState.isWhiteTurn },
             isStartedProvider = { uiState.isStarted },
             isTickingProvider = { uiState.isTicking },
@@ -167,7 +172,8 @@ private fun IsLeaningRightHandler(
  * Effect taking care of repeatedly waiting until the next tick or pausing the clock when it has
  * finished ticking.
  *
- * @param[currentTimeProvider] Lambda for the time of the current player.
+ * @param[whiteTimeProvider] Lambda for the time of the first player.
+ * @param[blackTimeProvider] Lambda for the time of the second player.
  * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
  * @param[isFinishedProvider] Lambda for whether the clock has finished ticking.
  * @param[pause] Callback called to pause the clock.
@@ -175,13 +181,15 @@ private fun IsLeaningRightHandler(
  */
 @Composable
 private fun ClockTickingEffect(
-    currentTimeProvider: () -> Long,
+    whiteTimeProvider: () -> Long,
+    blackTimeProvider: () -> Long,
     isTickingProvider: () -> Boolean,
     isFinishedProvider: () -> Boolean,
     pause: () -> Unit,
     tick: suspend () -> Unit,
 ) {
-    val currentTime = currentTimeProvider()
+    val whiteTime = whiteTimeProvider()
+    val blackTime = blackTimeProvider()
     val isTicking = isTickingProvider()
     val isFinished = isFinishedProvider()
 
@@ -189,9 +197,7 @@ private fun ClockTickingEffect(
         if (isFinished) {
             pause()
         } else {
-            LaunchedEffect(currentTime) {
-                tick()
-            }
+            LaunchedEffect(whiteTime, blackTime) { tick() }
         }
     }
 }

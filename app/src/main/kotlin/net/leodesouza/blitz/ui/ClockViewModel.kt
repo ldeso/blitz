@@ -27,7 +27,7 @@ import kotlin.math.roundToLong
 import kotlin.math.sign
 
 /**
- * ViewModel for the chess clock screen.
+ * ViewModel holding state and logic for the chess clock screen.
  *
  * @param[durationMinutes] Initial time for each player in minutes.
  * @param[incrementSeconds] Time increment in seconds.
@@ -40,17 +40,17 @@ class ClockViewModel(
 ) : ViewModel() {
     private val defaultDuration: Long = durationMinutes * 60_000L
     private val defaultIncrement: Long = incrementSeconds * 1_000L
+    private val defaultTime: Long = defaultDuration + defaultIncrement
     private var currentDuration: Long = defaultDuration
     private var currentIncrement: Long = defaultIncrement
     private var targetRealtime: Long = 0L
 
-    private val _uiState: MutableStateFlow<ClockUiState> = MutableStateFlow(
-        ClockUiState(
-            whiteTime = defaultDuration + defaultIncrement,
-            blackTime = defaultDuration + defaultIncrement,
-        )
-    )
+    private val _whiteTime: MutableStateFlow<Long> = MutableStateFlow(defaultTime)
+    private val _blackTime: MutableStateFlow<Long> = MutableStateFlow(defaultTime)
+    private val _uiState: MutableStateFlow<ClockUiState> = MutableStateFlow(ClockUiState())
 
+    val whiteTime: StateFlow<Long> = _whiteTime.asStateFlow()
+    val blackTime: StateFlow<Long> = _blackTime.asStateFlow()
     val uiState: StateFlow<ClockUiState> = _uiState.asStateFlow()
 
     private var savedDurationMinutes: Float = 0F
@@ -90,69 +90,69 @@ class ClockViewModel(
         }
 
     fun start() {
-        _uiState.update {
-            targetRealtime = elapsedRealtime() + it.currentTime
-            it.copy(isStarted = true, isTicking = true)
-        }
+        val currentTime = if (_uiState.value.isWhiteTurn) _whiteTime.value else _blackTime.value
+        targetRealtime = elapsedRealtime() + currentTime
+        _uiState.value = _uiState.value.copy(isStarted = true, isTicking = true)
     }
 
     fun pause() {
-        _uiState.update {
-            val newTime = targetRealtime - elapsedRealtime()
-            if (it.isWhiteTurn) {
-                it.copy(whiteTime = newTime, isTicking = false)
-            } else {
-                it.copy(blackTime = newTime, isTicking = false)
-            }
+        val newTime = targetRealtime - elapsedRealtime()
+        if (_uiState.value.isWhiteTurn) {
+            _whiteTime.value = newTime
+        } else {
+            _blackTime.value = newTime
         }
+        _uiState.value = _uiState.value.copy(isTicking = false, isFinished = newTime <= 0)
     }
 
     suspend fun tick() {
-        _uiState.update {
-            val remainingTime = targetRealtime - elapsedRealtime()
-            val correctionDelay = remainingTime % tickPeriod
-            delay(correctionDelay)
-            val newTime = remainingTime - correctionDelay
-            if (it.isWhiteTurn) {
-                it.copy(whiteTime = newTime)
-            } else {
-                it.copy(blackTime = newTime)
-            }
+        val remainingTime = targetRealtime - elapsedRealtime()
+        val correctionDelay = remainingTime % tickPeriod
+        delay(correctionDelay)
+        val newTime = remainingTime - correctionDelay
+        if (_uiState.value.isWhiteTurn) {
+            _whiteTime.value = newTime
+        } else {
+            _blackTime.value = newTime
         }
+        _uiState.value = _uiState.value.copy(isFinished = newTime <= 0)
     }
 
     fun nextPlayer() {
-        _uiState.update {
-            val remainingTime = targetRealtime - elapsedRealtime()
-            val newTime = if (remainingTime > 0L) (remainingTime + currentIncrement) else 0L
-            if (it.isWhiteTurn) {
-                targetRealtime = elapsedRealtime() + it.blackTime
-                it.copy(whiteTime = newTime, isWhiteTurn = false)
-            } else {
-                targetRealtime = elapsedRealtime() + it.whiteTime
-                it.copy(blackTime = newTime, isWhiteTurn = true)
-            }
+        val remainingTime = targetRealtime - elapsedRealtime()
+        val newTime = if (remainingTime > 0L) (remainingTime + currentIncrement) else 0L
+        if (_uiState.value.isWhiteTurn) {
+            _whiteTime.value = newTime
+            targetRealtime = elapsedRealtime() + _blackTime.value
+        } else {
+            _blackTime.value = newTime
+            targetRealtime = elapsedRealtime() + _whiteTime.value
         }
+        _uiState.update { it.copy(isWhiteTurn = !it.isWhiteTurn, isFinished = newTime <= 0) }
     }
 
     fun resetTime() {
-        _uiState.update {
-            val newTime = currentDuration + currentIncrement
-            it.copy(whiteTime = newTime, blackTime = newTime, isWhiteTurn = true, isStarted = false)
-        }
+        val newTime = currentDuration + currentIncrement
+        _whiteTime.value = newTime
+        _blackTime.value = newTime
+        _uiState.value = _uiState.value.copy(
+            isWhiteTurn = true, isStarted = false, isFinished = false,
+        )
     }
 
     fun resetConf() {
-        _uiState.update {
-            currentDuration = defaultDuration
-            currentIncrement = defaultIncrement
-            val newTime = currentDuration + currentIncrement
-            it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConf = true)
-        }
+        currentDuration = defaultDuration
+        currentIncrement = defaultIncrement
+        val newTime = currentDuration + currentIncrement
+        _whiteTime.value = newTime
+        _blackTime.value = newTime
+        _uiState.value = _uiState.value.copy(
+            isWhiteTurn = true, isStarted = false, isFinished = false, isDefaultConf = true,
+        )
     }
 
     fun saveTime() {
-        val currentTime = _uiState.value.currentTime
+        val currentTime = if (_uiState.value.isWhiteTurn) _whiteTime.value else _blackTime.value
         savedMinutes = (currentTime / 60_000L).toFloat()
         savedSeconds = (currentTime % 60_000L).toFloat() / 1_000F
     }
@@ -165,38 +165,36 @@ class ClockViewModel(
     fun restoreSavedTime(
         addMinutes: Float = 0F, addSeconds: Float = 0F, isDecimalRestored: Boolean = false,
     ) {
-        _uiState.update {
-            savedMinutes += addMinutes
-            savedSeconds += addSeconds
-            val newTime = savedMinutes.roundToLong() * 60_000L + if (isDecimalRestored) {
-                (savedSeconds * 1_000F).roundToLong()
+        savedMinutes += addMinutes
+        savedSeconds += addSeconds
+        val currentTime = if (_uiState.value.isWhiteTurn) _whiteTime.value else _blackTime.value
+        val newTime = savedMinutes.roundToLong() * 60_000L + if (isDecimalRestored) {
+            (savedSeconds * 1_000F).roundToLong()
+        } else {
+            savedSeconds.roundToLong() * 1_000L
+        }
+        val addTime = (newTime - currentTime).toFloat()
+        val isGoodMinutesUpdate = addMinutes.sign == addTime.sign
+        val isGoodSecondsUpdate = addSeconds.sign == addTime.sign
+        val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F
+        if (isGoodMinutesUpdate || isGoodSecondsUpdate || isNotAnUpdate) {
+            if (_uiState.value.isWhiteTurn) {
+                _whiteTime.value = newTime
             } else {
-                savedSeconds.roundToLong() * 1_000L
+                _blackTime.value = newTime
             }
-            val isGoodMinutesUpdate = addMinutes.sign == (newTime - it.currentTime).sign.toFloat()
-            val isGoodSecondsUpdate = addSeconds.sign == (newTime - it.currentTime).sign.toFloat()
-            val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F
-            if (isGoodMinutesUpdate || isGoodSecondsUpdate || isNotAnUpdate) {
-                targetRealtime = elapsedRealtime() + newTime
-                if (it.isWhiteTurn) {
-                    it.copy(whiteTime = newTime)
-                } else {
-                    it.copy(blackTime = newTime)
-                }
-            } else {
-                it
-            }
+            targetRealtime = elapsedRealtime() + newTime
         }
     }
 
     fun restoreSavedConf(addMinutes: Float = 0F, addSeconds: Float = 0F) {
-        _uiState.update {
-            savedDurationMinutes += addMinutes
-            savedIncrementSeconds += addSeconds
-            currentDuration = savedDurationMinutes.roundToLong() * 60_000L
-            currentIncrement = savedIncrementSeconds.roundToLong() * 1_000L
-            val newTime = currentDuration + currentIncrement
-            it.copy(whiteTime = newTime, blackTime = newTime, isDefaultConf = false)
-        }
+        savedDurationMinutes += addMinutes
+        savedIncrementSeconds += addSeconds
+        currentDuration = savedDurationMinutes.roundToLong() * 60_000L
+        currentIncrement = savedIncrementSeconds.roundToLong() * 1_000L
+        val newTime = currentDuration + currentIncrement
+        _whiteTime.value = newTime
+        _blackTime.value = newTime
+        _uiState.value = _uiState.value.copy(isDefaultConf = false)
     }
 }

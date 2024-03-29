@@ -13,7 +13,10 @@ android {
         targetSdk = 34
         versionCode = 178
         versionName = "1.7.8"
-        base.archivesName = "${applicationId}_$versionCode"
+
+        base {
+            archivesName = "${applicationId}_$versionCode"
+        }
     }
 
     buildTypes {

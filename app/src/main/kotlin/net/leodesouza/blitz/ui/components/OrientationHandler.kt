@@ -34,7 +34,7 @@ import androidx.lifecycle.LifecycleOwner
  * rotation of the screen from its "natural" orientation.
  */
 @Composable
-fun OrientationHandler(onOrientationChanged: (Int) -> Unit) {
+fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
     val currentOnOrientationChanged by rememberUpdatedState(onOrientationChanged)
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current

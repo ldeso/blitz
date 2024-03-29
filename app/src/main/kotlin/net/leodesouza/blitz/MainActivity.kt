@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ClockScreen(
                 onClockStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
-                onClockPause = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
+                onClockStop = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
             )
         }
     }

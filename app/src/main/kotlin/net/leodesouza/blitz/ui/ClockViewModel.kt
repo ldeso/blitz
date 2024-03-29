@@ -18,11 +18,15 @@ package net.leodesouza.blitz.ui
 
 import android.os.SystemClock.elapsedRealtime
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
 import kotlin.math.roundToLong
@@ -45,6 +49,7 @@ class ClockViewModel(
     private var duration: Long = defaultDuration
     private var increment: Long = defaultIncrement
     private var targetRealtime: Long = 0L
+    private var tickingJob: Job? = null
 
     private val _whiteTime: MutableStateFlow<Long> = MutableStateFlow(duration + increment)
     private val _blackTime: MutableStateFlow<Long> = MutableStateFlow(duration + increment)
@@ -99,6 +104,22 @@ class ClockViewModel(
         }
         targetRealtime = elapsedRealtime() + currentTime
         _clockState.value = ClockState.TICKING
+
+        tickingJob = viewModelScope.launch {
+            while (_clockState.value == ClockState.TICKING) {
+                val remainingTime = targetRealtime - elapsedRealtime()
+                val tickDelay = remainingTime % tickPeriod
+                delay(tickDelay)
+                val newTime = remainingTime - tickDelay
+                when (_playerState.value) {
+                    PlayerState.WHITE -> _whiteTime.value = newTime
+                    PlayerState.BLACK -> _blackTime.value = newTime
+                }
+                if (newTime <= 0L) {
+                    _clockState.value = ClockState.FINISHED
+                }
+            }
+        }
     }
 
     fun play() {
@@ -129,26 +150,14 @@ class ClockViewModel(
     }
 
     fun pause() {
+        tickingJob?.cancel()
+
         val newTime = targetRealtime - elapsedRealtime()
         when (_playerState.value) {
             PlayerState.WHITE -> _whiteTime.value = newTime
             PlayerState.BLACK -> _blackTime.value = newTime
         }
         _clockState.value = ClockState.PAUSED
-    }
-
-    suspend fun tick() {
-        val remainingTime = targetRealtime - elapsedRealtime()
-        val correctionDelay = remainingTime % tickPeriod
-        delay(correctionDelay)
-        val newTime = remainingTime - correctionDelay
-        when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value = newTime
-            PlayerState.BLACK -> _blackTime.value = newTime
-        }
-        if (newTime <= 0L) {
-            _clockState.value = ClockState.FINISHED
-        }
     }
 
     fun resetTime() {

@@ -20,7 +20,6 @@ import androidx.activity.BackEventCompat
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,7 +48,7 @@ import net.leodesouza.blitz.ui.models.ClockState
  * @param[tickPeriod] Period between ticks in milliseconds.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[onClockStart] Callback called before the clock starts ticking.
- * @param[onClockPause] Callback called after the clock stops ticking.
+ * @param[onClockStop] Callback called after the clock stops ticking.
  * @param[clockViewModel] ViewModel holding the state and logic for this screen.
  */
 @Composable
@@ -59,7 +58,7 @@ fun ClockScreen(
     tickPeriod: Long = 100L,
     dragSensitivity: Float = 0.01F,
     onClockStart: () -> Unit = {},
-    onClockPause: () -> Unit = {},
+    onClockStop: () -> Unit = {},
     clockViewModel: ClockViewModel = viewModel {
         ClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
     },
@@ -83,6 +82,12 @@ fun ClockScreen(
     }
     var backEventAction by remember { mutableStateOf(ClockBackAction.PAUSE) }
 
+    CallbackCaller(
+        clockStateProvider = { clockState },
+        onClockStart = onClockStart,
+        onClockStop = onClockStop,
+    )
+
     OrientationHandler(onOrientationChanged = { orientation = it })
 
     LeaningSideHandler(
@@ -94,14 +99,6 @@ fun ClockScreen(
                 LeaningSide.RIGHT -> LeaningSide.LEFT
             }
         },
-    )
-
-    ClockStateHandler(
-        whiteTimeProvider = { whiteTime },
-        blackTimeProvider = { blackTime },
-        clockStateProvider = { clockState },
-        tick = clockViewModel::tick,
-        onClockPause = onClockPause,
     )
 
     ClockBackHandler(
@@ -149,29 +146,20 @@ fun ClockScreen(
 }
 
 /**
- * Effect taking care of repeatedly waiting until the next tick when the clock is ticking, or
- * calling the callback [onClockPause] when the clock has stopped ticking.
- *
- * @param[whiteTimeProvider] Lambda for the time of the first player.
- * @param[blackTimeProvider] Lambda for the time of the second player.
- * @param[clockStateProvider] Lambda for the current state of the clock.
- * @param[tick] Callback called to wait until next tick.
- * @param[onClockPause] Callback called after the clock stops ticking.
+ * Effect taking care of calling the callbacks [onClockStart] and [onClockStop] depending on the
+ * state of the clock returned by [clockStateProvider].
  */
 @Composable
-private fun ClockStateHandler(
-    whiteTimeProvider: () -> Long,
-    blackTimeProvider: () -> Long,
+private fun CallbackCaller(
     clockStateProvider: () -> ClockState,
-    tick: suspend () -> Unit,
-    onClockPause: () -> Unit,
+    onClockStart: () -> Unit,
+    onClockStop: () -> Unit,
 ) {
-    val whiteTime = whiteTimeProvider()
-    val blackTime = blackTimeProvider()
     val clockState = clockStateProvider()
 
     when (clockState) {
-        ClockState.TICKING -> LaunchedEffect(whiteTime, blackTime) { tick() }
-        else -> onClockPause()
+        ClockState.TICKING -> onClockStart()
+        ClockState.PAUSED, ClockState.FINISHED -> onClockStop()
+        else -> Unit
     }
 }

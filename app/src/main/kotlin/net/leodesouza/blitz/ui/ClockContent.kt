@@ -16,7 +16,7 @@
 
 package net.leodesouza.blitz.ui
 
-import android.content.res.Configuration
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import androidx.activity.BackEventCompat
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -69,12 +69,12 @@ fun ClockContent(
     backEventProgressProvider: () -> Float,
     backEventSwipeEdgeProvider: () -> Int,
 ) {
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val displayOrientation = LocalConfiguration.current.orientation
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val density = LocalDensity.current
 
-    val textHeight = screenHeight / if (isLandscape) 3 else 8
+    val textHeight = screenHeight / if (displayOrientation == ORIENTATION_LANDSCAPE) 3 else 8
     val fontSize = with(density) { textHeight.toSp() }
     val fontWeight = FontWeight.Bold
     val timeOverColor = Color.Red
@@ -101,15 +101,15 @@ fun ClockContent(
                 .background(Color.Black)
                 .graphicsLayer {
                     setBasicTimeGraphics(
+                        isPlaying = playerStateProvider() == PlayerState.BLACK,
                         screenWidth = screenWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         clockState = clockStateProvider(),
-                        isPlaying = playerStateProvider() == PlayerState.BLACK,
                         leaningSide = leaningSideProvider(),
                         backEventAction = backEventActionProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
-                        isLandscape = isLandscape,
+                        displayOrientation = displayOrientation,
                     )
                 }
                 .then(reusableItemModifier),
@@ -122,15 +122,15 @@ fun ClockContent(
                 .background(Color.White)
                 .graphicsLayer {
                     setBasicTimeGraphics(
+                        isPlaying = playerStateProvider() == PlayerState.WHITE,
                         screenWidth = screenWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         clockState = clockStateProvider(),
-                        isPlaying = playerStateProvider() == PlayerState.WHITE,
                         leaningSide = leaningSideProvider(),
                         backEventAction = backEventActionProvider(),
                         backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
-                        isLandscape = isLandscape,
+                        displayOrientation = displayOrientation,
                     )
                 }
                 .then(reusableItemModifier),
@@ -159,28 +159,28 @@ private fun ClockContentPreview() {
 /**
  * Set the rotation, translation and opacity of a BasicTime element in a graphics layer scope.
  *
+ * @param[isPlaying] Whether the player is currently playing.
  * @param[screenWidth] Current width of the screen in the Dp unit.
  * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
  * @param[clockState] Current state of the clock.
- * @param[isPlaying] Whether the player is currently playing.
  * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[backEventAction] What action is executed by the back gesture.
  * @param[backEventProgress] Progress of the back gesture.
  * @param[backEventSwipeEdge] Swipe edge where the back gesture starts.
- * @param[isLandscape] Whether the device is in landscape mode.
+ * @param[displayOrientation] The `ORIENTATION_PORTRAIT` or [ORIENTATION_LANDSCAPE] of the display.
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
+    isPlaying: Boolean,
     screenWidth: Dp,
     currentlyAdjustedAlpha: Float,
     clockState: ClockState,
-    isPlaying: Boolean,
     leaningSide: LeaningSide,
     backEventAction: ClockBackAction,
     backEventProgress: Float,
     backEventSwipeEdge: Int,
-    isLandscape: Boolean,
+    displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
 ) {
-    rotationZ = if (isLandscape) {
+    rotationZ = if (displayOrientation == ORIENTATION_LANDSCAPE) {
         0F
     } else when (leaningSide) {
         LeaningSide.LEFT -> 90F

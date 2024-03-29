@@ -43,15 +43,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
+import net.leodesouza.blitz.ui.models.ClockState
+import net.leodesouza.blitz.ui.models.PlayerState
 
 /**
  * Chess clock screen content consisting of the time of each player in different colors.
  *
  * @param[whiteTimeProvider] Lambda for the remaining time for the first player.
  * @param[blackTimeProvider] Lambda for the remaining time for the second player.
- * @param[isWhiteTurnProvider] Lambda for whether it is the turn of the first or the second player.
- * @param[isStartedProvider] Lambda for whether the clock has started ticking.
- * @param[isPausedProvider] Lambda for whether the clock is on pause.
+ * @param[clockStateProvider] Lambda for the current state of the clock.
+ * @param[playerStateProvider] Lambda for whether the current player is White or Black.
  * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
  * @param[backEventActionProvider] Lambda for what action is executed by the back gesture.
  * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
@@ -61,9 +62,8 @@ import net.leodesouza.blitz.ui.components.LeaningSide
 fun ClockContent(
     whiteTimeProvider: () -> Long,
     blackTimeProvider: () -> Long,
-    isWhiteTurnProvider: () -> Boolean,
-    isStartedProvider: () -> Boolean,
-    isPausedProvider: () -> Boolean,
+    clockStateProvider: () -> ClockState,
+    playerStateProvider: () -> PlayerState,
     leaningSideProvider: () -> LeaningSide,
     backEventActionProvider: () -> ClockBackAction,
     backEventProgressProvider: () -> Float,
@@ -103,9 +103,8 @@ fun ClockContent(
                     setBasicTimeGraphics(
                         screenWidth = screenWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
-                        isPlayerTurn = !isWhiteTurnProvider(),
-                        isStarted = isStartedProvider(),
-                        isPaused = isPausedProvider(),
+                        clockState = clockStateProvider(),
+                        isPlaying = playerStateProvider() == PlayerState.BLACK,
                         leaningSide = leaningSideProvider(),
                         backEventAction = backEventActionProvider(),
                         backEventProgress = backEventProgressProvider(),
@@ -125,9 +124,8 @@ fun ClockContent(
                     setBasicTimeGraphics(
                         screenWidth = screenWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
-                        isPlayerTurn = isWhiteTurnProvider(),
-                        isStarted = isStartedProvider(),
-                        isPaused = isPausedProvider(),
+                        clockState = clockStateProvider(),
+                        isPlaying = playerStateProvider() == PlayerState.WHITE,
                         leaningSide = leaningSideProvider(),
                         backEventAction = backEventActionProvider(),
                         backEventProgress = backEventProgressProvider(),
@@ -149,10 +147,9 @@ private fun ClockContentPreview() {
     ClockContent(
         whiteTimeProvider = { 5L * 60_000L },
         blackTimeProvider = { 3L * 1_000L },
-        isWhiteTurnProvider = { true },
+        clockStateProvider = { ClockState.FULL_RESET },
+        playerStateProvider = { PlayerState.WHITE },
         leaningSideProvider = { LeaningSide.RIGHT },
-        isStartedProvider = { false },
-        isPausedProvider = { true },
         backEventActionProvider = { ClockBackAction.PAUSE },
         backEventProgressProvider = { 0F },
         backEventSwipeEdgeProvider = { BackEventCompat.EDGE_LEFT },
@@ -164,9 +161,8 @@ private fun ClockContentPreview() {
  *
  * @param[screenWidth] Current width of the screen in the Dp unit.
  * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
- * @param[isPlayerTurn] Whether it is the turn of the player corresponding to this element.
- * @param[isStarted] Whether the clock has started ticking.
- * @param[isPaused] Whether the clock is on pause.
+ * @param[clockState] Current state of the clock.
+ * @param[isPlaying] Whether the player is currently playing.
  * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[backEventAction] What action is executed by the back gesture.
  * @param[backEventProgress] Progress of the back gesture.
@@ -176,9 +172,8 @@ private fun ClockContentPreview() {
 private fun GraphicsLayerScope.setBasicTimeGraphics(
     screenWidth: Dp,
     currentlyAdjustedAlpha: Float,
-    isPlayerTurn: Boolean,
-    isStarted: Boolean,
-    isPaused: Boolean,
+    clockState: ClockState,
+    isPlaying: Boolean,
     leaningSide: LeaningSide,
     backEventAction: ClockBackAction,
     backEventProgress: Float,
@@ -192,14 +187,14 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
         LeaningSide.RIGHT -> -90F
     }
 
-    translationX = if (backEventAction == ClockBackAction.PAUSE && !isPlayerTurn) {
+    translationX = if (backEventAction == ClockBackAction.PAUSE && !isPlaying) {
         0F
     } else {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
         sign * backEventProgress * screenWidth.toPx()
     }
 
-    alpha = if (isPlayerTurn && isStarted && isPaused) {
+    alpha = if (clockState == ClockState.PAUSED && isPlaying) {
         currentlyAdjustedAlpha
     } else {
         1F

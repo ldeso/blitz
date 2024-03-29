@@ -16,7 +16,6 @@
 
 package net.leodesouza.blitz.ui
 
-import android.content.res.Configuration
 import androidx.activity.BackEventCompat
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -37,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.LeaningSideHandler
 import net.leodesouza.blitz.ui.components.OrientationHandler
+import net.leodesouza.blitz.ui.models.ClockState
 
 /**
  * Minimalist Fischer chess clock.
@@ -66,19 +66,19 @@ fun ClockScreen(
 ) {
     val whiteTime by clockViewModel.whiteTime.collectAsStateWithLifecycle()
     val blackTime by clockViewModel.blackTime.collectAsStateWithLifecycle()
-    val uiState by clockViewModel.uiState.collectAsStateWithLifecycle()
+    val clockState by clockViewModel.clockState.collectAsStateWithLifecycle()
+    val playerState by clockViewModel.playerState.collectAsStateWithLifecycle()
 
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val displayOrientation = LocalConfiguration.current.orientation
+    val layoutDirection = LocalLayoutDirection.current
 
     var orientation by remember { mutableIntStateOf(0) }
     var leaningSide by remember { mutableStateOf(LeaningSide.RIGHT) }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventSwipeEdge by remember {
-        if (isRtl) {
-            mutableIntStateOf(BackEventCompat.EDGE_RIGHT)
-        } else {
-            mutableIntStateOf(BackEventCompat.EDGE_LEFT)
+        when (layoutDirection) {
+            LayoutDirection.Ltr -> mutableIntStateOf(BackEventCompat.EDGE_LEFT)
+            LayoutDirection.Rtl -> mutableIntStateOf(BackEventCompat.EDGE_RIGHT)
         }
     }
     var backEventAction by remember { mutableStateOf(ClockBackAction.PAUSE) }
@@ -96,30 +96,21 @@ fun ClockScreen(
         },
     )
 
-    ClockTickingEffect(
+    ClockStateHandler(
         whiteTimeProvider = { whiteTime },
         blackTimeProvider = { blackTime },
-        isTickingProvider = { uiState.isTicking },
-        isFinishedProvider = { uiState.isFinished },
-        pause = {
-            clockViewModel.pause()
-            onClockPause()
-        },
+        clockStateProvider = { clockState },
         tick = clockViewModel::tick,
+        onClockPause = onClockPause,
     )
 
     ClockBackHandler(
-        isStartedProvider = { uiState.isStarted },
-        isTickingProvider = { uiState.isTicking },
-        isDefaultConfProvider = { uiState.isDefaultConf },
-        pause = {
-            clockViewModel.pause()
-            clockViewModel.restoreSavedTime(isDecimalRestored = true)
-            onClockPause()
-        },
+        clockStateProvider = { clockState },
+        pause = clockViewModel::pause,
         resetTime = clockViewModel::resetTime,
         resetConf = clockViewModel::resetConf,
         saveTime = clockViewModel::saveTime,
+        restoreSavedTime = { clockViewModel.restoreSavedTime(isDecimalRestored = true) },
         updateAction = { backEventAction = it },
         updateProgress = { backEventProgress = it },
         updateSwipeEdge = { backEventSwipeEdge = it },
@@ -129,12 +120,10 @@ fun ClockScreen(
         modifier = Modifier.clockInput(
             dragSensitivity = dragSensitivity,
             interactionSource = remember { MutableInteractionSource() },
-            isStartedProvider = { uiState.isStarted },
-            isTickingProvider = { uiState.isTicking },
-            isPausedProvider = { uiState.isPaused },
+            clockStateProvider = { clockState },
             leaningSideProvider = { leaningSide },
-            isLandscape = isLandscape,
-            isRtl = isRtl,
+            displayOrientation = displayOrientation,
+            layoutDirection = layoutDirection,
             start = {
                 onClockStart()
                 clockViewModel.start()
@@ -149,9 +138,8 @@ fun ClockScreen(
         ClockContent(
             whiteTimeProvider = { whiteTime },
             blackTimeProvider = { blackTime },
-            isWhiteTurnProvider = { uiState.isWhiteTurn },
-            isStartedProvider = { uiState.isStarted },
-            isPausedProvider = { uiState.isPaused },
+            clockStateProvider = { clockState },
+            playerStateProvider = { playerState },
             leaningSideProvider = { leaningSide },
             backEventActionProvider = { backEventAction },
             backEventProgressProvider = { backEventProgress },
@@ -161,35 +149,29 @@ fun ClockScreen(
 }
 
 /**
- * Effect taking care of repeatedly waiting until the next tick or pausing the clock when it has
- * finished ticking.
+ * Effect taking care of repeatedly waiting until the next tick when the clock is ticking, or
+ * calling the callback [onClockPause] when the clock has stopped ticking.
  *
  * @param[whiteTimeProvider] Lambda for the time of the first player.
  * @param[blackTimeProvider] Lambda for the time of the second player.
- * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
- * @param[isFinishedProvider] Lambda for whether the clock has finished ticking.
- * @param[pause] Callback called to pause the clock.
+ * @param[clockStateProvider] Lambda for the current state of the clock.
  * @param[tick] Callback called to wait until next tick.
+ * @param[onClockPause] Callback called after the clock stops ticking.
  */
 @Composable
-private fun ClockTickingEffect(
+private fun ClockStateHandler(
     whiteTimeProvider: () -> Long,
     blackTimeProvider: () -> Long,
-    isTickingProvider: () -> Boolean,
-    isFinishedProvider: () -> Boolean,
-    pause: () -> Unit,
+    clockStateProvider: () -> ClockState,
     tick: suspend () -> Unit,
+    onClockPause: () -> Unit,
 ) {
     val whiteTime = whiteTimeProvider()
     val blackTime = blackTimeProvider()
-    val isTicking = isTickingProvider()
-    val isFinished = isFinishedProvider()
+    val clockState = clockStateProvider()
 
-    if (isTicking) {
-        if (isFinished) {
-            pause()
-        } else {
-            LaunchedEffect(whiteTime, blackTime) { tick() }
-        }
+    when (clockState) {
+        ClockState.TICKING -> LaunchedEffect(whiteTime, blackTime) { tick() }
+        else -> onClockPause()
     }
 }

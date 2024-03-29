@@ -16,6 +16,8 @@
 
 package net.leodesouza.blitz.ui
 
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Build
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.clickable
@@ -32,8 +34,10 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.delay
 import net.leodesouza.blitz.ui.components.LeaningSide
+import net.leodesouza.blitz.ui.models.ClockState
 
 /** What action is executed by a back gesture. */
 enum class ClockBackAction { PAUSE, RESET_TIME, RESET_CONF }
@@ -41,50 +45,48 @@ enum class ClockBackAction { PAUSE, RESET_TIME, RESET_CONF }
 /**
  * Effect making system back gestures pause or reset the clock.
  *
- * @param[isStartedProvider] Lambda for whether the clock has started ticking.
- * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
- * @param[isDefaultConfProvider] Lambda for whether the clock is set to its default configuration.
+ * @param[clockStateProvider] Lambda for the current state of the clock.
  * @param[pause] Callback called to pause the clock.
  * @param[resetTime] Callback called to reset the time.
  * @param[resetConf] Callback called to reset the configuration.
  * @param[saveTime] Callback called to save the time.
+ * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[updateProgress] Callback called to update the progress of the back gesture.
  * @param[updateSwipeEdge] Callback called to update the swipe edge where the back gesture starts.
  */
 @Composable
 fun ClockBackHandler(
-    isStartedProvider: () -> Boolean,
-    isTickingProvider: () -> Boolean,
-    isDefaultConfProvider: () -> Boolean,
+    clockStateProvider: () -> ClockState,
     pause: () -> Unit,
     resetTime: () -> Unit,
     resetConf: () -> Unit,
     saveTime: () -> Unit,
+    restoreSavedTime: () -> Unit,
     updateAction: (ClockBackAction) -> Unit,
     updateProgress: (Float) -> Unit,
     updateSwipeEdge: (Int) -> Unit,
 ) {
-    val isStarted = isStartedProvider()
-    val isTicking = isTickingProvider()
-    val isDefaultConf = isDefaultConfProvider()
+    val clockState = clockStateProvider()
 
-    PredictiveBackHandler(enabled = isTicking || isStarted || !isDefaultConf) {
-        val action = if (isTicking) {
-            saveTime()
-            ClockBackAction.PAUSE
-        } else if (isStarted) {
-            ClockBackAction.RESET_TIME
-        } else {
-            ClockBackAction.RESET_CONF
+    PredictiveBackHandler(enabled = clockState != ClockState.FULL_RESET) { backEvent ->
+        // beginning of back gesture
+        val action = when (clockState) {
+            ClockState.TICKING -> ClockBackAction.PAUSE
+            ClockState.PAUSED, ClockState.FINISHED -> ClockBackAction.RESET_TIME
+            else -> ClockBackAction.RESET_CONF
         }
         updateAction(action)
+        if (action == ClockBackAction.PAUSE) saveTime()
+
         try {
             var progress = 0F
-            it.collect { backEvent ->
-                progress = backEvent.progress
+            backEvent.collect {  // during progressive back gesture
+                progress = it.progress
                 updateProgress(progress)
-                updateSwipeEdge(backEvent.swipeEdge)
+                updateSwipeEdge(it.swipeEdge)
             }
+
+            // completion of back gesture
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 while (progress < 1F) {
                     delay(1L)
@@ -98,8 +100,10 @@ fun ClockBackHandler(
                 ClockBackAction.RESET_TIME -> resetTime()
                 ClockBackAction.RESET_CONF -> resetConf()
             }
+            if (action == ClockBackAction.PAUSE) restoreSavedTime()
+
         } finally {
-            updateProgress(0F)
+            updateProgress(0F)  // after back gesture
         }
     }
 }
@@ -109,12 +113,10 @@ fun ClockBackHandler(
  *
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[interactionSource] Mutable interaction source used to dispatch click events.
- * @param[isStartedProvider] Lambda for whether the clock has started ticking.
- * @param[isTickingProvider] Lambda for whether the clock is currently ticking.
- * @param[isPausedProvider] Lambda for whether the clock is on pause.
+ * @param[clockStateProvider] Lambda for the current state of the clock.
  * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
- * @param[isLandscape] Whether the device is in landscape mode.
- * @param[isRtl] Whether the layout direction is configured from right to left.
+ * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
+ * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
  * @param[start] Callback called to start the clock.
  * @param[play] Callback called to switch to the next player.
  * @param[saveTime] Callback called to save the time.
@@ -125,59 +127,50 @@ fun ClockBackHandler(
 fun Modifier.clockInput(
     dragSensitivity: Float,
     interactionSource: MutableInteractionSource,
-    isStartedProvider: () -> Boolean,
-    isTickingProvider: () -> Boolean,
-    isPausedProvider: () -> Boolean,
+    clockStateProvider: () -> ClockState,
     leaningSideProvider: () -> LeaningSide,
-    isLandscape: Boolean,
-    isRtl: Boolean,
+    displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
+    layoutDirection: LayoutDirection,
     start: () -> Unit,
     play: () -> Unit,
     saveTime: () -> Unit,
     saveConf: () -> Unit,
-    restoreSavedTime: (Float, Float) -> Unit,
-    restoreSavedConf: (Float, Float) -> Unit,
+    restoreSavedTime: (addMinutes: Float, addSeconds: Float) -> Unit,
+    restoreSavedConf: (addMinutes: Float, addSeconds: Float) -> Unit,
 ): Modifier = then(
     clickable(interactionSource = interactionSource, indication = null) {
-        onClockClickEvent(
-            isTicking = isTickingProvider(),
-            isPaused = isPausedProvider(),
-            start = start,
-            play = play,
-        )
+        onClickEvent(clockState = clockStateProvider(), start = start, play = play)
     }
         .onKeyEvent {
-            onClockKeyEvent(
+            onKeyEvent(
                 keyEvent = it,
-                isStarted = isStartedProvider(),
-                isPaused = isPausedProvider(),
-                isRtl = isRtl,
-                saveTime = saveTime,
-                saveConf = saveConf,
-                restoreSavedTime = restoreSavedTime,
-                restoreSavedConf = restoreSavedConf,
+                clockState = clockStateProvider(),
+                layoutDirection = layoutDirection,
+                changeTime = { addMinutes, addSeconds ->
+                    saveTime()
+                    restoreSavedTime(addMinutes, addSeconds)
+                },
+                changeConf = { addMinutes, addSeconds ->
+                    saveConf()
+                    restoreSavedConf(addMinutes, addSeconds)
+                },
             )
         }
         .pointerInput(Unit) {
             detectHorizontalDragGestures(
                 onDragStart = {
-                    onClockDragStart(
-                        isStarted = isStartedProvider(),
-                        isPaused = isPausedProvider(),
-                        saveTime = saveTime,
-                        saveConf = saveConf,
+                    onDragStart(
+                        clockState = clockStateProvider(), saveTime = saveTime, saveConf = saveConf,
                     )
                 },
-                onDragEnd = { onClockDragEnd(isTicking = isTickingProvider(), play = play) },
+                onDragEnd = { onDragEnd(clockState = clockStateProvider(), play = play) },
                 onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
-                    onClockHorizontalDrag(
-                        dragAmount = dragAmount,
-                        dragSensitivity = dragSensitivity,
-                        isStarted = isStartedProvider(),
-                        isPaused = isPausedProvider(),
+                    onHorizontalDrag(
+                        addAmount = dragSensitivity * dragAmount,
+                        clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
-                        isLandscape = isLandscape,
-                        isRtl = isRtl,
+                        displayOrientation = displayOrientation,
+                        layoutDirection = layoutDirection,
                         restoreSavedTime = restoreSavedTime,
                         restoreSavedConf = restoreSavedConf,
                     )
@@ -187,23 +180,18 @@ fun Modifier.clockInput(
         .pointerInput(Unit) {
             detectVerticalDragGestures(
                 onDragStart = {
-                    onClockDragStart(
-                        isStarted = isStartedProvider(),
-                        isPaused = isPausedProvider(),
-                        saveTime = saveTime,
-                        saveConf = saveConf,
+                    onDragStart(
+                        clockState = clockStateProvider(), saveTime = saveTime, saveConf = saveConf,
                     )
                 },
-                onDragEnd = { onClockDragEnd(isTicking = isTickingProvider(), play = play) },
+                onDragEnd = { onDragEnd(clockState = clockStateProvider(), play = play) },
                 onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
-                    onClockVerticalDrag(
-                        dragAmount = dragAmount,
-                        dragSensitivity = dragSensitivity,
-                        isStarted = isStartedProvider(),
-                        isPaused = isPausedProvider(),
+                    onVerticalDrag(
+                        addAmount = dragSensitivity * dragAmount,
+                        clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
-                        isLandscape = isLandscape,
-                        isRtl = isRtl,
+                        displayOrientation = displayOrientation,
+                        layoutDirection = layoutDirection,
                         restoreSavedTime = restoreSavedTime,
                         restoreSavedConf = restoreSavedConf,
                     )
@@ -215,18 +203,15 @@ fun Modifier.clockInput(
 /**
  * Start the clock or switch to the next player on click events.
  *
- * @param[isTicking] Whether the clock is currently ticking.
- * @param[isPaused] Whether the clock is on pause.
+ * @param[clockState] Current state of the clock.
  * @param[start] Callback called to start the clock.
  * @param[play] Callback called to switch to the next player.
  */
-private fun onClockClickEvent(
-    isTicking: Boolean, isPaused: Boolean, start: () -> Unit, play: () -> Unit,
-) {
-    if (isPaused) {
-        start()
-    } else if (isTicking) {
-        play()
+private fun onClickEvent(clockState: ClockState, start: () -> Unit, play: () -> Unit) {
+    when (clockState) {
+        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> start()
+        ClockState.TICKING -> play()
+        else -> Unit
     }
 }
 
@@ -234,122 +219,123 @@ private fun onClockClickEvent(
  * Change the time or the configuration of the clock on key presses.
  *
  * @param[keyEvent] The key event to intercept.
- * @param[isStarted] Whether the clock has started ticking.
- * @param[isPaused] Whether the clock is on pause.
- * @param[isRtl] Whether the layout direction is configured from right to left.
- * @param[saveTime] Callback called to save the time.
- * @param[saveConf] Callback called to save the configuration.
- * @param[restoreSavedTime] Callback called to restore the saved time.
- * @param[restoreSavedConf] Callback called to restore the saved configuration.
+ * @param[clockState] Current state of the clock.
+ * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
+ * @param[changeTime] Callback called to change the time.
+ * @param[changeConf] Callback called to change the configuration.
  */
-private fun onClockKeyEvent(
+private fun onKeyEvent(
     keyEvent: KeyEvent,
-    isStarted: Boolean,
-    isPaused: Boolean,
-    isRtl: Boolean,
-    saveTime: () -> Unit,
-    saveConf: () -> Unit,
-    restoreSavedTime: (Float, Float) -> Unit,
-    restoreSavedConf: (Float, Float) -> Unit,
+    clockState: ClockState,
+    layoutDirection: LayoutDirection,
+    changeTime: (addMinutes: Float, addSeconds: Float) -> Unit,
+    changeConf: (addMinutes: Float, addSeconds: Float) -> Unit,
 ): Boolean {
-    if (keyEvent.type == KeyEventType.KeyDown && isPaused) {
-        var addMinutes = 0F
-        var addSeconds = 0F
+    if (keyEvent.type == KeyEventType.KeyDown) {
+        when (clockState) {
+            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
+                var addMinutes = 0F
+                var addSeconds = 0F
+                val isLtr = when (layoutDirection) {
+                    LayoutDirection.Ltr -> true
+                    LayoutDirection.Rtl -> false
+                }
 
-        when (keyEvent.key) {
-            Key.DirectionUp -> addSeconds = 1F
-            Key.DirectionDown -> addSeconds = -1F
-            Key.DirectionRight -> addMinutes = if (isRtl) -1F else 1F
-            Key.DirectionLeft -> addMinutes = if (isRtl) 1F else -1F
+                when (keyEvent.key) {
+                    Key.DirectionUp -> addSeconds = 1F
+                    Key.DirectionDown -> addSeconds = -1F
+                    Key.DirectionRight -> addMinutes = if (isLtr) 1F else -1F
+                    Key.DirectionLeft -> addMinutes = if (isLtr) -1F else 1F
+                    else -> return false
+                }
+
+                when (clockState) {
+                    ClockState.PAUSED -> changeTime(addMinutes, addSeconds)
+                    else -> changeConf(addMinutes, addSeconds)
+                }
+
+                return true
+            }
+
             else -> return false
         }
-
-        if (isStarted) {
-            saveTime()
-            restoreSavedTime(addMinutes, addSeconds)
-        } else {
-            saveConf()
-            restoreSavedConf(addMinutes, addSeconds)
-        }
-        return true
+    } else {
+        return false
     }
-    return false
 }
 
 /**
  * Save the current time/configuration if the clock is on pause at the beginning of a drag gesture.
  *
- * @param[isStarted] Whether the clock has started ticking.
- * @param[isPaused] Whether the clock is on pause.
+ * @param[clockState] Current state of the clock.
  * @param[saveTime] Callback called to save the time.
  * @param[saveConf] Callback called to save the configuration.
  */
-private fun onClockDragStart(
-    isStarted: Boolean, isPaused: Boolean, saveTime: () -> Unit, saveConf: () -> Unit,
-) {
-    if (isPaused) {
-        if (isStarted) saveTime() else saveConf()
+private fun onDragStart(clockState: ClockState, saveTime: () -> Unit, saveConf: () -> Unit) {
+    when (clockState) {
+        ClockState.PAUSED -> saveTime()
+        ClockState.SOFT_RESET, ClockState.FULL_RESET -> saveConf()
+        else -> Unit
     }
 }
 
 /**
  * Switch to the next player if the clock is ticking at the end of a drag gesture.
  *
- * @param[isTicking] Whether the clock is currently ticking.
+ * @param[clockState] Current state of the clock.
  * @param[play] Callback called to switch to the next player.
  */
-private fun onClockDragEnd(isTicking: Boolean, play: () -> Unit) {
-    if (isTicking) play()
+private fun onDragEnd(clockState: ClockState, play: () -> Unit) {
+    if (clockState == ClockState.TICKING) {
+        play()
+    }
 }
 
 /**
  * Add seconds (in portrait orientation) or minutes (in landscape orientation) to the current time
  * or configuration of the clock during drag events.
  *
- * @param[dragAmount] How many pixels are dragged during the drag gesture.
- * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
- * @param[isStarted] Whether the clock has started ticking.
- * @param[isPaused] Whether the clock is on pause.
+ * @param[addAmount] How many minutes or seconds to add.
+ * @param[clockState] Current state of the clock.
  * @param[leaningSide] Which side the device is currently leaning towards.
- * @param[isLandscape] Whether the device is in landscape mode.
- * @param[isRtl] Whether the layout direction is configured from right to left.
+ * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
+ * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[restoreSavedConf] Callback called to restore the saved configuration.
  */
-private fun onClockHorizontalDrag(
-    dragAmount: Float,
-    dragSensitivity: Float,
-    isStarted: Boolean,
-    isPaused: Boolean,
+private fun onHorizontalDrag(
+    addAmount: Float,
+    clockState: ClockState,
     leaningSide: LeaningSide,
-    isLandscape: Boolean,
-    isRtl: Boolean,
+    displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
+    layoutDirection: LayoutDirection,
     restoreSavedTime: (Float, Float) -> Unit,
     restoreSavedConf: (Float, Float) -> Unit,
 ) {
-    if (isPaused) {
-        if (isLandscape) {
-            val sign = if (isRtl) -1F else 1F
-            val addMinutes = sign * dragSensitivity * dragAmount
-            val addSeconds = 0F
-            if (isStarted) {
-                restoreSavedTime(addMinutes, addSeconds)
-            } else {
-                restoreSavedConf(addMinutes, addSeconds)
+    when (clockState) {
+        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
+            var addMinutes = 0F
+            var addSeconds = 0F
+
+            when (displayOrientation) {
+                ORIENTATION_PORTRAIT -> addSeconds = when (leaningSide) {
+                    LeaningSide.LEFT -> addAmount
+                    LeaningSide.RIGHT -> -addAmount
+                }
+
+                ORIENTATION_LANDSCAPE -> addMinutes = when (layoutDirection) {
+                    LayoutDirection.Ltr -> addAmount
+                    LayoutDirection.Rtl -> -addAmount
+                }
             }
-        } else {
-            val sign = when (leaningSide) {
-                LeaningSide.LEFT -> 1F
-                LeaningSide.RIGHT -> -1F
-            }
-            val addMinutes = 0F
-            val addSeconds = sign * dragSensitivity * dragAmount
-            if (isStarted) {
-                restoreSavedTime(addMinutes, addSeconds)
-            } else {
-                restoreSavedConf(addMinutes, addSeconds)
+
+            when (clockState) {
+                ClockState.PAUSED -> restoreSavedTime(addMinutes, addSeconds)
+                else -> restoreSavedConf(addMinutes, addSeconds)
             }
         }
+
+        else -> Unit
     }
 }
 
@@ -357,49 +343,47 @@ private fun onClockHorizontalDrag(
  * Add minutes (in portrait orientation) or seconds (in landscape orientation) to the current time
  * or configuration of the clock during drag events.
  *
- * @param[dragAmount] How many pixels are dragged during the drag gesture.
- * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
- * @param[isStarted] Whether the clock has started ticking.
- * @param[isPaused] Whether the clock is on pause.
+ * @param[addAmount] How many minutes or seconds to add.
+ * @param[clockState] Current state of the clock.
  * @param[leaningSide] Which side the device is currently leaning towards.
- * @param[isLandscape] Whether the device is in landscape mode.
- * @param[isRtl] Whether the layout direction is configured from right to left.
+ * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
+ * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[restoreSavedConf] Callback called to restore the saved configuration.
  */
-private fun onClockVerticalDrag(
-    dragAmount: Float,
-    dragSensitivity: Float,
-    isStarted: Boolean,
-    isPaused: Boolean,
+private fun onVerticalDrag(
+    addAmount: Float,
+    clockState: ClockState,
     leaningSide: LeaningSide,
-    isLandscape: Boolean,
-    isRtl: Boolean,
+    displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
+    layoutDirection: LayoutDirection,
     restoreSavedTime: (Float, Float) -> Unit,
     restoreSavedConf: (Float, Float) -> Unit,
 ) {
-    if (isPaused) {
-        if (isLandscape) {
-            val sign = -1F
-            val addMinutes = 0F
-            val addSeconds = sign * dragSensitivity * dragAmount
-            if (isStarted) {
-                restoreSavedTime(addMinutes, addSeconds)
-            } else {
-                restoreSavedConf(addMinutes, addSeconds)
+    when (clockState) {
+        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
+            var addMinutes = 0F
+            var addSeconds = 0F
+            val isLtr = when (layoutDirection) {
+                LayoutDirection.Ltr -> true
+                LayoutDirection.Rtl -> false
             }
-        } else {
-            val sign = when (leaningSide) {
-                LeaningSide.LEFT -> if (isRtl) -1F else 1F
-                LeaningSide.RIGHT -> if (isRtl) 1F else -1F
+
+            when (displayOrientation) {
+                ORIENTATION_PORTRAIT -> addMinutes = when (leaningSide) {
+                    LeaningSide.LEFT -> if (isLtr) addAmount else -addAmount
+                    LeaningSide.RIGHT -> if (isLtr) -addAmount else addAmount
+                }
+
+                ORIENTATION_LANDSCAPE -> addSeconds = -addAmount
             }
-            val addMinutes = sign * dragSensitivity * dragAmount
-            val addSeconds = 0F
-            if (isStarted) {
-                restoreSavedTime(addMinutes, addSeconds)
-            } else {
-                restoreSavedConf(addMinutes, addSeconds)
+
+            when (clockState) {
+                ClockState.PAUSED -> restoreSavedTime(addMinutes, addSeconds)
+                else -> restoreSavedConf(addMinutes, addSeconds)
             }
         }
+
+        else -> Unit
     }
 }

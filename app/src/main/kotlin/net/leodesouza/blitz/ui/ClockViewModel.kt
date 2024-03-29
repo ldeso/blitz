@@ -218,6 +218,10 @@ class ClockViewModel(
         val newTime = duration + increment
         _whiteTime.value = newTime
         _blackTime.value = newTime
-        _clockState.value = ClockState.SOFT_RESET
+        _clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
+            ClockState.FULL_RESET
+        } else {
+            ClockState.SOFT_RESET
+        }
     }
 }

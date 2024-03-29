@@ -23,8 +23,8 @@ enum class LeaningSide { LEFT, RIGHT }
 
 /**
  * Call [onLeaningSideChanged] when the side that the device is currently leaning towards, which is
- * calculated from the orientation in degrees returned by [orientationProvider], changes from the
- * current [LeaningSide] that is returned by [leaningSideProvider].
+ * calculated from the orientation in degrees returned by [orientationProvider], becomes different
+ * to the [LeaningSide] that is returned by [leaningSideProvider].
  */
 @Composable
 fun LeaningSideHandler(
@@ -35,9 +35,8 @@ fun LeaningSideHandler(
     val orientation = orientationProvider()
     val leaningSide = leaningSideProvider()
 
-    val isChangingFromLeftToRight = leaningSide == LeaningSide.LEFT && orientation in 10 until 170
-    val isChangingFromRightToLeft = leaningSide == LeaningSide.RIGHT && orientation in 190 until 350
-    if (isChangingFromLeftToRight || isChangingFromRightToLeft) {
-        onLeaningSideChanged()
+    when (leaningSide) {
+        LeaningSide.LEFT -> if (orientation in 10 until 170) onLeaningSideChanged()
+        LeaningSide.RIGHT -> if (orientation in 190 until 350) onLeaningSideChanged()
     }
 }

@@ -22,9 +22,9 @@ import androidx.compose.runtime.Composable
 enum class LeaningSide { LEFT, RIGHT }
 
 /**
- * Call [onLeaningSideChanged] when the [LeaningSide] returned by the [leaningSideProvider] changes,
- * based on the current leaning side calculated from orientation returned by the
- * [orientationProvider] in degrees.
+ * Call [onLeaningSideChanged] when the side that the device is currently leaning towards, which is
+ * calculated from the orientation in degrees returned by [orientationProvider], changes from the
+ * current [LeaningSide] that is returned by [leaningSideProvider].
  */
 @Composable
 fun LeaningSideHandler(

@@ -96,6 +96,22 @@ class ClockViewModel(
             )
         }
 
+    private suspend fun tickUntilFinished() {
+        while (_clockState.value == ClockState.TICKING) {
+            val remainingTime = targetRealtime - elapsedRealtime()
+            val tickDelay = remainingTime % tickPeriod
+            delay(tickDelay)  // suspending function is cancellable during delay
+            val newTime = remainingTime - tickDelay
+            when (_playerState.value) {
+                PlayerState.WHITE -> _whiteTime.value = newTime
+                PlayerState.BLACK -> _blackTime.value = newTime
+            }
+            if (newTime <= 0L) {
+                _clockState.value = ClockState.FINISHED
+            }
+        }
+    }
+
     fun start() {
         val currentTime = when (_playerState.value) {
             PlayerState.WHITE -> _whiteTime.value
@@ -104,24 +120,12 @@ class ClockViewModel(
         targetRealtime = elapsedRealtime() + currentTime
         _clockState.value = ClockState.TICKING
 
-        tickingJob = viewModelScope.launch {
-            while (_clockState.value == ClockState.TICKING) {
-                val remainingTime = targetRealtime - elapsedRealtime()
-                val tickDelay = remainingTime % tickPeriod
-                delay(tickDelay)
-                val newTime = remainingTime - tickDelay
-                when (_playerState.value) {
-                    PlayerState.WHITE -> _whiteTime.value = newTime
-                    PlayerState.BLACK -> _blackTime.value = newTime
-                }
-                if (newTime <= 0L) {
-                    _clockState.value = ClockState.FINISHED
-                }
-            }
-        }
+        tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
     fun play() {
+        tickingJob?.cancel()
+
         val remainingTime = targetRealtime - elapsedRealtime()
         if (remainingTime > 0L) {
             val newTime = remainingTime + increment
@@ -146,6 +150,8 @@ class ClockViewModel(
             }
             _clockState.value = ClockState.FINISHED
         }
+
+        tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
     fun pause() {

@@ -145,8 +145,8 @@ fun ClockContent(
 @Composable
 private fun ClockContentPreview() {
     ClockContent(
-        whiteTimeProvider = { 5L * 60_000L },
-        blackTimeProvider = { 3L * 1_000L },
+        whiteTimeProvider = { 5L * 60_000L + 3L * 1_000L },
+        blackTimeProvider = { 5L * 60_000L + 3L * 1_000L },
         clockStateProvider = { ClockState.FULL_RESET },
         playerStateProvider = { PlayerState.WHITE },
         leaningSideProvider = { LeaningSide.RIGHT },

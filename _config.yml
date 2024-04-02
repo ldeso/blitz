@@ -11,27 +11,25 @@ defaults:
       permalink: /privacy-policy/
 
 exclude:
-  - /app/src/main/res
-  - /app/src/main/AndroidManifest.xml
-  - /app/build.gradle.kts
-  - /gradle
-  - /metadata/en-US/changelogs
-  - /metadata/en-US/images/phoneScreenshots/3.png
-  - /metadata/en-US/images/phoneScreenshots/4.png
-  - /metadata/en-US/images/sevenInchScreenshots
-  - /metadata/en-US/images/tenInchScreenshots
-  - /metadata/en-US/images/featureGraphic.png
-  - /metadata/en-US/full_description.txt
-  - /metadata/en-US/short_description.txt
-  - /metadata/en-US/title.txt
-  - /metadata/fr-FR
   - build.gradle.kts
   - CNAME
+  - gradle
   - gradle.properties
   - gradlew
   - gradlew.bat
   - LICENSE
+  - metadata/en-US/changelogs
+  - metadata/en-US/images/phoneScreenshots/3.png
+  - metadata/en-US/images/phoneScreenshots/4.png
+  - metadata/en-US/images/sevenInchScreenshots
+  - metadata/en-US/images/tenInchScreenshots
+  - metadata/en-US/images/featureGraphic.png
+  - metadata/en-US/full_description.txt
+  - metadata/en-US/short_description.txt
+  - metadata/en-US/title.txt
+  - metadata/fr-FR
   - settings.gradle.kts
+  - src
 
 optional_front_matter:
   remove_originals: true

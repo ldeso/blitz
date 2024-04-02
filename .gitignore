@@ -1,7 +1,6 @@
 /.idea
-/app/build
-/app/release
 /build
+/release
 /captures
 .cxx
 .DS_Store

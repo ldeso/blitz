@@ -1,0 +1,2 @@
+• Do not reset configuration if it is back to defaults
+• Use round legacy icon

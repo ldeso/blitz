@@ -1,5 +1,29 @@
 ## Changelog
 
+### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) - 2024-04-02
+
+This release is a large refactoring that moves the ticking logic from the UI layer to the ViewModel. It also restores the behavior where the app is closed on the first back event if the configuration is set to its default value, and switches back to a round legacy icon.
+
+#### Improvements
+
+- Do not reset configuration if it is back to defaults
+- Use round legacy icon
+
+#### Notes
+
+- Use more enums to simplify code
+- Move ticking logic from `ClockScreen` to `ClockViewModel`
+- Stop and restart ticking when switching players
+- Use `LifecycleStartEffect` instead combining a `DisposableEffect` with a `LifecycleObserver`
+- Rename ClockInput.kt to ClockInputs.kt
+- Add parameter name in `onOrientationChanged` signature
+- Replace `if` with `when` in `LeaningSideHandler`
+- Clarify `LeaningSideHandler` documentation
+- Pass `displayOrientation` instead of `isLandscape`
+- Remove unused import
+- Move source files directly under the source root
+- Format non-source files
+
 ### [1.7.8](https://github.com/ldeso/blitz/releases/tag/v1.7.8) - 2024-03-28
 
 This release fixes two bugs that could be triggered by back gestures when the time was close to zero.

@@ -60,6 +60,16 @@ class ClockViewModel(
     val clockState: StateFlow<ClockState> = _clockState.asStateFlow()
     val playerState: StateFlow<PlayerState> = _playerState.asStateFlow()
 
+    private var currentTime: Long
+        get() = when (_playerState.value) {
+            PlayerState.WHITE -> _whiteTime.value
+            PlayerState.BLACK -> _blackTime.value
+        }
+        set(time) = when (_playerState.value) {
+            PlayerState.WHITE -> _whiteTime.value = time
+            PlayerState.BLACK -> _blackTime.value = time
+        }
+
     private var savedMinutes: Float = durationMinutes.toFloat()
         set(minutes) {
             val seconds = savedSeconds.roundToLong()
@@ -100,68 +110,46 @@ class ClockViewModel(
         while (_clockState.value == ClockState.TICKING) {
             val remainingTime = targetRealtime - elapsedRealtime()
             val tickDelay = remainingTime % tickPeriod
-            delay(tickDelay)  // suspending function is cancellable during delay
+            delay(tickDelay)  // suspending function is cancellable here
+
             val newTime = remainingTime - tickDelay
-            when (_playerState.value) {
-                PlayerState.WHITE -> _whiteTime.value = newTime
-                PlayerState.BLACK -> _blackTime.value = newTime
-            }
-            if (newTime <= 0L) {
+            if (newTime > 0L) {
+                currentTime = newTime
+            } else {
+                currentTime = 0L
                 _clockState.value = ClockState.FINISHED
             }
         }
     }
 
     fun start() {
-        val currentTime = when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value
-            PlayerState.BLACK -> _blackTime.value
-        }
         targetRealtime = elapsedRealtime() + currentTime
         _clockState.value = ClockState.TICKING
-
         tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
     fun play() {
         tickingJob?.cancel()
-
         val remainingTime = targetRealtime - elapsedRealtime()
         if (remainingTime > 0L) {
-            val newTime = remainingTime + increment
-            when (_playerState.value) {
-                PlayerState.WHITE -> _whiteTime.value = newTime
-                PlayerState.BLACK -> _blackTime.value = newTime
-            }
+            currentTime = remainingTime + increment
             _playerState.update {
                 when (it) {
                     PlayerState.WHITE -> PlayerState.BLACK
                     PlayerState.BLACK -> PlayerState.WHITE
                 }
             }
-            targetRealtime = when (_playerState.value) {
-                PlayerState.WHITE -> elapsedRealtime() + _whiteTime.value
-                PlayerState.BLACK -> elapsedRealtime() + _blackTime.value
-            }
+            targetRealtime = elapsedRealtime() + currentTime
+            tickingJob = viewModelScope.launch { tickUntilFinished() }
         } else {
-            when (_playerState.value) {
-                PlayerState.WHITE -> _whiteTime.value = 0L
-                PlayerState.BLACK -> _blackTime.value = 0L
-            }
+            currentTime = 0L
             _clockState.value = ClockState.FINISHED
         }
-
-        tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
     fun pause() {
         tickingJob?.cancel()
-
-        val newTime = targetRealtime - elapsedRealtime()
-        when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value = newTime
-            PlayerState.BLACK -> _blackTime.value = newTime
-        }
+        currentTime = targetRealtime - elapsedRealtime()
         _clockState.value = ClockState.PAUSED
     }
 
@@ -184,10 +172,6 @@ class ClockViewModel(
     }
 
     fun saveTime() {
-        val currentTime = when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value
-            PlayerState.BLACK -> _blackTime.value
-        }
         savedMinutes = (currentTime / 60_000L).toFloat()
         savedSeconds = (currentTime % 60_000L).toFloat() / 1_000F
     }
@@ -202,24 +186,17 @@ class ClockViewModel(
     ) {
         savedMinutes += addMinutes
         savedSeconds += addSeconds
-        val currentTime = when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value
-            PlayerState.BLACK -> _blackTime.value
-        }
         val newTime = savedMinutes.roundToLong() * 60_000L + if (isDecimalRestored) {
             (savedSeconds * 1_000F).roundToLong()
         } else {
             savedSeconds.roundToLong() * 1_000L
         }
         val timeUpdate = (newTime - currentTime).toFloat()
-        val isGoodMinutesUpdate = addMinutes.sign == timeUpdate.sign
-        val isGoodSecondsUpdate = addSeconds.sign == timeUpdate.sign
+        val isValidMinutesUpdate = addMinutes.sign == timeUpdate.sign
+        val isValidSecondsUpdate = addSeconds.sign == timeUpdate.sign
         val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F
-        if (isGoodMinutesUpdate || isGoodSecondsUpdate || isNotAnUpdate) {
-            when (_playerState.value) {
-                PlayerState.WHITE -> _whiteTime.value = newTime
-                PlayerState.BLACK -> _blackTime.value = newTime
-            }
+        if (isValidMinutesUpdate || isValidSecondsUpdate || isNotAnUpdate) {
+            currentTime = newTime
             targetRealtime = elapsedRealtime() + newTime
         }
     }

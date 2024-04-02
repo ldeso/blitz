@@ -2,8 +2,9 @@
 
 ### 1.8.1 (Unreleased)
 
-#### Note
+#### Notes
 
+- Add `currentTime` variable to decrease code repetitions
 - Improve format of CHANGELOG.md
 
 ### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) (2024-04-02)

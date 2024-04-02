@@ -1,6 +1,12 @@
 ## Changelog
 
-### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) - 2024-04-02
+### 1.8.1 (Unreleased)
+
+#### Note
+
+- Improve format of CHANGELOG.md
+
+### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) (2024-04-02)
 
 This release is a large refactoring that moves the ticking logic from the UI layer to the ViewModel. It also restores the behavior where the app is closed on the first back event if the configuration is set to its default value, and switches back to a round legacy icon.
 
@@ -24,7 +30,7 @@ This release is a large refactoring that moves the ticking logic from the UI lay
 - Move source files directly under the source root
 - Format non-source files
 
-### [1.7.8](https://github.com/ldeso/blitz/releases/tag/v1.7.8) - 2024-03-28
+### [1.7.8](https://github.com/ldeso/blitz/releases/tag/v1.7.8) (2024-03-28)
 
 This release fixes two bugs that could be triggered by back gestures when the time was close to zero.
 
@@ -33,9 +39,9 @@ This release fixes two bugs that could be triggered by back gestures when the ti
 - Fix bug where clock would be stuck if time ended during back gesture
 - Fix bug where the first time save could be off by one minute/second
 
-### [1.7.7](https://github.com/ldeso/blitz/releases/tag/v1.7.7) - 2024-03-28
+### [1.7.7](https://github.com/ldeso/blitz/releases/tag/v1.7.7) (2024-03-28)
 
-This release fixes a bug reintroduced in version [1.7.1](#171---2024-03-26) where the wrong animation was shown if the time ended during a back gesture.
+This release fixes a bug reintroduced in version [1.7.1](#171-2024-03-26) where the wrong animation was shown if the time ended during a back gesture.
 
 #### Bug Fix
 
@@ -45,7 +51,7 @@ This release fixes a bug reintroduced in version [1.7.1](#171---2024-03-26) wher
 
 - Rename `nextTurn` to `play`
 
-### [1.7.6](https://github.com/ldeso/blitz/releases/tag/v1.7.6) - 2024-03-28
+### [1.7.6](https://github.com/ldeso/blitz/releases/tag/v1.7.6) (2024-03-28)
 
 This release makes the time of each player independent from the UI state, which results in less frequent recompositions and an increased responsiveness.
 
@@ -62,7 +68,7 @@ This release makes the time of each player independent from the UI state, which 
 - Add favicon.ico
 - Update "About" section in README.md
 
-### [1.7.5](https://github.com/ldeso/blitz/releases/tag/v1.7.5) - 2024-03-27
+### [1.7.5](https://github.com/ldeso/blitz/releases/tag/v1.7.5) (2024-03-27)
 
 This release disables back gesture animations below Android 14.
 
@@ -77,17 +83,17 @@ This release disables back gesture animations below Android 14.
 - Do not use lazy to create orientationEventListener
 - Move calculation of rotation out of DisposableEffect
 
-### [1.7.4](https://github.com/ldeso/blitz/releases/tag/v1.7.4) - 2024-03-26
+### [1.7.4](https://github.com/ldeso/blitz/releases/tag/v1.7.4) (2024-03-26)
 
-This release fixes a bug introduced in version [1.7.3](#173---2024-03-26) where the time was displayed upside down.
+This release fixes a bug introduced in version [1.7.3](#173-2024-03-26) where the time was displayed upside down.
 
 #### Bug Fix
 
 - Fix bug where time was displayed upside down
 
-### [1.7.3](https://github.com/ldeso/blitz/releases/tag/v1.7.3) - 2024-03-26
+### [1.7.3](https://github.com/ldeso/blitz/releases/tag/v1.7.3) (2024-03-26)
 
-This release restores a feature that was removed in version [1.7.2](#172---2024-03-26) where the orientation of the device must cross a threshold of 10 degrees to be able to change the display orientation.
+This release restores a feature that was removed in version [1.7.2](#172-2024-03-26) where the orientation of the device must cross a threshold of 10 degrees to be able to change the display orientation.
 
 #### Bug Fix
 
@@ -97,7 +103,7 @@ This release restores a feature that was removed in version [1.7.2](#172---2024-
 
 - Add whitespace
 
-### [1.7.2](https://github.com/ldeso/blitz/releases/tag/v1.7.2) - 2024-03-26
+### [1.7.2](https://github.com/ldeso/blitz/releases/tag/v1.7.2) (2024-03-26)
 
 This release fixes a long-standing bug where the time could be updated in the wrong direction due to rounding.
 
@@ -111,7 +117,7 @@ This release fixes a long-standing bug where the time could be updated in the wr
 - Create component OrientationHandler
 - Add missing documentation for `dragAmount`
 
-### [1.7.1](https://github.com/ldeso/blitz/releases/tag/v1.7.1) - 2024-03-26
+### [1.7.1](https://github.com/ldeso/blitz/releases/tag/v1.7.1) (2024-03-26)
 
 This release improves the experience for versions of Android below Android 14 by adding a default value for the starting side of back gestures, which depends on whether the layout is set from left to right or from right to left.
 
@@ -125,7 +131,7 @@ This release improves the experience for versions of Android below Android 14 by
 - Simplify chessClockInput
 - Remove redundant state
 
-### [1.7.0](https://github.com/ldeso/blitz/releases/tag/v1.7.0) - 2024-03-25
+### [1.7.0](https://github.com/ldeso/blitz/releases/tag/v1.7.0) (2024-03-25)
 
 This release adds a feature that animates the time of the current player when the clock is paused.
 
@@ -144,24 +150,24 @@ This release adds a feature that animates the time of the current player when th
 - Rename clock to chessClockViewModel
 - Improve links in CHANGELOG.md
 
-### [1.6.5](https://github.com/ldeso/blitz/releases/tag/v1.6.5) - 2024-03-24
+### [1.6.5](https://github.com/ldeso/blitz/releases/tag/v1.6.5) (2024-03-24)
 
-This release fixes a bug introduced in version [1.6.3](#163---2024-03-24) where the time could change before the end of the predictive back gesture animation.
+This release fixes a bug introduced in version [1.6.3](#163-2024-03-24) where the time could change before the end of the predictive back gesture animation.
 
 #### Bug Fix
 
 - Fix bug where time could change before end of predictive back gesture animation
 
-### [1.6.4](https://github.com/ldeso/blitz/releases/tag/v1.6.4) - 2024-03-24
+### [1.6.4](https://github.com/ldeso/blitz/releases/tag/v1.6.4) (2024-03-24)
 
-This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0](#160---2024-03-24) where the position of the time would not reset when canceling a predictive back gesture.
+This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0](#160-2024-03-24) where the position of the time would not reset when canceling a predictive back gesture.
 
 #### Bug Fixes
 
 - Fix bug where a negative time would be displayed if the clock reached zero in the background
 - Fix bug where position would not reset when canceling back gestures
 
-### [1.6.3](https://github.com/ldeso/blitz/releases/tag/v1.6.3) - 2024-03-24
+### [1.6.3](https://github.com/ldeso/blitz/releases/tag/v1.6.3) (2024-03-24)
 
 This release adds a delay to improve the predictive back gesture animation.
 
@@ -173,24 +179,24 @@ This release adds a delay to improve the predictive back gesture animation.
 
 - Fix wrong release dates in CHANGELOG.md
 
-### [1.6.2](https://github.com/ldeso/blitz/releases/tag/v1.6.2) - 2024-03-24
+### [1.6.2](https://github.com/ldeso/blitz/releases/tag/v1.6.2) (2024-03-24)
 
-This release fixes a bug introduced in version [1.6.0](#160---2024-03-24) where dragging to change the time would give unexpected values.
+This release fixes a bug introduced in version [1.6.0](#160-2024-03-24) where dragging to change the time would give unexpected values.
 
 #### Bug Fix
 
 - Fix a bug where dragging to change the time would yield incorrect values
 
-### [1.6.1](https://github.com/ldeso/blitz/releases/tag/v1.6.1) - 2024-03-24
+### [1.6.1](https://github.com/ldeso/blitz/releases/tag/v1.6.1) (2024-03-24)
 
-This release fixes two bugs introduced in version [1.6.0](#160---2024-03-24) that were triggered by predictive back gestures and the clock reaching zero.
+This release fixes two bugs introduced in version [1.6.0](#160-2024-03-24) that were triggered by predictive back gestures and the clock reaching zero.
 
 #### Bug Fixes
 
 - Fix bug where wrong animation was shown if time ended during back gesture
 - Fix bug where time would not change color when reaching zero
 
-### [1.6.0](https://github.com/ldeso/blitz/releases/tag/v1.6.0) - 2024-03-24
+### [1.6.0](https://github.com/ldeso/blitz/releases/tag/v1.6.0) (2024-03-24)
 
 This release introduces predictive back gestures within the app and drastically reduces the number of recompositions by hoisting state the closest to where it is consumed.
 
@@ -206,7 +212,7 @@ This release introduces predictive back gestures within the app and drastically 
 
 - Add parameter names
 
-### [1.5.8](https://github.com/ldeso/blitz/releases/tag/v1.5.8) - 2024-03-22
+### [1.5.8](https://github.com/ldeso/blitz/releases/tag/v1.5.8) (2024-03-22)
 
 This release allows the app to conserve app resources using the collectAsStateWithLifecycle API to collect the uiState in a lifecycle-aware manner.
 
@@ -222,7 +228,7 @@ This release allows the app to conserve app resources using the collectAsStateWi
 - Call `super.onCreate` before `enableEdgeToEdge`
 - Use single .gitignore
 
-### [1.5.7](https://github.com/ldeso/blitz/releases/tag/v1.5.7) - 2024-03-22
+### [1.5.7](https://github.com/ldeso/blitz/releases/tag/v1.5.7) (2024-03-22)
 
 This release implements the official recommendation to use a LifecycleObserver in Compose instead of overriding lifecycle methods in the MainActivity.
 
@@ -235,7 +241,7 @@ This release implements the official recommendation to use a LifecycleObserver i
 - Simplify addMinutes and addSeconds methods
 - Remove redundant documentation
 
-### [1.5.6](https://github.com/ldeso/blitz/releases/tag/v1.5.6) - 2024-03-22
+### [1.5.6](https://github.com/ldeso/blitz/releases/tag/v1.5.6) (2024-03-22)
 
 This release removes the permission net.leodesouza.blitz.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION because it is unnecessary as the only broadcast receiver used in the app is the ProfileInstallReceiver, whose only purpose is to install the baseline profile used to compile some parts of the app ahead of time during installation.
 
@@ -248,7 +254,7 @@ This release removes the permission net.leodesouza.blitz.DYNAMIC_RECEIVER_NOT_EX
 
 - Minor changes to README.md
 
-### [1.5.5](https://github.com/ldeso/blitz/releases/tag/v1.5.5) - 2024-03-21
+### [1.5.5](https://github.com/ldeso/blitz/releases/tag/v1.5.5) (2024-03-21)
 
 This release updates dependencies and refactors the code to hold the state and logic in a ViewModel instead of a plain class.
 
@@ -262,9 +268,9 @@ This release updates dependencies and refactors the code to hold the state and l
 - Clarify that all sources use the same app signing key
 - Capitalize title
 
-### [1.5.4](https://github.com/ldeso/blitz/releases/tag/v1.5.4) - 2024-03-14
+### [1.5.4](https://github.com/ldeso/blitz/releases/tag/v1.5.4) (2024-03-14)
 
-This release fixes a bug introduced in version [1.5.3](#153---2024-03-14) where per-app languages preferences were not supported anymore.
+This release fixes a bug introduced in version [1.5.3](#153-2024-03-14) where per-app languages preferences were not supported anymore.
 
 #### Bug Fix
 
@@ -276,7 +282,7 @@ This release fixes a bug introduced in version [1.5.3](#153---2024-03-14) where 
 - Align screenshots vertically
 - Remove whitespace
 
-### [1.5.3](https://github.com/ldeso/blitz/releases/tag/v1.5.3) - 2024-03-14
+### [1.5.3](https://github.com/ldeso/blitz/releases/tag/v1.5.3) (2024-03-14)
 
 This release updates Compose dependencies and introduces the website https://blitz.leodesouza.net built with GitHub Pages.
 
@@ -291,7 +297,7 @@ This release updates Compose dependencies and introduces the website https://bli
 - Add "Install" section to README.md
 - Add `alt` attribute to images in README.md
 
-### [1.5.2](https://github.com/ldeso/blitz/releases/tag/v1.5.2) - 2024-03-12
+### [1.5.2](https://github.com/ldeso/blitz/releases/tag/v1.5.2) (2024-03-12)
 
 This release simplifies the codebase and updates metadata.
 
@@ -308,15 +314,15 @@ This release simplifies the codebase and updates metadata.
 - Simplify saving current time or duration/increment
 - Do not use an interface with a single concrete class
 
-### [1.5.1](https://github.com/ldeso/blitz/releases/tag/v1.5.1) - 2024-03-11
+### [1.5.1](https://github.com/ldeso/blitz/releases/tag/v1.5.1) (2024-03-11)
 
-This release fixes a bug introduced in version [1.5.0](#150---2024-03-11) where changing the language would change the default duration and time increment.
+This release fixes a bug introduced in version [1.5.0](#150-2024-03-11) where changing the language would change the default duration and time increment.
 
 #### Bug Fix
 
 - Fix bug where changing the language would change the default duration and increment
 
-### [1.5.0](https://github.com/ldeso/blitz/releases/tag/v1.5.0) - 2024-03-11
+### [1.5.0](https://github.com/ldeso/blitz/releases/tag/v1.5.0) (2024-03-11)
 
 This release is a big refactor of the code that tries to follow the principle of separation of concerns, and introduces a better support of the orientation on all devices.
 
@@ -330,15 +336,15 @@ This release is a big refactor of the code that tries to follow the principle of
 - Change order of declarations
 - Use callbacks instead of passing Window to composable
 
-### [1.4.9](https://github.com/ldeso/blitz/releases/tag/v1.4.9) - 2024-03-06
+### [1.4.9](https://github.com/ldeso/blitz/releases/tag/v1.4.9) (2024-03-06)
 
-This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7](#147---2024-03-06).
+This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7](#147-2024-03-06).
 
 #### Enhancement
 
 - Revert rounding up to nearest second above one hour
 
-### [1.4.8](https://github.com/ldeso/blitz/releases/tag/v1.4.8) - 2024-03-06
+### [1.4.8](https://github.com/ldeso/blitz/releases/tag/v1.4.8) (2024-03-06)
 
 This release fixes a bug introduced in the last release where, above one hour, the displayed time would sometimes be off by up to one second.
 
@@ -346,7 +352,7 @@ This release fixes a bug introduced in the last release where, above one hour, t
 
 - Fix wrong time displayed above one hour
 
-### [1.4.7](https://github.com/ldeso/blitz/releases/tag/v1.4.7) - 2024-03-06
+### [1.4.7](https://github.com/ldeso/blitz/releases/tag/v1.4.7) (2024-03-06)
 
 This release improves the precision of the counter and of the time display.
 
@@ -358,7 +364,7 @@ This release improves the precision of the counter and of the time display.
 
 - Update current time on pause
 
-### [1.4.6](https://github.com/ldeso/blitz/releases/tag/v1.4.6) - 2024-03-06
+### [1.4.6](https://github.com/ldeso/blitz/releases/tag/v1.4.6) (2024-03-06)
 
 This release is another refactor that makes triggering the next turn more consistent between tapping and dragging actions.
 
@@ -371,7 +377,7 @@ This release is another refactor that makes triggering the next turn more consis
 - Refactor chess clock policy into an interface
 - Pass an immutable orientation state to its consumers
 
-### [1.4.5](https://github.com/ldeso/blitz/releases/tag/v1.4.5) - 2024-03-05
+### [1.4.5](https://github.com/ldeso/blitz/releases/tag/v1.4.5) (2024-03-05)
 
 This release vastly increases the sensitivity to touch events when counting down.
 
@@ -383,7 +389,7 @@ This release vastly increases the sensitivity to touch events when counting down
 
 - Use application ID in build filename
 
-### [1.4.4](https://github.com/ldeso/blitz/releases/tag/v1.4.4) - 2024-03-05
+### [1.4.4](https://github.com/ldeso/blitz/releases/tag/v1.4.4) (2024-03-05)
 
 This release increases the precision and readability of the clock.
 
@@ -395,7 +401,7 @@ This release increases the precision and readability of the clock.
 
 - Fix a bug that skipped the last tenth of a second
 
-### [1.4.3](https://github.com/ldeso/blitz/releases/tag/v1.4.3) - 2024-03-04
+### [1.4.3](https://github.com/ldeso/blitz/releases/tag/v1.4.3) (2024-03-04)
 
 This release is a big refactor of the code handling dragging events, fixing two issues and improving the dragging experience.
 
@@ -413,7 +419,7 @@ This release is a big refactor of the code handling dragging events, fixing two 
 - Do not repeat short description in full description
 - Add missing documentation
 
-### [1.4.2](https://github.com/ldeso/blitz/releases/tag/v1.4.2) - 2024-02-29
+### [1.4.2](https://github.com/ldeso/blitz/releases/tag/v1.4.2) (2024-02-29)
 
 This release restores the orientation sensor when using reverse portrait mode while avoiding issues when the orientation is locked.
 
@@ -421,7 +427,7 @@ This release restores the orientation sensor when using reverse portrait mode wh
 
 - Restore orientation sensor when in reverse portrait
 
-### [1.4.1](https://github.com/ldeso/blitz/releases/tag/v1.4.1) - 2024-02-29
+### [1.4.1](https://github.com/ldeso/blitz/releases/tag/v1.4.1) (2024-02-29)
 
 This release fixes possible wrong orientations by disabling the orientation sensor when using reverse portrait mode.
 
@@ -433,7 +439,7 @@ This release fixes possible wrong orientations by disabling the orientation sens
 
 - Add icon and badges to README.md
 
-### [1.4.0](https://github.com/ldeso/blitz/releases/tag/v1.4.0) - 2024-02-29
+### [1.4.0](https://github.com/ldeso/blitz/releases/tag/v1.4.0) (2024-02-29)
 
 This release adds support for landscape mode and for devices without a touchscreen.
 
@@ -450,7 +456,7 @@ This release adds support for landscape mode and for devices without a touchscre
 
 - Add documentation for isBlackRightHanded
 
-### [1.3.2](https://github.com/ldeso/blitz/releases/tag/v1.3.2) - 2024-02-29
+### [1.3.2](https://github.com/ldeso/blitz/releases/tag/v1.3.2) (2024-02-29)
 
 This release fixes a bug where, when correcting a player’s time, the drag orientation would not flip based on the orientation of the clock.
 
@@ -458,7 +464,7 @@ This release fixes a bug where, when correcting a player’s time, the drag orie
 
 - Fix frozen drag orientation when correcting time
 
-### [1.3.1](https://github.com/ldeso/blitz/releases/tag/v1.3.1) - 2024-02-29
+### [1.3.1](https://github.com/ldeso/blitz/releases/tag/v1.3.1) (2024-02-29)
 
 This release fixes a bug where the time could not be restarted after reaching zero.
 
@@ -466,7 +472,7 @@ This release fixes a bug where the time could not be restarted after reaching ze
 
 - Fix bug where time could not be restarted after ending
 
-### [1.3.0](https://github.com/ldeso/blitz/releases/tag/v1.3.0) - 2024-02-28
+### [1.3.0](https://github.com/ldeso/blitz/releases/tag/v1.3.0) (2024-02-28)
 
 This release allows flipping the clock orientation for left-handed players and flips horizontal dragging for a right-to-left layout direction.
 
@@ -500,7 +506,7 @@ This release allows flipping the clock orientation for left-handed players and f
 - Minor code formatting changes
 - Formatting
 
-### [1.2.0](https://github.com/ldeso/blitz/releases/tag/v1.2.0) - 2024-02-25
+### [1.2.0](https://github.com/ldeso/blitz/releases/tag/v1.2.0) (2024-02-25)
 
 This releases keeps the screen turned on and increases time precision by tracking system time instead of recompositions.
 
@@ -525,7 +531,7 @@ This releases keeps the screen turned on and increases time precision by trackin
 - Make changelogs valid markdown
 - Fix link to last version
 
-### [1.1.3](https://github.com/ldeso/blitz/releases/tag/v1.1.3) - 2024-02-22
+### [1.1.3](https://github.com/ldeso/blitz/releases/tag/v1.1.3) (2024-02-22)
 
 This release adds metadata and slightly simplifies the source code.
 
@@ -535,7 +541,7 @@ This release adds metadata and slightly simplifies the source code.
 - Remove an if block to simplify code
 - Further simplify if block
 
-### [1.1.2](https://github.com/ldeso/blitz/releases/tag/v1.1.2) - 2024-02-22
+### [1.1.2](https://github.com/ldeso/blitz/releases/tag/v1.1.2) (2024-02-22)
 
 This release improves compatibility and fixes a bug preventing a reset when both times are equal to their initial values.
 
@@ -548,7 +554,7 @@ This release improves compatibility and fixes a bug preventing a reset when both
 - Set minimum SDK version to 21 (Android 5.0)
 - Enable Gradle configuration cache
 
-### [1.1.1](https://github.com/ldeso/blitz/releases/tag/v1.1.1) - 2024-02-22
+### [1.1.1](https://github.com/ldeso/blitz/releases/tag/v1.1.1) (2024-02-22)
 
 This release prevents adjusting the time after it reaches zero and reduces horizontal dragging sensitivity.
 
@@ -561,7 +567,7 @@ This release prevents adjusting the time after it reaches zero and reduces horiz
 
 - Slightly change code structure
 
-### [1.1.0](https://github.com/ldeso/blitz/releases/tag/v1.1.0) - 2024-02-21
+### [1.1.0](https://github.com/ldeso/blitz/releases/tag/v1.1.0) (2024-02-21)
 
 This release adds the possibility to select the time period using vertical dragging and the time increment using horizontal dragging.
 
@@ -569,7 +575,7 @@ This release adds the possibility to select the time period using vertical dragg
 
 - Implement time input by dragging
 
-### [1.0.7](https://github.com/ldeso/blitz/releases/tag/v1.0.7) - 2024-02-21
+### [1.0.7](https://github.com/ldeso/blitz/releases/tag/v1.0.7) (2024-02-21)
 
 This release updates and reduces dependencies, bringing the size of the APK down to 686 KiB.
 
@@ -578,7 +584,7 @@ This release updates and reduces dependencies, bringing the size of the APK down
 - Use Compose Foundation instead of Material 3
 - Update dependencies
 
-### [1.0.6](https://github.com/ldeso/blitz/releases/tag/v1.0.6) - 2024-02-21
+### [1.0.6](https://github.com/ldeso/blitz/releases/tag/v1.0.6) (2024-02-21)
 
 This release fixes a bug where it would not be possible to reset if one of the timers did not start.
 
@@ -590,7 +596,7 @@ This release fixes a bug where it would not be possible to reset if one of the t
 
 - Use 0L (Long) instead of 0 (Int)
 
-### [1.0.5](https://github.com/ldeso/blitz/releases/tag/v1.0.5) - 2024-02-21
+### [1.0.5](https://github.com/ldeso/blitz/releases/tag/v1.0.5) (2024-02-21)
 
 This release fixes some bugs introduced with the reset functionality.
 
@@ -599,7 +605,7 @@ This release fixes some bugs introduced with the reset functionality.
 - Make it possible to leave the app
 - Set first player to white on reset
 
-### [1.0.4](https://github.com/ldeso/blitz/releases/tag/v1.0.4) - 2024-02-21
+### [1.0.4](https://github.com/ldeso/blitz/releases/tag/v1.0.4) (2024-02-21)
 
 This release makes it possible to reset the clock with the "back" action when the clock is paused.
 
@@ -612,7 +618,7 @@ This release makes it possible to reset the clock with the "back" action when th
 - Force portrait orientation
 - Move most logic out of LaunchedEffect
 
-### [1.0.3](https://github.com/ldeso/blitz/releases/tag/v1.0.3) - 2024-02-20
+### [1.0.3](https://github.com/ldeso/blitz/releases/tag/v1.0.3) (2024-02-20)
 
 This release enables resource shrinking and app optimization to bring the size of the APK below one megabyte.
 
@@ -620,7 +626,7 @@ This release enables resource shrinking and app optimization to bring the size o
 
 - Enable resource shrinking and app optimization
 
-### [1.0.2](https://github.com/ldeso/blitz/releases/tag/v1.0.2) - 2024-02-20
+### [1.0.2](https://github.com/ldeso/blitz/releases/tag/v1.0.2) (2024-02-20)
 
 This release improves the app icon.
 
@@ -630,7 +636,7 @@ This release improves the app icon.
 - Remove circular icon
 - Reduce vector path from 1909 to 674 characters
 
-### [1.0.1](https://github.com/ldeso/blitz/releases/tag/v1.0.1) - 2024-02-20
+### [1.0.1](https://github.com/ldeso/blitz/releases/tag/v1.0.1) (2024-02-20)
 
 This release fixes a bug where the time could still be incremented after reaching zero.
 
@@ -639,6 +645,6 @@ This release fixes a bug where the time could still be incremented after reachin
 - Do not increment when time is up
 - Handle negative
 
-### [1.0.0](https://github.com/ldeso/blitz/releases/tag/v1.0.0) - 2024-02-20
+### [1.0.0](https://github.com/ldeso/blitz/releases/tag/v1.0.0) (2024-02-20)
 
 Initial release.

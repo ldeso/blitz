@@ -19,14 +19,12 @@ package net.leodesouza.blitz.ui.components
 import android.view.OrientationEventListener
 import android.view.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LifecycleStartEffect
 
 /**
  * Observe the orientation of the device in a lifecycle-aware manner and call [onOrientationChanged]
@@ -47,24 +45,21 @@ fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
         else -> 270
     }
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = object : DefaultLifecycleObserver {
-            private val orientationEventListener = object : OrientationEventListener(context) {
-                override fun onOrientationChanged(orientation: Int) {
-                    if (orientation == ORIENTATION_UNKNOWN) return
-                    currentOnOrientationChanged((orientation + rotation) % 360)
-                }
+    val orientationEventListener = object : OrientationEventListener(context) {
+        override fun onOrientationChanged(orientation: Int) {
+            if (orientation == ORIENTATION_UNKNOWN) {
+                return
+            } else {
+                currentOnOrientationChanged((orientation + rotation) % 360)
             }
-
-            override fun onStart(owner: LifecycleOwner) = orientationEventListener.enable()
-
-            override fun onStop(owner: LifecycleOwner) = orientationEventListener.disable()
         }
+    }
 
-        lifecycleOwner.lifecycle.addObserver(observer)
+    LifecycleStartEffect(lifecycleOwner) {
+        orientationEventListener.enable()
 
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
+        onStopOrDispose {
+            orientationEventListener.disable()
         }
     }
 }

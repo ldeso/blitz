@@ -5,6 +5,7 @@
 #### Notes
 
 - Add `currentTime` variable to decrease code repetitions
+- Rename `CallbackCaller` to `CallbackHandler`
 - Improve format of CHANGELOG.md
 
 ### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) (2024-04-02)

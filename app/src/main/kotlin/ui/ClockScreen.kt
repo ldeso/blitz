@@ -82,7 +82,7 @@ fun ClockScreen(
     }
     var backEventAction by remember { mutableStateOf(ClockBackAction.PAUSE) }
 
-    CallbackCaller(
+    CallbackHandler(
         clockStateProvider = { clockState },
         onClockStart = onClockStart,
         onClockStop = onClockStop,
@@ -150,7 +150,7 @@ fun ClockScreen(
  * state of the clock returned by [clockStateProvider].
  */
 @Composable
-private fun CallbackCaller(
+private fun CallbackHandler(
     clockStateProvider: () -> ClockState,
     onClockStart: () -> Unit,
     onClockStop: () -> Unit,

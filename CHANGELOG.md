@@ -9,6 +9,7 @@
 - Rename `CallbackCaller` to `CallbackHandler`
 - Use correct default values in `ClockContentPreview`
 - Improve format of CHANGELOG.md
+- Add missing `alt` attribute in README.md
 
 ### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) (2024-04-02)
 

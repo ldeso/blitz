@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="metadata/en-US/images/icon.png" height="128" width="128">
+  <img src="metadata/en-US/images/icon.png" height="128" width="128" alt="App icon" />
 </p>
 
 <p align="center">
   <a href="https://github.com/ldeso/blitz/releases/latest">
-    <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" alt="GitHub" /></a>
+    <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" alt="GitHub badge" /></a>
   <a href="https://f-droid.org/packages/net.leodesouza.blitz/">
-    <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" alt="F-Droid" /></a>
+    <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" alt="F-Droid badge" /></a>
   <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz">
-    <img src="https://img.shields.io/badge/Play%20Store-v1.8.0-blue?logo=Google-Play" alt="Play Store" /></a>
+    <img src="https://img.shields.io/badge/Play%20Store-v1.8.0-blue?logo=Google-Play" alt="Play Store badge" /></a>
 </p>
 
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
@@ -35,11 +35,11 @@ For example, an app installed from F-Droid can be updated to a newer version dow
 
 ## About
 
-This native Android app requires no permission and is compatible with Android 5.0+.
-It is entirely built with [Jetpack Compose](https://developer.android.com/develop/ui/compose) and implements:
+This is a native Android app that requires no permission and is compatible with Android 5.0+.
+It is entirely built with [Jetpack Compose](https://developer.android.com/jetpack/compose) and implements:
 
-  - Predictive back gestures ([Android 14+](https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture))
-  - Per-app language preferences ([Android 13+](https://developer.android.com/guide/topics/resources/app-languages))
+  - Predictive back gestures ([Android 14+](https://developer.android.com/about/versions/13/features/predictive-back-gesture))
+  - Per-app language preferences ([Android 13+](https://developer.android.com/about/versions/13/features/app-languages))
   - Support for right-to-left languages
   - Precise orientation handling
   - Keyboard navigation
@@ -51,6 +51,6 @@ It is entirely built with [Jetpack Compose](https://developer.android.com/develo
 ## Screenshots
 
 <p align="center">
-  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Portrait screenshot of the initial view" height="622" width="350">&nbsp;&#8203;
-  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Portrait screenshot of when time is over" height="622" width="350">&nbsp;
+  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Screenshot of the initial view" height="622" width="350">&nbsp;&#8203;
+  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Screenshot when time is over" height="622" width="350">&nbsp;
 </p>

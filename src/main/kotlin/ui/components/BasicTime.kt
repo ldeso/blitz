@@ -27,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
@@ -44,7 +45,7 @@ fun BasicTime(
     style: TextStyle = TextStyle.Default,
     timeOverColor: Color = style.color,
 ) {
-    val time = 100.milliseconds * ceil(timeProvider() / 100.milliseconds)
+    val time = 100.milliseconds * floor(timeProvider() / 100.milliseconds)
     val punctuationStyle = if (time.isPositive()) style else style.merge(color = timeOverColor)
     val digitStyle = punctuationStyle.merge(fontFamily = FontFamily.Monospace)
     val hoursText: String
@@ -61,14 +62,14 @@ fun BasicTime(
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(modifier) {
-            if (time > 1.hours) {
+            if (time >= 1.hours) {
                 BasicText(text = hoursText, style = digitStyle)
                 BasicText(text = ":", style = punctuationStyle)
             }
             BasicText(text = minutesText, style = digitStyle)
             BasicText(text = ":", style = punctuationStyle)
             BasicText(text = secondsText, style = digitStyle)
-            if (time <= 1.hours) {
+            if (time < 1.hours) {
                 BasicText(text = ".", style = punctuationStyle)
                 BasicText(text = decimalText, style = digitStyle)
             }

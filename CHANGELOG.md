@@ -12,6 +12,7 @@
 - Use Kotlin Duration and TimeSource
 - Add local tests
 - Switch to single-project build
+- Round time down to nearest tenth of second
 - Add `currentTime` variable to decrease code repetitions
 - Rename `CallbackCaller` to `CallbackHandler`
 - Use correct default values in `ClockContentPreview`

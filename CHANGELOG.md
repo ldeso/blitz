@@ -1,6 +1,8 @@
 ## Changelog
 
-### 1.8.1 (Unreleased)
+### [1.8.1](https://github.com/ldeso/blitz/releases/tag/v1.8.1) (2024-04-11)
+
+This release enables APK Signature Schemes v3 and v4, updates dependencies and adds local tests.
 
 #### Improvements
 

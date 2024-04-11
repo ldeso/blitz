@@ -13,6 +13,7 @@
 - Add parameter names in restoreSaved… signatures
 - Improve format of CHANGELOG.md
 - Add missing `alt` attribute in README.md
+- Remove trailing newline in all metadata files
 
 ### [1.8.0](https://github.com/ldeso/blitz/releases/tag/v1.8.0) (2024-04-02)
 

@@ -45,7 +45,7 @@ import net.leodesouza.blitz.ui.models.ClockState
  *
  * @param[durationMinutes] Initial time for each player in minutes.
  * @param[incrementSeconds] Time increment in seconds.
- * @param[tickPeriod] Period between ticks in milliseconds.
+ * @param[tickPeriodMillis] Period between ticks in milliseconds.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
  * @param[onClockStart] Callback called before the clock starts ticking.
  * @param[onClockStop] Callback called after the clock stops ticking.
@@ -53,14 +53,14 @@ import net.leodesouza.blitz.ui.models.ClockState
  */
 @Composable
 fun ClockScreen(
-    durationMinutes: Long = 5L,
-    incrementSeconds: Long = 3L,
-    tickPeriod: Long = 100L,
+    durationMinutes: Int = 5,
+    incrementSeconds: Int = 3,
+    tickPeriodMillis: Int = 100,
     dragSensitivity: Float = 0.01F,
     onClockStart: () -> Unit = {},
     onClockStop: () -> Unit = {},
     clockViewModel: ClockViewModel = viewModel {
-        ClockViewModel(durationMinutes, incrementSeconds, tickPeriod)
+        ClockViewModel(durationMinutes, incrementSeconds, tickPeriodMillis)
     },
 ) {
     val whiteTime by clockViewModel.whiteTime.collectAsStateWithLifecycle()

@@ -26,41 +26,51 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.ceil
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Basic element that displays the time returned by a [timeProvider] in the format "H:MM:SS" or
  * "MM:SS.D" depending on whether the time is higher than one hour, in a given [style] and accepting
- * a given [modifier] to apply to its layout node. Display zero if the time is negative, and
- * change the text color to [timeOverColor] when the time is over if specified.
+ * a given [modifier] to apply to its layout node. Change the text color to [timeOverColor] when the
+ * time is not greater than zero if specified.
  */
 @Composable
 fun BasicTime(
-    timeProvider: () -> Long,
+    timeProvider: () -> Duration,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
     timeOverColor: Color = style.color,
 ) {
-    val timeMillis = timeProvider().coerceAtLeast(0L)
-    val timeTenthsOfSeconds = (timeMillis + 99L) / 100L  // round up to the nearest tenth of second
-    val hours = timeTenthsOfSeconds / 36_000L
-    val minutes = timeTenthsOfSeconds % 36_000L / 600L
-    val seconds = timeTenthsOfSeconds % 600L / 10L
-    val tenthsOfSeconds = timeTenthsOfSeconds % 10L
-    val punctuationStyle = if (timeMillis == 0L) style.merge(color = timeOverColor) else style
+    val time = 100.milliseconds * ceil(timeProvider() / 100.milliseconds)
+    val punctuationStyle = if (time.isPositive()) style else style.merge(color = timeOverColor)
     val digitStyle = punctuationStyle.merge(fontFamily = FontFamily.Monospace)
+    val hoursText: String
+    val minutesText: String
+    val secondsText: String
+    val decimalText: String
+
+    time.toComponents { hours, minutes, seconds, nanoseconds ->
+        hoursText = hours.toString()
+        minutesText = minutes.toString().padStart(length = 2, padChar = '0')
+        secondsText = seconds.toString().padStart(length = 2, padChar = '0')
+        decimalText = (ceil(nanoseconds / 100_000_000.0).toInt()).toString()
+    }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(modifier) {
-            if (hours != 0L) {
-                BasicText(text = "$hours", style = digitStyle)
+            if (time > 1.hours) {
+                BasicText(text = hoursText, style = digitStyle)
                 BasicText(text = ":", style = punctuationStyle)
             }
-            BasicText(text = "$minutes".padStart(length = 2, padChar = '0'), style = digitStyle)
+            BasicText(text = minutesText, style = digitStyle)
             BasicText(text = ":", style = punctuationStyle)
-            BasicText(text = "$seconds".padStart(length = 2, padChar = '0'), style = digitStyle)
-            if (hours == 0L) {
+            BasicText(text = secondsText, style = digitStyle)
+            if (time <= 1.hours) {
                 BasicText(text = ".", style = punctuationStyle)
-                BasicText(text = "$tenthsOfSeconds", style = digitStyle)
+                BasicText(text = decimalText, style = digitStyle)
             }
         }
     }

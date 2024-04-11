@@ -45,6 +45,9 @@ import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Chess clock screen content consisting of the time of each player in different colors.
@@ -60,8 +63,8 @@ import net.leodesouza.blitz.ui.models.PlayerState
  */
 @Composable
 fun ClockContent(
-    whiteTimeProvider: () -> Long,
-    blackTimeProvider: () -> Long,
+    whiteTimeProvider: () -> Duration,
+    blackTimeProvider: () -> Duration,
     clockStateProvider: () -> ClockState,
     playerStateProvider: () -> PlayerState,
     leaningSideProvider: () -> LeaningSide,
@@ -145,8 +148,8 @@ fun ClockContent(
 @Composable
 private fun ClockContentPreview() {
     ClockContent(
-        whiteTimeProvider = { 5L * 60_000L + 3L * 1_000L },
-        blackTimeProvider = { 5L * 60_000L + 3L * 1_000L },
+        whiteTimeProvider = { 5.minutes + 3.seconds },
+        blackTimeProvider = { 5.minutes + 3.seconds },
         clockStateProvider = { ClockState.FULL_RESET },
         playerStateProvider = { PlayerState.WHITE },
         leaningSideProvider = { LeaningSide.RIGHT },

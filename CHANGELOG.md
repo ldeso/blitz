@@ -2,6 +2,10 @@
 
 ### 1.8.1 (Unreleased)
 
+#### Improvements
+
+- Enable APK Signature Schemes v3 and v4
+
 #### Notes
 
 - Use Kotlin Duration and TimeSource

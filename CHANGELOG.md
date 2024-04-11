@@ -5,6 +5,7 @@
 #### Improvements
 
 - Enable APK Signature Schemes v3 and v4
+- Update dependencies
 
 #### Notes
 

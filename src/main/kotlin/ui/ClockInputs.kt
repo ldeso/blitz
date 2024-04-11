@@ -309,8 +309,8 @@ private fun onHorizontalDrag(
     leaningSide: LeaningSide,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
-    restoreSavedTime: (Float, Float) -> Unit,
-    restoreSavedConf: (Float, Float) -> Unit,
+    restoreSavedTime: (addMinutes: Float, addSeconds: Float) -> Unit,
+    restoreSavedConf: (addMinutes: Float, addSeconds: Float) -> Unit,
 ) {
     when (clockState) {
         ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
@@ -357,8 +357,8 @@ private fun onVerticalDrag(
     leaningSide: LeaningSide,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
-    restoreSavedTime: (Float, Float) -> Unit,
-    restoreSavedConf: (Float, Float) -> Unit,
+    restoreSavedTime: (addMinutes: Float, addSeconds: Float) -> Unit,
+    restoreSavedConf: (addMinutes: Float, addSeconds: Float) -> Unit,
 ) {
     when (clockState) {
         ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {

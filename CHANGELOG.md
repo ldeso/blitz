@@ -9,6 +9,7 @@
 - Add `currentTime` variable to decrease code repetitions
 - Rename `CallbackCaller` to `CallbackHandler`
 - Use correct default values in `ClockContentPreview`
+- Add parameter names in restoreSaved… signatures
 - Improve format of CHANGELOG.md
 - Add missing `alt` attribute in README.md
 

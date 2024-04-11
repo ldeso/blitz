@@ -5,6 +5,7 @@
 #### Notes
 
 - Use Kotlin Duration and TimeSource
+- Add local tests
 - Switch to single-project build
 - Add `currentTime` variable to decrease code repetitions
 - Rename `CallbackCaller` to `CallbackHandler`

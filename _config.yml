@@ -3,7 +3,22 @@
 
 title: "Blitz: Fischer Chess Clock"
 
+author: Léo de Souza
+
+theme: minima
+
+github_username: ldeso
+
+header_pages:
+  - LICENSES/Apache-2.0.md
+  - CHANGELOG.md
+  - PRIVACY_POLICY.md
+
 defaults:
+  - scope:
+      path: README.md
+    values:
+      title: "Blitz: Fischer Chess Clock"
   - scope:
       path: LICENSES/Apache-2.0.md
     values:

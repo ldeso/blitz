@@ -3,11 +3,12 @@
 
 ## 1.8.2 – Unreleased
 
-### Improvement
+### Improvements
 
 - Follow REUSE specification, version 3.0
+- Use more restrictive privacy policy
 
-### Note
+### Notes
 
 - Update website theme
 - Do not hardcode application ID in manifest

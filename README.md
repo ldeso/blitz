@@ -14,6 +14,8 @@
     <img src="https://img.shields.io/badge/Play%20Store-v1.8.1-blue?logo=Google-Play" alt="Play Store badge" /></a>
 </p>
 
+# Blitz: Fischer Chess Clock
+
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
 
 This app is free software.

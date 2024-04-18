@@ -14,6 +14,7 @@
 - Do not hardcode application ID in manifest
 - Remove unnecessary dependency
 - Clarify debian/copyright file
+- Restore title in README.md
 
 ## [1.8.1](https://github.com/ldeso/blitz/releases/tag/v1.8.1) – 2024-04-11
 
@@ -275,7 +276,7 @@ This release implements the official recommendation to use a LifecycleObserver i
 
 ## [1.5.6](https://github.com/ldeso/blitz/releases/tag/v1.5.6) – 2024-03-22
 
-This release removes the permission net.leodesouza.blitz.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION because it is unnecessary as the only broadcast receiver used in the app is the ProfileInstallReceiver, whose only purpose is to install the baseline profile used to compile some parts of the app ahead of time during installation.
+This release removes the permission DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION because it is unnecessary as the only broadcast receiver used in the app is the ProfileInstallReceiver, whose only purpose is to install the baseline profile used to compile some parts of the app ahead of time during installation.
 
 ### Improvements
 

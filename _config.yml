@@ -16,10 +16,6 @@ header_pages:
 
 defaults:
   - scope:
-      path: README.md
-    values:
-      title: "Blitz: Fischer Chess Clock"
-  - scope:
       path: LICENSES/Apache-2.0.md
     values:
       permalink: /license/

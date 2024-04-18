@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2024 Léo de Souza -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

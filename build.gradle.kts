@@ -1,3 +1,6 @@
+// Copyright 2024 Léo de Souza
+// SPDX-License-Identifier: Apache-2.0
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)

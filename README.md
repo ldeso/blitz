@@ -1,3 +1,6 @@
+<!-- Copyright 2024 Léo de Souza -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 <p align="center">
   <img src="metadata/en-US/images/icon.png" height="128" width="128" alt="App icon" />
 </p>
@@ -14,7 +17,7 @@
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
 
 This app is free software.
-Its [source code](https://github.com/ldeso/blitz) is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+Its [source code](https://github.com/ldeso/blitz) is available under the [Apache License 2.0](LICENSES/Apache-2.0.md).
 
 ## Features
 
@@ -46,7 +49,7 @@ It is entirely built with [Jetpack Compose](https://developer.android.com/jetpac
 
 ## Links
 
-[License: Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)
+[License: Apache-2.0](LICENSES/Apache-2.0.md) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)
 
 ## Screenshots
 

@@ -1,4 +1,13 @@
+<!-- Copyright 2024 Léo de Souza -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 ## Changelog
+
+### 1.8.2 (Unreleased)
+
+#### Improvement
+
+- Follow REUSE specification, version 3.0
 
 ### [1.8.1](https://github.com/ldeso/blitz/releases/tag/v1.8.1) (2024-04-11)
 

@@ -1,0 +1,21 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Blitz
+Upstream-Contact: Léo de Souza <hello@leodesouza.net>
+Source: https://blitz.leodesouza.net/
+
+Files: CNAME metadata/*
+License: Apache-2.0
+Copyright: Copyright 2024 Léo de Souza
+
+Files: favicon.ico src/main/res/mipmap-*/ic_launcher.webp
+License: Apache-2.0
+Copyright: Copyright 2024 Léo de Souza
+           Copyright 2019 Google, Inc.
+
+Files: gradle/wrapper/gradle-wrapper.*
+License: Apache-2.0
+Copyright: Copyright 2024 the original author or authors.
+
+Files: gradlew gradlew.bat
+License: Apache-2.0
+Copyright: # Already in the files

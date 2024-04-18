@@ -1,14 +1,24 @@
+# Copyright 2024 Léo de Souza
+# SPDX-License-Identifier: Apache-2.0
+
 title: "Blitz: Fischer Chess Clock"
 
 defaults:
   - scope:
+      path: LICENSES/Apache-2.0.md
+    values:
+      permalink: /license/
+      title: License
+  - scope:
       path: CHANGELOG.md
     values:
       permalink: /changelog/
+      title: Changelog
   - scope:
       path: PRIVACY_POLICY.md
     values:
       permalink: /privacy-policy/
+      title: Privacy Policy
 
 exclude:
   - build.gradle.kts
@@ -18,18 +28,20 @@ exclude:
   - gradlew
   - gradlew.bat
   - LICENSE
-  - metadata/en-US/changelogs
-  - metadata/en-US/images/phoneScreenshots/3.png
-  - metadata/en-US/images/phoneScreenshots/4.png
-  - metadata/en-US/images/sevenInchScreenshots
-  - metadata/en-US/images/tenInchScreenshots
-  - metadata/en-US/images/featureGraphic.png
-  - metadata/en-US/full_description.txt
-  - metadata/en-US/short_description.txt
-  - metadata/en-US/title.txt
-  - metadata/fr-FR
+  - metadata
   - settings.gradle.kts
   - src
+
+include:
+  - 1.png
+  - 2.png
+  - Apache-2.0.md
+  - en-US
+  - icon.png
+  - images
+  - LICENSES
+  - metadata
+  - phoneScreenshots
 
 optional_front_matter:
   remove_originals: true

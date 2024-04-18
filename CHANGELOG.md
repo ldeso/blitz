@@ -10,6 +10,7 @@
 ### Note
 
 - Update website theme
+- Do not hardcode application ID in manifest
 
 ## [1.8.1](https://github.com/ldeso/blitz/releases/tag/v1.8.1) – 2024-04-11
 

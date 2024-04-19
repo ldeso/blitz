@@ -48,11 +48,15 @@ include:
   - 2.png
   - Apache-2.0.md
   - en-US
-  - icon.png
+  - ic_launcher.webp
   - images
   - LICENSES
+  - main
   - metadata
+  - mipmap-xxhdpi
   - phoneScreenshots
+  - res
+  - src
 
 optional_front_matter:
   remove_originals: true

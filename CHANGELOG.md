@@ -15,6 +15,7 @@
 - Remove unnecessary dependency
 - Clarify debian/copyright file
 - Restore title in README.md
+- Improve icons in README.md
 
 ## [1.8.1](https://github.com/ldeso/blitz/releases/tag/v1.8.1) – 2024-04-11
 

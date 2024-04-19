@@ -10,6 +10,7 @@
 
 ### Notes
 
+- Add `@PreviewScreenSizes` annotation
 - Update website theme
 - Do not hardcode application ID in manifest
 - Remove unnecessary dependency

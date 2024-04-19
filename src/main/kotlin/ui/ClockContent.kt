@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.leodesouza.blitz.ui.components.BasicTime
@@ -132,6 +133,7 @@ fun ClockContent(
 
 /** Preview the chess clock screen content in Android Studio. */
 @Preview
+@PreviewScreenSizes
 @Composable
 private fun ClockContentPreview() {
     ClockContent(

@@ -7,6 +7,7 @@
 
 - Follow REUSE specification, version 3.0
 - Use more restrictive privacy policy
+- Update dependencies
 
 ### Notes
 

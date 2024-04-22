@@ -23,7 +23,7 @@ android {
     }
 
     signingConfigs {
-        create("release") {
+        getByName("debug") {
             enableV3Signing = true
             enableV4Signing = true
         }
@@ -34,7 +34,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

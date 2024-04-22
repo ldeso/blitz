@@ -1,6 +1,12 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 1.8.3 – Unreleased
+
+### Note
+
+- Use "debug" signing config instead of creating a new one
+
 ## [1.8.2](https://github.com/ldeso/blitz/releases/tag/v1.8.2) – 2024-04-19
 
 This release adds licensing and copyright information to every file according to the version 3.0 of the REUSE specification, extends "personal data" to "any user data" in the privacy policy, and updates dependencies.

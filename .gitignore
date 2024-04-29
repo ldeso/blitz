@@ -3,11 +3,8 @@
 
 /.idea
 /build
-/release
 /captures
-.cxx
+/release
 .DS_Store
-.externalNativeBuild
 .gradle
 local.properties
-*.iml

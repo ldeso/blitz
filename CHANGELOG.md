@@ -10,6 +10,7 @@
 ### Note
 
 - Use "debug" signing config instead of creating a new one
+- Remove unnecessary lines from .gitignore
 
 ## [1.8.2](https://github.com/ldeso/blitz/releases/tag/v1.8.2) – 2024-04-19
 

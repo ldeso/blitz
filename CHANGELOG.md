@@ -5,6 +5,7 @@
 
 ### Improvement
 
+- Consider system bars and display cutouts when calculating font size
 - Follow REUSE specification, version 3.2
 
 ### Note

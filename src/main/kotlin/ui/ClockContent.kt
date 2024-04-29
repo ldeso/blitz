@@ -13,7 +13,9 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,18 +24,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.window.layout.WindowMetricsCalculator
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
+import kotlin.math.max
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Chess clock screen content consisting of the time of each player in different colors.
@@ -58,12 +59,21 @@ fun ClockContent(
     backEventProgressProvider: () -> Float,
     backEventSwipeEdgeProvider: () -> Int,
 ) {
-    val displayOrientation = LocalConfiguration.current.orientation
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val context = LocalContext.current
     val density = LocalDensity.current
+    val displayOrientation = LocalConfiguration.current.orientation
 
-    val textHeight = screenHeight / if (displayOrientation == ORIENTATION_LANDSCAPE) 3 else 8
+    val windowMetricsCalculator = WindowMetricsCalculator.getOrCreate()
+    val windowSize = windowMetricsCalculator.computeCurrentWindowMetrics(context).bounds
+    val windowHeight = windowSize.height()
+    val windowWidth = windowSize.width()
+
+    val safeDrawingInsets = WindowInsets.safeDrawing
+    val safeDrawingBottom = safeDrawingInsets.getBottom(density)
+    val safeDrawingTop = safeDrawingInsets.getTop(density)
+
+    val safeHeight = windowHeight - 2 * max(safeDrawingBottom, safeDrawingTop)
+    val textHeight = safeHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) 0.4F else 0.12F
     val fontSize = with(density) { textHeight.toSp() }
     val fontWeight = FontWeight.Bold
     val timeOverColor = Color.Red
@@ -91,7 +101,7 @@ fun ClockContent(
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.BLACK,
-                        screenWidth = screenWidth,
+                        windowWidth = windowWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
@@ -112,7 +122,7 @@ fun ClockContent(
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.WHITE,
-                        screenWidth = screenWidth,
+                        windowWidth = windowWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
@@ -133,7 +143,7 @@ fun ClockContent(
  * Set the rotation, translation and opacity of a BasicTime element in a graphics layer scope.
  *
  * @param[isPlaying] Whether the player is currently playing.
- * @param[screenWidth] Current width of the screen in the Dp unit.
+ * @param[windowWidth] Current window width in pixels.
  * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
  * @param[clockState] Current state of the clock.
  * @param[leaningSide] Which side the device is currently leaning towards.
@@ -144,7 +154,7 @@ fun ClockContent(
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
     isPlaying: Boolean,
-    screenWidth: Dp,
+    windowWidth: Int,
     currentlyAdjustedAlpha: Float,
     clockState: ClockState,
     leaningSide: LeaningSide,
@@ -164,7 +174,7 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
         0F
     } else {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
-        sign * backEventProgress * screenWidth.toPx()
+        sign * backEventProgress * windowWidth
     }
 
     alpha = if (clockState == ClockState.PAUSED && isPlaying) {

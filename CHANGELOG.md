@@ -1,7 +1,9 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 1.8.3 – Unreleased
+## [1.8.3](https://github.com/ldeso/blitz/releases/tag/v1.8.3) – 2024-04-29
+
+This release changes the font size according to the size of system bars and display cutouts, and updates licensing and copyright information to the version 3.2 of the REUSE specification.
 
 ### Improvements
 

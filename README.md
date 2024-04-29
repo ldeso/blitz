@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" height="20" width="113" alt="F-Droid badge">
   </a>
   <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz">
-    <img src="https://img.shields.io/badge/Play%20Store-v1.8.2-blue?logo=Google-Play" height="20" width="129" alt="Play Store badge">
+    <img src="https://img.shields.io/badge/Play%20Store-v1.8.3-blue?logo=Google-Play" height="20" width="129" alt="Play Store badge">
   </a>
 </p>
 

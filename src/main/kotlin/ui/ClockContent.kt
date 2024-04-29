@@ -25,8 +25,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.leodesouza.blitz.ui.components.BasicTime
@@ -129,23 +127,6 @@ fun ClockContent(
             timeOverColor = timeOverColor,
         )
     }
-}
-
-/** Preview the chess clock screen content in Android Studio. */
-@Preview
-@PreviewScreenSizes
-@Composable
-private fun ClockContentPreview() {
-    ClockContent(
-        whiteTimeProvider = { 5.minutes + 3.seconds },
-        blackTimeProvider = { 5.minutes + 3.seconds },
-        clockStateProvider = { ClockState.FULL_RESET },
-        playerStateProvider = { PlayerState.WHITE },
-        leaningSideProvider = { LeaningSide.RIGHT },
-        backEventActionProvider = { ClockBackAction.PAUSE },
-        backEventProgressProvider = { 0F },
-        backEventSwipeEdgeProvider = { BackEventCompat.EDGE_LEFT },
-    )
 }
 
 /**

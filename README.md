@@ -3,17 +3,20 @@
 
 <p align="center">
   <a href="https://blitz.leodesouza.net">
-    <img src="src/main/res/mipmap-xxhdpi/ic_launcher.webp" height="144" width="144" alt="App icon" />
+    <img src="src/main/res/mipmap-xxhdpi/ic_launcher.webp" height="144" width="144" alt="App icon">
   </a>
 </p>
 
 <p align="center">
   <a href="https://github.com/ldeso/blitz/releases/latest">
-    <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" height="20" width="109" alt="GitHub badge" /></a>
+    <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" height="20" width="109" alt="GitHub badge">
+  </a>
   <a href="https://f-droid.org/packages/net.leodesouza.blitz/">
-    <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" height="20" width="113" alt="F-Droid badge" /></a>
+    <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" height="20" width="113" alt="F-Droid badge">
+  </a>
   <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz">
-    <img src="https://img.shields.io/badge/Play%20Store-v1.8.2-blue?logo=Google-Play" height="20" width="129" alt="Play Store badge" /></a>
+    <img src="https://img.shields.io/badge/Play%20Store-v1.8.2-blue?logo=Google-Play" height="20" width="129" alt="Play Store badge">
+  </a>
 </p>
 
 # Blitz: Fischer Chess Clock
@@ -58,6 +61,6 @@ It is entirely built with [Jetpack Compose](https://developer.android.com/jetpac
 ## Screenshots
 
 <p align="center">
-  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Screenshot of the initial view" height="622" width="350">&nbsp;&#8203;
-  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Screenshot when time is over" height="622" width="350">&nbsp;
+  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Screenshot of the initial view" height="640" width="360">&nbsp;&#8203;
+  &nbsp;<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Screenshot when time is over" height="640" width="360">&nbsp;
 </p>

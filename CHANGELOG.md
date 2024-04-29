@@ -3,6 +3,10 @@
 
 ## 1.8.3 – Unreleased
 
+### Improvement
+
+- Follow REUSE specification, version 3.2
+
 ### Note
 
 - Use "debug" signing config instead of creating a new one

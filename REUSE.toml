@@ -1,0 +1,21 @@
+# Copyright 2024 Léo de Souza
+# SPDX-License-Identifier: Apache-2.0
+
+version = 1
+
+[[annotations]]
+path = [ "CNAME", "metadata/**" ]
+SPDX-FileCopyrightText = "Copyright 2024 Léo de Souza"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [ "favicon.ico", "src/main/res/mipmap-*dpi/ic_launcher.webp" ]
+SPDX-FileCopyrightText = """
+Copyright 2024 Léo de Souza
+Copyright 2019 Google, Inc."""
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "gradle**"
+SPDX-FileCopyrightText = "Copyright 2024 the original author or authors."
+SPDX-License-Identifier = "Apache-2.0"

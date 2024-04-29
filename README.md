@@ -3,7 +3,7 @@
 
 <p align="center">
   <a href="https://blitz.leodesouza.net">
-    <img src="src/main/res/mipmap-xxhdpi/ic_launcher.webp" height="144" width="144" alt="App icon">
+    <img src="src/main/res/mipmap-xxxhdpi/ic_launcher.webp" height="96" width="96" alt="App icon">
   </a>
 </p>
 

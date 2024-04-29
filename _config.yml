@@ -53,7 +53,7 @@ include:
   - LICENSES
   - main
   - metadata
-  - mipmap-xxhdpi
+  - mipmap-xxxhdpi
   - phoneScreenshots
   - res
   - src

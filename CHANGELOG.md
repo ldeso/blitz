@@ -3,17 +3,18 @@
 
 ## 1.8.3 – Unreleased
 
-### Improvement
+### Improvements
 
 - Consider system bars and display cutouts when calculating font size
 - Follow REUSE specification, version 3.2
 
-### Note
+### Notes
 
 - Use "debug" signing config instead of creating a new one
 - Remove unnecessary lines from .gitignore
 - Remove Compose previews
 - Increase size of screenshots in README.md
+- Use highest resolution app icon in README.md
 
 ## [1.8.2](https://github.com/ldeso/blitz/releases/tag/v1.8.2) – 2024-04-19
 

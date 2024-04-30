@@ -1,7 +1,9 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 1.8.4 – Unreleased
+## [1.8.4](https://github.com/ldeso/blitz/releases/tag/v1.8.4) – 2024-04-30
+
+This release fully enables edge-to-edge in anticipation of the changes that will be introduced in Android 15.
 
 ### Improvement
 

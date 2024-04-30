@@ -7,6 +7,10 @@
 
 - Consider display cutout areas on the long edges of the screen
 
+### Note
+
+- Rename gradle plugins
+
 ## [1.8.3](https://github.com/ldeso/blitz/releases/tag/v1.8.3) – 2024-04-29
 
 This release changes the font size according to the size of system bars and display cutouts, and updates licensing and copyright information to the version 3.2 of the REUSE specification.

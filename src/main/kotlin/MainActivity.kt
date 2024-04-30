@@ -8,6 +8,7 @@ import android.graphics.Color.TRANSPARENT
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -23,7 +24,9 @@ class MainActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(scrim = TRANSPARENT),
             navigationBarStyle = SystemBarStyle.light(scrim = TRANSPARENT, darkScrim = BLACK),
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.attributes.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.attributes.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 

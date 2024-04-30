@@ -28,12 +28,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.window.layout.WindowMetricsCalculator
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.time.Duration
 
 /**
@@ -68,13 +70,20 @@ fun ClockContent(
     val windowHeight = windowSize.height()
     val windowWidth = windowSize.width()
 
-    val safeDrawingInsets = WindowInsets.safeDrawing
-    val safeDrawingBottom = safeDrawingInsets.getBottom(density)
-    val safeDrawingTop = safeDrawingInsets.getTop(density)
+    val windowInsets = WindowInsets.safeDrawing
+    val leftSpace = windowInsets.getLeft(density, LayoutDirection.Ltr)
+    val topSpace = windowInsets.getTop(density)
+    val rightSpace = windowInsets.getRight(density, LayoutDirection.Ltr)
+    val bottomSpace = windowInsets.getBottom(density)
 
-    val safeHeight = windowHeight - 2 * max(safeDrawingBottom, safeDrawingTop)
-    val textHeight = safeHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) 0.4F else 0.12F
-    val fontSize = with(density) { textHeight.toSp() }
+    val safeWidth = windowWidth - 2 * max(leftSpace, rightSpace)
+    val safeHeight = windowHeight - 4 * max(bottomSpace, topSpace)
+
+    val fontSizePx = min(
+        safeWidth * 0.28F,
+        safeHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) 0.42F else 0.14F,
+    )
+    val fontSize = with(density) { fontSizePx.toSp() }
     val fontWeight = FontWeight.Bold
     val timeOverColor = Color.Red
 

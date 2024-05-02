@@ -1,9 +1,15 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 1.8.5 – Unreleased
+
+### Note
+
+- Add non-breaking spaces in CHANGELOG.md
+
 ## [1.8.4](https://github.com/ldeso/blitz/releases/tag/v1.8.4) – 2024-04-30
 
-This release fully enables edge-to-edge in anticipation of the changes that will be introduced in Android 15.
+This release fully enables edge-to-edge in anticipation of the changes that will be introduced in Android 15.
 
 ### Improvement
 
@@ -15,12 +21,12 @@ This release fully enables edge-to-edge in anticipation of the changes that will
 
 ## [1.8.3](https://github.com/ldeso/blitz/releases/tag/v1.8.3) – 2024-04-29
 
-This release changes the font size according to the size of system bars and display cutouts, and updates licensing and copyright information to the version 3.2 of the REUSE specification.
+This release changes the font size according to the size of system bars and display cutouts, and updates licensing and copyright information to the version 3.2 of the REUSE specification.
 
 ### Improvements
 
 - Consider system bars and display cutouts when calculating font size
-- Follow REUSE specification, version 3.2
+- Follow REUSE specification, version 3.2
 
 ### Notes
 
@@ -36,7 +42,7 @@ This release adds licensing and copyright information to every file according to
 
 ### Improvements
 
-- Follow REUSE specification, version 3.0
+- Follow REUSE specification, version 3.0
 - Use more restrictive privacy policy
 - Update dependencies
 
@@ -52,11 +58,11 @@ This release adds licensing and copyright information to every file according to
 
 ## [1.8.1](https://github.com/ldeso/blitz/releases/tag/v1.8.1) – 2024-04-11
 
-This release enables APK Signature Schemes v3 and v4, updates dependencies and adds local tests.
+This release enables APK Signature Schemes v3 and v4, updates dependencies and adds local tests.
 
 ### Improvements
 
-- Enable APK Signature Schemes v3 and v4
+- Enable APK Signature Schemes v3 and v4
 - Update dependencies
 
 ### Notes
@@ -137,11 +143,11 @@ This release makes the time of each player independent from the UI state, which 
 
 ## [1.7.5](https://github.com/ldeso/blitz/releases/tag/v1.7.5) – 2024-03-27
 
-This release disables back gesture animations below Android 14.
+This release disables back gesture animations below Android 14.
 
 ### Improvement
 
-- Do not animate back gestures below Android 14
+- Do not animate back gestures below Android 14
 
 ### Notes
 
@@ -152,7 +158,7 @@ This release disables back gesture animations below Android 14.
 
 ## [1.7.4](https://github.com/ldeso/blitz/releases/tag/v1.7.4) – 2024-03-26
 
-This release fixes a bug introduced in version [1.7.3](#173-2024-03-26) where the time was displayed upside down.
+This release fixes a bug introduced in version [1.7.3](#173-2024-03-26) where the time was displayed upside down.
 
 ### Bug Fix
 
@@ -160,11 +166,11 @@ This release fixes a bug introduced in version [1.7.3](#173-2024-03-26) where th
 
 ## [1.7.3](https://github.com/ldeso/blitz/releases/tag/v1.7.3) – 2024-03-26
 
-This release restores a feature that was removed in version [1.7.2](#172-2024-03-26) where the orientation of the device must cross a threshold of 10 degrees to be able to change the display orientation.
+This release restores a feature that was removed in version [1.7.2](#172-2024-03-26) where the orientation of the device must cross a threshold of 10 degrees to be able to change the display orientation.
 
 ### Bug Fix
 
-- Restore threshold of 10 degrees before changing display orientation
+- Restore threshold of 10 degrees before changing display orientation
 
 ### Note
 
@@ -186,11 +192,11 @@ This release fixes a long-standing bug where the time could be updated in the wr
 
 ## [1.7.1](https://github.com/ldeso/blitz/releases/tag/v1.7.1) – 2024-03-26
 
-This release improves the experience for versions of Android below Android 14 by adding a default value for the starting side of back gestures, which depends on whether the layout is set from left to right or from right to left.
+This release improves the experience for versions of Android below Android 14 by adding a default value for the starting side of back gestures, which depends on whether the layout is set from left to right or from right to left.
 
 ### Improvement
 
-- Provide correct default value for swipe side of back gestures for API < 34
+- Provide correct default value for swipe side of back gestures for API < 34
 
 ### Notes
 
@@ -219,7 +225,7 @@ This release adds a feature that animates the time of the current player when th
 
 ## [1.6.5](https://github.com/ldeso/blitz/releases/tag/v1.6.5) – 2024-03-24
 
-This release fixes a bug introduced in version [1.6.3](#163-2024-03-24) where the time could change before the end of the predictive back gesture animation.
+This release fixes a bug introduced in version [1.6.3](#163-2024-03-24) where the time could change before the end of the predictive back gesture animation.
 
 ### Bug Fix
 
@@ -227,7 +233,7 @@ This release fixes a bug introduced in version [1.6.3](#163-2024-03-24) where th
 
 ## [1.6.4](https://github.com/ldeso/blitz/releases/tag/v1.6.4) – 2024-03-24
 
-This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0](#160-2024-03-24) where the position of the time would not reset when canceling a predictive back gesture.
+This release fixes a long-stanging bug where the clock would sometimes display negative time, as well as a bug introduced in version [1.6.0](#160-2024-03-24) where the position of the time would not reset when canceling a predictive back gesture.
 
 ### Bug Fixes
 
@@ -248,7 +254,7 @@ This release adds a delay to improve the predictive back gesture animation.
 
 ## [1.6.2](https://github.com/ldeso/blitz/releases/tag/v1.6.2) – 2024-03-24
 
-This release fixes a bug introduced in version [1.6.0](#160-2024-03-24) where dragging to change the time would give unexpected values.
+This release fixes a bug introduced in version [1.6.0](#160-2024-03-24) where dragging to change the time would give unexpected values.
 
 ### Bug Fix
 
@@ -256,7 +262,7 @@ This release fixes a bug introduced in version [1.6.0](#160-2024-03-24) where dr
 
 ## [1.6.1](https://github.com/ldeso/blitz/releases/tag/v1.6.1) – 2024-03-24
 
-This release fixes two bugs introduced in version [1.6.0](#160-2024-03-24) that were triggered by predictive back gestures and the clock reaching zero.
+This release fixes two bugs introduced in version [1.6.0](#160-2024-03-24) that were triggered by predictive back gestures and the clock reaching zero.
 
 ### Bug Fixes
 
@@ -337,7 +343,7 @@ This release updates dependencies and refactors the code to hold the state and l
 
 ## [1.5.4](https://github.com/ldeso/blitz/releases/tag/v1.5.4) – 2024-03-14
 
-This release fixes a bug introduced in version [1.5.3](#153-2024-03-14) where per-app languages preferences were not supported anymore.
+This release fixes a bug introduced in version [1.5.3](#153-2024-03-14) where per-app languages preferences were not supported anymore.
 
 ### Bug Fix
 
@@ -360,7 +366,7 @@ This release updates Compose dependencies and introduces the website https://bli
 ### Notes
 
 - Set up https://blitz.leodesouza.net with GitHub Pages
-- Add Apache License 2.0 boilerplate notice
+- Add Apache License 2.0 boilerplate notice
 - Add "Install" section to README.md
 - Add `alt` attribute to images in README.md
 
@@ -383,7 +389,7 @@ This release simplifies the codebase and updates metadata.
 
 ## [1.5.1](https://github.com/ldeso/blitz/releases/tag/v1.5.1) – 2024-03-11
 
-This release fixes a bug introduced in version [1.5.0](#150-2024-03-11) where changing the language would change the default duration and time increment.
+This release fixes a bug introduced in version [1.5.0](#150-2024-03-11) where changing the language would change the default duration and time increment.
 
 ### Bug Fix
 
@@ -405,7 +411,7 @@ This release is a big refactor of the code that tries to follow the principle of
 
 ## [1.4.9](https://github.com/ldeso/blitz/releases/tag/v1.4.9) – 2024-03-06
 
-This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7](#147-2024-03-06).
+This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7](#147-2024-03-06).
 
 ### Enhancement
 
@@ -618,7 +624,7 @@ This release improves compatibility and fixes a bug preventing a reset when both
 
 ### Enhancements
 
-- Set minimum SDK version to 21 (Android 5.0)
+- Set minimum SDK version to 21 (Android 5.0)
 - Enable Gradle configuration cache
 
 ## [1.1.1](https://github.com/ldeso/blitz/releases/tag/v1.1.1) – 2024-02-22
@@ -661,7 +667,7 @@ This release fixes a bug where it would not be possible to reset if one of the t
 
 ### Note
 
-- Use 0L (Long) instead of 0 (Int)
+- Use 0L (Long) instead of 0 (Int)
 
 ## [1.0.5](https://github.com/ldeso/blitz/releases/tag/v1.0.5) – 2024-02-21
 

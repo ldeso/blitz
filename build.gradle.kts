@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 plugins {
+    kotlin("android") version libs.versions.kotlin
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
 }
 
 android {

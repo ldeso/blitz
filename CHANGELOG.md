@@ -3,8 +3,9 @@
 
 ## 1.8.5 – Unreleased
 
-### Note
+### Notes
 
+- Use `PluginDependenciesSpec.kotlin` method for Kotlin Android plugin
 - Add non-breaking spaces in CHANGELOG.md
 
 ## [1.8.4](https://github.com/ldeso/blitz/releases/tag/v1.8.4) – 2024-04-30

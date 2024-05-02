@@ -3,6 +3,12 @@
 
 ## 1.8.5 – Unreleased
 
+This release updates dependencies.
+
+### Improvement
+
+- Update dependencies
+
 ### Notes
 
 - Use `PluginDependenciesSpec.kotlin` method for Kotlin Android plugin

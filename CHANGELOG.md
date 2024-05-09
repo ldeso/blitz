@@ -11,6 +11,7 @@
 
 - Sign release builds from keystore.properties file
 - Generate APK sets with bundletool
+- Add Accrescent to README.md
 
 ## [1.8.5](https://github.com/ldeso/blitz/releases/tag/v1.8.5) – 2024-05-02
 

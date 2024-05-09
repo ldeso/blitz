@@ -1,6 +1,8 @@
 // Copyright 2024 Léo de Souza
 // SPDX-License-Identifier: Apache-2.0
 
+import java.util.Properties
+
 plugins {
     kotlin("android") version libs.versions.kotlin
     alias(libs.plugins.android.application)
@@ -23,7 +25,22 @@ android {
     }
 
     signingConfigs {
-        getByName("debug") {
+        register("release") {
+            val keystorePropertiesFile = file("keystore.properties")
+            if (keystorePropertiesFile.isFile) {
+                val keystoreProperties = Properties()
+                keystoreProperties.load(keystorePropertiesFile.inputStream())
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            } else {
+                val debugSigningConfig = getByName("debug")
+                storeFile = debugSigningConfig.storeFile
+                storePassword = debugSigningConfig.storePassword
+                keyAlias = debugSigningConfig.keyAlias
+                keyPassword = debugSigningConfig.keyPassword
+            }
             enableV3Signing = true
             enableV4Signing = true
         }
@@ -34,7 +51,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs["release"]
         }
     }
 

@@ -7,4 +7,5 @@
 /release
 .DS_Store
 .gradle
+keystore.properties
 local.properties

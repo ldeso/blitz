@@ -7,6 +7,10 @@
 
 - Remove encrypted Dependency Info Block
 
+### Note
+
+- Sign release builds from keystore.properties file
+
 ## [1.8.5](https://github.com/ldeso/blitz/releases/tag/v1.8.5) – 2024-05-02
 
 This release updates dependencies.

@@ -1,6 +1,12 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 1.8.6 – Unreleased
+
+### Improvement
+
+- Remove encrypted Dependency Info Block
+
 ## [1.8.5](https://github.com/ldeso/blitz/releases/tag/v1.8.5) – 2024-05-02
 
 This release updates dependencies.

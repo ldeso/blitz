@@ -8,6 +8,7 @@ androidxComposeBom = "2024.05.00"
 androidxComposeCompiler = "1.5.13"
 androidxLifecycle = "2.7.0"
 androidxWindowManager = "1.2.0"
+bundletoolPlugin = "0.2.4"
 jdk = "17"
 kotlin = "1.9.23"
 kotlinxCoroutines = "1.8.0"
@@ -24,3 +25,4 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+bundletool = { id = "app.accrescent.tools.bundletool", version.ref = "bundletoolPlugin" }

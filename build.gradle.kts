@@ -6,6 +6,7 @@ import java.util.Properties
 plugins {
     kotlin("android") version libs.versions.kotlin
     alias(libs.plugins.android.application)
+    alias(libs.plugins.bundletool)
 }
 
 android {
@@ -67,9 +68,25 @@ android {
         generateLocaleConfig = true
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+}
+
+bundletool {
+    signingConfig {
+        val releaseSigningConfig = android.signingConfigs["release"]
+        storeFile = releaseSigningConfig.storeFile
+        storePassword = releaseSigningConfig.storePassword
+        keyAlias = releaseSigningConfig.keyAlias
+        keyPassword = releaseSigningConfig.keyPassword
     }
 }
 

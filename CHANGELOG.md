@@ -1,7 +1,9 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 1.8.6 – Unreleased
+## [1.8.6](https://github.com/ldeso/blitz/releases/tag/v1.8.6) – 2024-05-09
+
+This release adds Blitz to the Accrescent store and removes the encrypted Dependency Info Block from the signature block of the APK, making the build truly reroducible and resulting in an APK without any proprietary blob.
 
 ### Improvement
 

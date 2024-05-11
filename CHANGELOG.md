@@ -3,8 +3,9 @@
 
 ## 1.8.7 – Unreleased
 
-### Bug Fix
+### Bug Fixes
 
+- Block input during predictive back gesture animation
 - Allow leaving the app with a single back action on pause
 
 ### Note

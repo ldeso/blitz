@@ -7,6 +7,7 @@ import androidx.activity.BackEventCompat
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -68,6 +69,7 @@ fun ClockScreen(
         }
     }
     var backEventAction by remember { mutableStateOf(ClockBackAction.PAUSE) }
+    val isBusy by remember { derivedStateOf { backEventProgress != 0F } }
 
     CallbackHandler(
         clockStateProvider = { clockState },
@@ -90,6 +92,7 @@ fun ClockScreen(
 
     ClockBackHandler(
         clockStateProvider = { clockState },
+        isBusyProvider = { isBusy },
         pause = clockViewModel::pause,
         reset = clockViewModel::reset,
         save = clockViewModel::save,
@@ -105,6 +108,7 @@ fun ClockScreen(
             interactionSource = remember { MutableInteractionSource() },
             clockStateProvider = { clockState },
             leaningSideProvider = { leaningSide },
+            isBusyProvider = { isBusy },
             displayOrientation = displayOrientation,
             layoutDirection = layoutDirection,
             start = {

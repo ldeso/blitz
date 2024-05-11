@@ -6,7 +6,9 @@ package net.leodesouza.blitz.ui
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.animate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -33,6 +35,7 @@ enum class ClockBackAction { PAUSE, RESET }
  * Effect making system back gestures pause or reset the clock.
  *
  * @param[clockStateProvider] Lambda for the current state of the clock.
+ * @param[isBusyProvider] Lambda for whether the clock is currently busy.
  * @param[pause] Callback called to pause the clock.
  * @param[reset] Callback called to reset the clock.
  * @param[save] Callback called to save the time or configuration.
@@ -43,53 +46,56 @@ enum class ClockBackAction { PAUSE, RESET }
 @Composable
 fun ClockBackHandler(
     clockStateProvider: () -> ClockState,
+    isBusyProvider: () -> Boolean,
     pause: () -> Unit,
     reset: () -> Unit,
     save: () -> Unit,
     restore: () -> Unit,
-    updateAction: (ClockBackAction) -> Unit,
-    updateProgress: (Float) -> Unit,
-    updateSwipeEdge: (Int) -> Unit,
+    updateAction: (action: ClockBackAction) -> Unit,
+    updateProgress: (progress: Float) -> Unit,
+    updateSwipeEdge: (swipeEdge: Int) -> Unit,
 ) {
     val clockState = clockStateProvider()
+    val isBusy = isBusyProvider()
 
     PredictiveBackHandler(enabled = clockState != ClockState.FULL_RESET) { backEvent ->
-        // beginning of back gesture
         val action = if (clockState == ClockState.TICKING) {
+            save()
             ClockBackAction.PAUSE
         } else {
             ClockBackAction.RESET
         }
         updateAction(action)
-        if (action == ClockBackAction.PAUSE) save()
 
         try {
             var progress = 0F
-            backEvent.collect {  // during progressive back gesture
+            backEvent.collect {
                 progress = it.progress
                 updateProgress(progress)
                 updateSwipeEdge(it.swipeEdge)
             }
 
-            // completion of back gesture
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                while (progress < 1F) {
-                    delay(1L)
-                    progress += 0.01F
-                    updateProgress(progress)
+                animate(initialValue = progress, targetValue = 1F) { value, _ ->
+                    updateProgress(value)
                 }
                 delay(100L)
             }
             when (action) {
-                ClockBackAction.PAUSE -> pause()
+                ClockBackAction.PAUSE -> run {
+                    pause()
+                    restore()
+                }
+
                 ClockBackAction.RESET -> reset()
             }
-            if (action == ClockBackAction.PAUSE) restore()
 
-        } finally {  // after back gesture
+        } finally {
             updateProgress(0F)
         }
     }
+
+    BackHandler(enabled = isBusy) {}
 }
 
 /**
@@ -99,6 +105,7 @@ fun ClockBackHandler(
  * @param[interactionSource] Mutable interaction source used to dispatch click events.
  * @param[clockStateProvider] Lambda for the current state of the clock.
  * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
+ * @param[isBusyProvider] Lambda for whether the clock is currently busy.
  * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
  * @param[start] Callback called to start the clock.
@@ -111,6 +118,7 @@ fun Modifier.clockInput(
     interactionSource: MutableInteractionSource,
     clockStateProvider: () -> ClockState,
     leaningSideProvider: () -> LeaningSide,
+    isBusyProvider: () -> Boolean,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
     start: () -> Unit,
@@ -119,21 +127,35 @@ fun Modifier.clockInput(
     restore: (addMinutes: Float, addSeconds: Float) -> Unit,
 ): Modifier = then(
     clickable(interactionSource = interactionSource, indication = null) {
-        onClickEvent(clockState = clockStateProvider(), start = start, play = play)
+        onClickEvent(
+            clockState = clockStateProvider(),
+            isBusy = isBusyProvider(),
+            start = start,
+            play = play,
+        )
     }
         .onKeyEvent {
             onKeyEvent(
                 keyEvent = it,
                 clockState = clockStateProvider(),
                 layoutDirection = layoutDirection,
+                isBusy = isBusyProvider(),
                 save = save,
                 restore = restore,
             )
         }
         .pointerInput(Unit) {
             detectHorizontalDragGestures(
-                onDragStart = { onDragStart(clockState = clockStateProvider(), save = save) },
-                onDragEnd = { onDragEnd(clockState = clockStateProvider(), play = play) },
+                onDragStart = {
+                    onDragStart(
+                        clockState = clockStateProvider(), isBusy = isBusyProvider(), save = save,
+                    )
+                },
+                onDragEnd = {
+                    onDragEnd(
+                        clockState = clockStateProvider(), isBusy = isBusyProvider(), play = play,
+                    )
+                },
                 onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
                     onHorizontalDrag(
                         addAmount = dragSensitivity * dragAmount,
@@ -141,6 +163,7 @@ fun Modifier.clockInput(
                         leaningSide = leaningSideProvider(),
                         displayOrientation = displayOrientation,
                         layoutDirection = layoutDirection,
+                        isBusy = isBusyProvider(),
                         restore = restore,
                     )
                 },
@@ -148,8 +171,16 @@ fun Modifier.clockInput(
         }
         .pointerInput(Unit) {
             detectVerticalDragGestures(
-                onDragStart = { onDragStart(clockState = clockStateProvider(), save = save) },
-                onDragEnd = { onDragEnd(clockState = clockStateProvider(), play = play) },
+                onDragStart = {
+                    onDragStart(
+                        clockState = clockStateProvider(), isBusy = isBusyProvider(), save = save,
+                    )
+                },
+                onDragEnd = {
+                    onDragEnd(
+                        clockState = clockStateProvider(), isBusy = isBusyProvider(), play = play,
+                    )
+                },
                 onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
                     onVerticalDrag(
                         addAmount = dragSensitivity * dragAmount,
@@ -157,6 +188,7 @@ fun Modifier.clockInput(
                         leaningSide = leaningSideProvider(),
                         displayOrientation = displayOrientation,
                         layoutDirection = layoutDirection,
+                        isBusy = isBusyProvider(),
                         restore = restore,
                     )
                 },
@@ -168,14 +200,19 @@ fun Modifier.clockInput(
  * Start the clock or switch to the next player on click events.
  *
  * @param[clockState] Current state of the clock.
+ * @param[isBusy] Whether the clock is currently busy.
  * @param[start] Callback called to start the clock.
  * @param[play] Callback called to switch to the next player.
  */
-private fun onClickEvent(clockState: ClockState, start: () -> Unit, play: () -> Unit) {
-    when (clockState) {
-        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> start()
-        ClockState.TICKING -> play()
-        else -> Unit
+private fun onClickEvent(
+    clockState: ClockState, isBusy: Boolean, start: () -> Unit, play: () -> Unit,
+) {
+    if (!isBusy) {
+        when (clockState) {
+            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> start()
+            ClockState.TICKING -> play()
+            else -> Unit
+        }
     }
 }
 
@@ -185,6 +222,7 @@ private fun onClickEvent(clockState: ClockState, start: () -> Unit, play: () -> 
  * @param[keyEvent] The key event to intercept.
  * @param[clockState] Current state of the clock.
  * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
+ * @param[isBusy] Whether the clock is currently busy.
  * @param[save] Callback called to save the time or configuration.
  * @param[restore] Callback called to restore the saved time or configuration.
  */
@@ -192,10 +230,11 @@ private fun onKeyEvent(
     keyEvent: KeyEvent,
     clockState: ClockState,
     layoutDirection: LayoutDirection,
+    isBusy: Boolean,
     save: () -> Unit,
     restore: (addMinutes: Float, addSeconds: Float) -> Unit,
 ): Boolean {
-    if (keyEvent.type == KeyEventType.KeyDown) {
+    if (!isBusy && keyEvent.type == KeyEventType.KeyDown) {
         when (clockState) {
             ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
                 var addMinutes = 0F
@@ -230,12 +269,15 @@ private fun onKeyEvent(
  * Save the current time/configuration if the clock is on pause at the beginning of a drag gesture.
  *
  * @param[clockState] Current state of the clock.
+ * @param[isBusy] Whether the clock is currently busy.
  * @param[save] Callback called to save the time or configuration.
  */
-private fun onDragStart(clockState: ClockState, save: () -> Unit) {
-    when (clockState) {
-        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> save()
-        else -> Unit
+private fun onDragStart(clockState: ClockState, isBusy: Boolean, save: () -> Unit) {
+    if (!isBusy) {
+        when (clockState) {
+            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> save()
+            else -> Unit
+        }
     }
 }
 
@@ -243,10 +285,11 @@ private fun onDragStart(clockState: ClockState, save: () -> Unit) {
  * Switch to the next player if the clock is ticking at the end of a drag gesture.
  *
  * @param[clockState] Current state of the clock.
+ * @param[isBusy] Whether the clock is currently busy.
  * @param[play] Callback called to switch to the next player.
  */
-private fun onDragEnd(clockState: ClockState, play: () -> Unit) {
-    if (clockState == ClockState.TICKING) {
+private fun onDragEnd(clockState: ClockState, isBusy: Boolean, play: () -> Unit) {
+    if (!isBusy && clockState == ClockState.TICKING) {
         play()
     }
 }
@@ -260,6 +303,7 @@ private fun onDragEnd(clockState: ClockState, play: () -> Unit) {
  * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
+ * @param[isBusy] Whether the clock is currently busy.
  * @param[restore] Callback called to restore the saved time or configuration.
  */
 private fun onHorizontalDrag(
@@ -268,29 +312,32 @@ private fun onHorizontalDrag(
     leaningSide: LeaningSide,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
+    isBusy: Boolean,
     restore: (addMinutes: Float, addSeconds: Float) -> Unit,
 ) {
-    when (clockState) {
-        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
-            var addMinutes = 0F
-            var addSeconds = 0F
+    if (!isBusy) {
+        when (clockState) {
+            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
+                var addMinutes = 0F
+                var addSeconds = 0F
 
-            when (displayOrientation) {
-                ORIENTATION_PORTRAIT -> addSeconds = when (leaningSide) {
-                    LeaningSide.LEFT -> addAmount
-                    LeaningSide.RIGHT -> -addAmount
+                when (displayOrientation) {
+                    ORIENTATION_PORTRAIT -> addSeconds = when (leaningSide) {
+                        LeaningSide.LEFT -> addAmount
+                        LeaningSide.RIGHT -> -addAmount
+                    }
+
+                    ORIENTATION_LANDSCAPE -> addMinutes = when (layoutDirection) {
+                        LayoutDirection.Ltr -> addAmount
+                        LayoutDirection.Rtl -> -addAmount
+                    }
                 }
 
-                ORIENTATION_LANDSCAPE -> addMinutes = when (layoutDirection) {
-                    LayoutDirection.Ltr -> addAmount
-                    LayoutDirection.Rtl -> -addAmount
-                }
+                restore(addMinutes, addSeconds)
             }
 
-            restore(addMinutes, addSeconds)
+            else -> Unit
         }
-
-        else -> Unit
     }
 }
 
@@ -303,6 +350,7 @@ private fun onHorizontalDrag(
  * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
+ * @param[isBusy] Whether the clock is currently busy.
  * @param[restore] Callback called to restore the saved time or configuration.
  */
 private fun onVerticalDrag(
@@ -311,29 +359,32 @@ private fun onVerticalDrag(
     leaningSide: LeaningSide,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
+    isBusy: Boolean,
     restore: (addMinutes: Float, addSeconds: Float) -> Unit,
 ) {
-    when (clockState) {
-        ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
-            var addMinutes = 0F
-            var addSeconds = 0F
-            val isLtr = when (layoutDirection) {
-                LayoutDirection.Ltr -> true
-                LayoutDirection.Rtl -> false
-            }
-
-            when (displayOrientation) {
-                ORIENTATION_PORTRAIT -> addMinutes = when (leaningSide) {
-                    LeaningSide.LEFT -> if (isLtr) addAmount else -addAmount
-                    LeaningSide.RIGHT -> if (isLtr) -addAmount else addAmount
+    if (!isBusy) {
+        when (clockState) {
+            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
+                var addMinutes = 0F
+                var addSeconds = 0F
+                val isLtr = when (layoutDirection) {
+                    LayoutDirection.Ltr -> true
+                    LayoutDirection.Rtl -> false
                 }
 
-                ORIENTATION_LANDSCAPE -> addSeconds = -addAmount
+                when (displayOrientation) {
+                    ORIENTATION_PORTRAIT -> addMinutes = when (leaningSide) {
+                        LeaningSide.LEFT -> if (isLtr) addAmount else -addAmount
+                        LeaningSide.RIGHT -> if (isLtr) -addAmount else addAmount
+                    }
+
+                    ORIENTATION_LANDSCAPE -> addSeconds = -addAmount
+                }
+
+                restore(addMinutes, addSeconds)
             }
 
-            restore(addMinutes, addSeconds)
+            else -> Unit
         }
-
-        else -> Unit
     }
 }

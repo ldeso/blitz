@@ -27,15 +27,14 @@ import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.models.ClockState
 
 /** What action is executed by a back gesture. */
-enum class ClockBackAction { PAUSE, RESET_TIME, RESET_CONF }
+enum class ClockBackAction { PAUSE, RESET }
 
 /**
  * Effect making system back gestures pause or reset the clock.
  *
  * @param[clockStateProvider] Lambda for the current state of the clock.
  * @param[pause] Callback called to pause the clock.
- * @param[resetTime] Callback called to reset the time.
- * @param[resetConf] Callback called to reset the configuration.
+ * @param[reset] Callback called to reset the clock.
  * @param[saveTime] Callback called to save the time.
  * @param[restoreSavedTime] Callback called to restore the saved time.
  * @param[updateProgress] Callback called to update the progress of the back gesture.
@@ -45,8 +44,7 @@ enum class ClockBackAction { PAUSE, RESET_TIME, RESET_CONF }
 fun ClockBackHandler(
     clockStateProvider: () -> ClockState,
     pause: () -> Unit,
-    resetTime: () -> Unit,
-    resetConf: () -> Unit,
+    reset: () -> Unit,
     saveTime: () -> Unit,
     restoreSavedTime: () -> Unit,
     updateAction: (ClockBackAction) -> Unit,
@@ -57,10 +55,10 @@ fun ClockBackHandler(
 
     PredictiveBackHandler(enabled = clockState != ClockState.FULL_RESET) { backEvent ->
         // beginning of back gesture
-        val action = when (clockState) {
-            ClockState.TICKING -> ClockBackAction.PAUSE
-            ClockState.PAUSED, ClockState.FINISHED -> ClockBackAction.RESET_TIME
-            else -> ClockBackAction.RESET_CONF
+        val action = if (clockState == ClockState.TICKING) {
+            ClockBackAction.PAUSE
+        } else {
+            ClockBackAction.RESET
         }
         updateAction(action)
         if (action == ClockBackAction.PAUSE) saveTime()
@@ -84,13 +82,12 @@ fun ClockBackHandler(
             }
             when (action) {
                 ClockBackAction.PAUSE -> pause()
-                ClockBackAction.RESET_TIME -> resetTime()
-                ClockBackAction.RESET_CONF -> resetConf()
+                ClockBackAction.RESET -> reset()
             }
             if (action == ClockBackAction.PAUSE) restoreSavedTime()
 
-        } finally {
-            updateProgress(0F)  // after back gesture
+        } finally {  // after back gesture
+            updateProgress(0F)
         }
     }
 }

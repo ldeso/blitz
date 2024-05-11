@@ -144,22 +144,20 @@ class ClockViewModel(
         _clockState.value = ClockState.PAUSED
     }
 
-    fun resetTime() {
+    fun reset() {
         tickingJob?.cancel()
+        if (_clockState.value == ClockState.SOFT_RESET) {
+            duration = defaultDuration
+            increment = defaultIncrement
+        }
         _whiteTime.value = duration + increment
         _blackTime.value = duration + increment
         _playerState.value = PlayerState.WHITE
-        _clockState.value = ClockState.SOFT_RESET
-    }
-
-    fun resetConf() {
-        tickingJob?.cancel()
-        duration = defaultDuration
-        increment = defaultIncrement
-        _whiteTime.value = duration + increment
-        _blackTime.value = duration + increment
-        _playerState.value = PlayerState.WHITE
-        _clockState.value = ClockState.FULL_RESET
+        _clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
+            ClockState.FULL_RESET
+        } else {
+            ClockState.SOFT_RESET
+        }
     }
 
     fun saveTime() {

@@ -91,8 +91,7 @@ fun ClockScreen(
     ClockBackHandler(
         clockStateProvider = { clockState },
         pause = clockViewModel::pause,
-        resetTime = clockViewModel::resetTime,
-        resetConf = clockViewModel::resetConf,
+        reset = clockViewModel::reset,
         saveTime = clockViewModel::saveTime,
         restoreSavedTime = { clockViewModel.restoreSavedTime(isDecimalRestored = true) },
         updateAction = { backEventAction = it },

@@ -101,22 +101,37 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `saveConf-restoreSavedConf-resetConf, clockState is FULL_RESET`() = runTest {
+    fun `saveConf-restoreSavedConf-reset, clockState is FULL_RESET`() = runTest {
         clockViewModel.saveConf()
         clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
-        clockViewModel.resetConf()
+        clockViewModel.reset()
 
         assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `saveConf-restoreSavedConf-resetConf, whiteTime and blackTime are reset`() = runTest {
+    fun `saveConf-restoreSavedConf-start-advance-reset, clockState is SOFT_RESET`() = runTest {
         clockViewModel.saveConf()
         clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
-        clockViewModel.resetConf()
+        clockViewModel.start()
+        advanceTimeBy(delayTime)
+        clockViewModel.reset()
 
-        assertEquals(initialTime, clockViewModel.whiteTime.value)
-        assertEquals(initialTime, clockViewModel.blackTime.value)
+        assertEquals(ClockState.SOFT_RESET, clockViewModel.clockState.value)
+    }
+
+    @Test
+    fun `saveConf-restoreSavedConf-start-advance-reset-reset, clockState is FULL_RESET`() {
+        runTest {
+            clockViewModel.saveConf()
+            clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
+            clockViewModel.start()
+            advanceTimeBy(delayTime)
+            clockViewModel.reset()
+            clockViewModel.reset()
+
+            assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
+        }
     }
 
     @Test
@@ -268,34 +283,34 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-advance-play-advance-resetTime, clockState is SOFT_RESET`() = runTest {
+    fun `start-advance-play-advance-reset, clockState is FULL_RESET`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.play()
         advanceTimeBy(delayTime)
-        clockViewModel.resetTime()
+        clockViewModel.reset()
 
-        assertEquals(ClockState.SOFT_RESET, clockViewModel.clockState.value)
+        assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `start-advance-play-advance-resetTime, playerState is WHITE`() = runTest {
+    fun `start-advance-play-advance-reset, playerState is WHITE`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.play()
         advanceTimeBy(delayTime)
-        clockViewModel.resetTime()
+        clockViewModel.reset()
 
         assertEquals(PlayerState.WHITE, clockViewModel.playerState.value)
     }
 
     @Test
-    fun `start-advance-play-advance-resetTime, whiteTime and blackTime are reset`() = runTest {
+    fun `start-advance-play-advance-reset, whiteTime and blackTime are reset`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.play()
         advanceTimeBy(delayTime)
-        clockViewModel.resetTime()
+        clockViewModel.reset()
 
         assertEquals(initialTime, clockViewModel.whiteTime.value)
         assertEquals(initialTime, clockViewModel.blackTime.value)

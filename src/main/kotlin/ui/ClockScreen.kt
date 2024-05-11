@@ -92,8 +92,8 @@ fun ClockScreen(
         clockStateProvider = { clockState },
         pause = clockViewModel::pause,
         reset = clockViewModel::reset,
-        saveTime = clockViewModel::saveTime,
-        restoreSavedTime = { clockViewModel.restoreSavedTime(isDecimalRestored = true) },
+        save = clockViewModel::save,
+        restore = { clockViewModel.restore(isDecimalRestored = true) },
         updateAction = { backEventAction = it },
         updateProgress = { backEventProgress = it },
         updateSwipeEdge = { backEventSwipeEdge = it },
@@ -112,10 +112,8 @@ fun ClockScreen(
                 clockViewModel.start()
             },
             play = clockViewModel::play,
-            saveTime = clockViewModel::saveTime,
-            saveConf = clockViewModel::saveConf,
-            restoreSavedTime = clockViewModel::restoreSavedTime,
-            restoreSavedConf = clockViewModel::restoreSavedConf,
+            save = clockViewModel::save,
+            restore = clockViewModel::restore,
         ),
     ) {
         ClockContent(

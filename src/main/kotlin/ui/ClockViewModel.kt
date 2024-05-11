@@ -64,18 +64,18 @@ class ClockViewModel(
             PlayerState.BLACK -> _blackTime.value = time
         }
 
-    private var savedMinutes: Float = durationMinutes.toFloat()
+    private var savedTimeMinutes: Float = durationMinutes.toFloat()
         set(minutes) {
-            val seconds = savedSeconds.roundToInt()
+            val seconds = savedTimeSeconds.roundToInt()
             field = minutes.coerceIn(
                 minimumValue = (-seconds / 60).toFloat() + if (seconds % 60 == 0) 1F else 0F,
                 maximumValue = (599 - seconds / 60).toFloat(),
             )
         }
 
-    private var savedSeconds: Float = incrementSeconds.toFloat()
+    private var savedTimeSeconds: Float = incrementSeconds.toFloat()
         set(seconds) {
-            val minutes = savedMinutes.roundToInt()
+            val minutes = savedTimeMinutes.roundToInt()
             field = seconds.coerceIn(
                 minimumValue = (1 - minutes * 60).toFloat(),
                 maximumValue = (35_999 - minutes * 60).toFloat(),
@@ -160,53 +160,54 @@ class ClockViewModel(
         }
     }
 
-    fun saveTime() {
-        currentTime.toComponents { minutes, seconds, nanoseconds ->
-            savedMinutes = minutes.toFloat()
-            savedSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F
+    fun save() {
+        when (_clockState.value) {
+            ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
+                savedDurationMinutes = duration.inWholeMinutes.toFloat()
+                savedIncrementSeconds = increment.inWholeSeconds.toFloat()
+            }
+            else -> currentTime.toComponents { minutes, seconds, nanoseconds ->
+                savedTimeMinutes = minutes.toFloat()
+                savedTimeSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F
+            }
         }
     }
 
-    fun saveConf() {
-        savedDurationMinutes = duration.inWholeMinutes.toFloat()
-        savedIncrementSeconds = increment.inWholeSeconds.toFloat()
-    }
-
-    fun restoreSavedTime(
+    fun restore(
         addMinutes: Float = 0F, addSeconds: Float = 0F, isDecimalRestored: Boolean = false,
     ) {
-        savedMinutes += addMinutes
-        savedSeconds += addSeconds
-        val newMinutes = savedMinutes.roundToInt().minutes
-        val newSeconds = if (isDecimalRestored) {
-            (savedSeconds * 1_000F).roundToInt().milliseconds
+        if (_clockState.value == ClockState.PAUSED) {
+            savedTimeMinutes += addMinutes
+            savedTimeSeconds += addSeconds
+            val newMinutes = savedTimeMinutes.roundToInt().minutes
+            val newSeconds = if (isDecimalRestored) {
+                (savedTimeSeconds * 1_000F).roundToInt().milliseconds
+            } else {
+                savedTimeSeconds.roundToInt().seconds
+            }
+            val newTime = newMinutes + newSeconds
+            val timeUpdateSign = if ((newTime - currentTime).isPositive()) 1F else -1F
+            val isValidMinutesUpdate = addMinutes.sign == timeUpdateSign
+            val isValidSecondsUpdate = addSeconds.sign == timeUpdateSign
+            val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F
+            if (isValidMinutesUpdate || isValidSecondsUpdate || isNotAnUpdate) {
+                currentTime = newTime
+                endMark = timeSource.markNow() + newTime
+            }
         } else {
-            savedSeconds.roundToInt().seconds
-        }
-        val newTime = newMinutes + newSeconds
-        val timeUpdateSign = if ((newTime - currentTime).isPositive()) 1F else -1F
-        val isValidMinutesUpdate = addMinutes.sign == timeUpdateSign
-        val isValidSecondsUpdate = addSeconds.sign == timeUpdateSign
-        val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F
-        if (isValidMinutesUpdate || isValidSecondsUpdate || isNotAnUpdate) {
-            currentTime = newTime
-            endMark = timeSource.markNow() + newTime
-        }
-    }
-
-    fun restoreSavedConf(addMinutes: Float = 0F, addSeconds: Float = 0F) {
-        tickingJob?.cancel()
-        savedDurationMinutes += addMinutes
-        savedIncrementSeconds += addSeconds
-        duration = savedDurationMinutes.roundToInt().minutes
-        increment = savedIncrementSeconds.roundToInt().seconds
-        val newTime = duration + increment
-        _whiteTime.value = newTime
-        _blackTime.value = newTime
-        _clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
-            ClockState.FULL_RESET
-        } else {
-            ClockState.SOFT_RESET
+            tickingJob?.cancel()
+            savedDurationMinutes += addMinutes
+            savedIncrementSeconds += addSeconds
+            duration = savedDurationMinutes.roundToInt().minutes
+            increment = savedIncrementSeconds.roundToInt().seconds
+            val newTime = duration + increment
+            _whiteTime.value = newTime
+            _blackTime.value = newTime
+            _clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
+                ClockState.FULL_RESET
+            } else {
+                ClockState.SOFT_RESET
+            }
         }
     }
 }

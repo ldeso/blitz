@@ -69,25 +69,25 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `saveConf-restoreSavedConf, clock state is FULL_RESET if default config`() = runTest {
-        clockViewModel.saveConf()
-        clockViewModel.restoreSavedConf()
+    fun `save-restore, clock state is FULL_RESET if default config`() = runTest {
+        clockViewModel.save()
+        clockViewModel.restore()
 
         assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `saveConf-restoreSavedConf, clock state is SOFT_RESET if custom config`() = runTest {
-        clockViewModel.saveConf()
-        clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
+    fun `save-restore, clock state is SOFT_RESET if custom config`() = runTest {
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
         assertEquals(ClockState.SOFT_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `saveConf-restoreSavedConf, whiteTime and blackTime are set`() = runTest {
-        clockViewModel.saveConf()
-        clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
+    fun `save-restore, whiteTime and blackTime are set`() = runTest {
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
         val newMinutes: Float
         val newSeconds: Float
@@ -101,18 +101,18 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `saveConf-restoreSavedConf-reset, clockState is FULL_RESET`() = runTest {
-        clockViewModel.saveConf()
-        clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
+    fun `save-restore-reset, clockState is FULL_RESET`() = runTest {
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
         clockViewModel.reset()
 
         assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `saveConf-restoreSavedConf-start-advance-reset, clockState is SOFT_RESET`() = runTest {
-        clockViewModel.saveConf()
-        clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
+    fun `save-restore-start-advance-reset, clockState is SOFT_RESET`() = runTest {
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.reset()
@@ -121,17 +121,15 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `saveConf-restoreSavedConf-start-advance-reset-reset, clockState is FULL_RESET`() {
-        runTest {
-            clockViewModel.saveConf()
-            clockViewModel.restoreSavedConf(addMinutes = addMinutes, addSeconds = addSeconds)
-            clockViewModel.start()
-            advanceTimeBy(delayTime)
-            clockViewModel.reset()
-            clockViewModel.reset()
+    fun `save-restore-start-advance-reset-reset, clockState is FULL_RESET`() = runTest {
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
+        clockViewModel.start()
+        advanceTimeBy(delayTime)
+        clockViewModel.reset()
+        clockViewModel.reset()
 
-            assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
-        }
+        assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
     }
 
     @Test
@@ -150,7 +148,7 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-advance, whiteTime is set to next multiple of tickPeriod`() = runTest {
+    fun `start-advance, whiteTime is set to the next multiple of tickPeriod`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
 
@@ -190,23 +188,23 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-advance-pause-saveTime-restoreSavedTime, blackTime does not change`() = runTest {
+    fun `start-advance-pause-save-restore, blackTime does not change`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.pause()
-        clockViewModel.saveTime()
-        clockViewModel.restoreSavedTime(addMinutes = addMinutes, addSeconds = addSeconds)
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
         assertEquals(initialTime, clockViewModel.blackTime.value)
     }
 
     @Test
-    fun `start-advance-pause-saveTime-restoreSavedTime, whiteTime is set not rounded`() = runTest {
+    fun `start-advance-pause-save-restore, whiteTime is set and not rounded`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.pause()
-        clockViewModel.saveTime()
-        clockViewModel.restoreSavedTime(
+        clockViewModel.save()
+        clockViewModel.restore(
             addMinutes = addMinutes, addSeconds = addSeconds, isDecimalRestored = true,
         )
 
@@ -223,12 +221,12 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-advance-pause-saveTime-restoreSavedTime, whiteTime is set rounded`() = runTest {
+    fun `start-advance-pause-save-restore, whiteTime is set and rounded`() = runTest {
         clockViewModel.start()
         advanceTimeBy(delayTime)
         clockViewModel.pause()
-        clockViewModel.saveTime()
-        clockViewModel.restoreSavedTime(addMinutes = addMinutes, addSeconds = addSeconds)
+        clockViewModel.save()
+        clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
         val newMinutes: Float
         val newSeconds: Float
@@ -317,7 +315,7 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-wait, clockState is FINISHED`() = runTest {
+    fun `start-idle, clockState is FINISHED`() = runTest {
         clockViewModel.start()
         advanceUntilIdle()
 
@@ -325,7 +323,7 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-wait, whiteTime is zero`() = runTest {
+    fun `start-idle, whiteTime is zero`() = runTest {
         clockViewModel.start()
         advanceUntilIdle()
 

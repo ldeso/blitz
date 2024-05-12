@@ -8,9 +8,10 @@
 - Block input during predictive back gesture animation
 - Allow leaving the app with a single back action on pause
 
-### Note
+### Notes
 
 - Move save and restore logic to ViewModel
+- Clarify app signature in README.md
 
 ## [1.8.6](https://github.com/ldeso/blitz/releases/tag/v1.8.6) – 2024-05-09
 

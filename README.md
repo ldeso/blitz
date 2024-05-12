@@ -3,8 +3,7 @@
 
 <p align="center">
   <a href="https://blitz.leodesouza.net">
-    <img src="src/main/res/mipmap-xxxhdpi/ic_launcher.webp" width="96" height="96" alt="App icon">
-  </a>
+    <img src="src/main/res/mipmap-xxxhdpi/ic_launcher.webp" width="96" height="96" alt="App icon"></a>
 </p>
 
 <p align="center">
@@ -40,15 +39,15 @@ The app can be installed from four different sources:
   3. [Play Store](https://play.google.com/store/apps/details?id=net.leodesouza.blitz): built and signed by Google who can [modify the app](https://play.google/play-app-signing-terms/) to optimize its performance, security and/or size.
   4. [GitHub](https://github.com/ldeso/blitz/releases/latest): built and signed by the developer.
 
-All sources are using the same private signing key, so the app can be updated using a different source to the one it was installed from.
+As the app is signed using the same private signing key on all sources, it can be updated using a different source to the one it was installed from.
 For example, an app installed from F-Droid can be updated to a newer version downloaded from the Play Store.
 
-<details>
-  <summary>Public key certificate fingerprint</summary>
-
-    6d7fd2715ed21cff64086dc5fcf8820a685a793ebd07d972163d86172babba75
-
-</details>
+<p>
+  <details>
+    <summary>Public key certificate fingerprint</summary>
+    <pre><code>6d7fd2715ed21cff64086dc5fcf8820a685a793ebd07d972163d86172babba75</code></pre>
+  </details>
+</p>
 
 ## About
 

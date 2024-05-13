@@ -166,6 +166,7 @@ class ClockViewModel(
                 savedDurationMinutes = duration.inWholeMinutes.toFloat()
                 savedIncrementSeconds = increment.inWholeSeconds.toFloat()
             }
+
             else -> currentTime.toComponents { minutes, seconds, nanoseconds ->
                 savedTimeMinutes = minutes.toFloat()
                 savedTimeSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F

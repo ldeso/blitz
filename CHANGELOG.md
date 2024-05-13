@@ -1,7 +1,9 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 1.8.7 – Unreleased
+## [1.8.7](https://github.com/ldeso/blitz/releases/tag/v1.8.7) – 2024-05-13
+
+This release fixes two bugs triggered by back actions and slightly simplifies the codebase.
 
 ### Bug Fixes
 

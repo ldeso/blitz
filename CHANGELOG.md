@@ -3,8 +3,9 @@
 
 ## 1.8.8 – Unreleased
 
-### Note
+### Notes
 
+- Fix missing space in French title.txt
 - Apply auto-formatting
 
 ## [1.8.7](https://github.com/ldeso/blitz/releases/tag/v1.8.7) – 2024-05-13

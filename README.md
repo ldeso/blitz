@@ -42,12 +42,10 @@ The app can be installed from four different sources:
 As the app is signed using the same private signing key on all sources, it can be updated using a different source to the one it was installed from.
 For example, an app installed from F-Droid can be updated to a newer version downloaded from the Play Store.
 
-<p>
-  <details>
-    <summary>Public key certificate fingerprint</summary>
-    <pre><code>6d7fd2715ed21cff64086dc5fcf8820a685a793ebd07d972163d86172babba75</code></pre>
-  </details>
-</p>
+<details>
+  <summary>Public key certificate fingerprint</summary>
+  <pre><code>6d7fd2715ed21cff64086dc5fcf8820a685a793ebd07d972163d86172babba75</code></pre>
+</details>
 
 ## About
 

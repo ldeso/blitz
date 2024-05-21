@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Use `includeGroupAndSubgroups` instead of `includeGroupByRegex`
 - Add comments to gradle.properties
 - Fix incorrect element in README.md
 - Fix missing space in French title.txt

@@ -42,7 +42,7 @@ fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
         }
     }
 
-    LifecycleStartEffect(lifecycleOwner) {
+    LifecycleStartEffect(Unit, lifecycleOwner) {
         orientationEventListener.enable()
 
         onStopOrDispose {

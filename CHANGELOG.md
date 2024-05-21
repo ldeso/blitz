@@ -8,6 +8,7 @@
 - Use tabular numerals instead of a monospaced font
 - Adapt text size to default device font
 - Enable memory tagging in asynchronous mode
+- Update dependencies
 
 ### Notes
 

@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,13 +52,14 @@ fun ClockScreen(
         ClockViewModel(durationMinutes, incrementSeconds, tickPeriodMillis)
     },
 ) {
-    val whiteTime by clockViewModel.whiteTime.collectAsStateWithLifecycle()
-    val blackTime by clockViewModel.blackTime.collectAsStateWithLifecycle()
-    val clockState by clockViewModel.clockState.collectAsStateWithLifecycle()
-    val playerState by clockViewModel.playerState.collectAsStateWithLifecycle()
-
+    val lifecycleOwner = LocalLifecycleOwner.current
     val displayOrientation = LocalConfiguration.current.orientation
     val layoutDirection = LocalLayoutDirection.current
+
+    val whiteTime by clockViewModel.whiteTime.collectAsStateWithLifecycle(lifecycleOwner)
+    val blackTime by clockViewModel.blackTime.collectAsStateWithLifecycle(lifecycleOwner)
+    val clockState by clockViewModel.clockState.collectAsStateWithLifecycle(lifecycleOwner)
+    val playerState by clockViewModel.playerState.collectAsStateWithLifecycle(lifecycleOwner)
 
     var orientation by remember { mutableIntStateOf(0) }
     var leaningSide by remember { mutableStateOf(LeaningSide.RIGHT) }

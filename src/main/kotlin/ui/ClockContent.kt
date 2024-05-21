@@ -5,6 +5,8 @@ package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.activity.BackEventCompat
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -82,8 +84,15 @@ fun ClockContent(
     val availableHeight = windowHeight / 2 - 2 * max(bottomPadding, topPadding)
 
     // Text size
-    val sizeToWidthRatio = 0.28F
-    val sizeToHeightRatio = 0.84F
+    val simulatedTextPaint = Paint().apply {
+        typeface = Typeface.DEFAULT_BOLD
+        fontFeatureSettings = "tnum"
+    }
+    val simulatedTextWidth = simulatedTextPaint.measureText("05:03.0 ")
+    val simulatedTextHeight = simulatedTextPaint.fontSpacing
+    val simulatedTextSize = simulatedTextPaint.textSize
+    val sizeToWidthRatio = simulatedTextSize / simulatedTextWidth
+    val sizeToHeightRatio = simulatedTextSize / simulatedTextHeight
     val maxHorizontalTextSize = availableWidth * sizeToWidthRatio
     val maxVerticalTextSize = availableHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) {
         sizeToHeightRatio

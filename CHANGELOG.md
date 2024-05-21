@@ -3,9 +3,10 @@
 
 ## 1.8.8 – Unreleased
 
-### Improvement
+### Improvements
 
 - Use tabular numerals instead of a monospaced font
+- Adapt text size to default device font
 
 ### Notes
 

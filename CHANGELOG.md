@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Simplify declaration of signingConfigs
 - Use `includeGroupAndSubgroups` instead of `includeGroupByRegex`
 - Add comments to gradle.properties
 - Fix incorrect element in README.md

@@ -3,10 +3,19 @@
 
 import java.util.Properties
 
+val keystorePropertiesFile = file("keystore.properties").takeIf { it.isFile }
+val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStream()?.let(::load) }
+
 plugins {
     kotlin("android") version libs.versions.kotlin
     alias(libs.plugins.android.application)
     alias(libs.plugins.bundletool)
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(libs.versions.jdk.get())
+    }
 }
 
 android {
@@ -26,22 +35,13 @@ android {
     }
 
     signingConfigs {
+        val debug by getting
+
         register("release") {
-            val keystorePropertiesFile = file("keystore.properties")
-            if (keystorePropertiesFile.isFile) {
-                val keystoreProperties = Properties()
-                keystoreProperties.load(keystorePropertiesFile.inputStream())
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-            } else {
-                val debugSigningConfig = getByName("debug")
-                storeFile = debugSigningConfig.storeFile
-                storePassword = debugSigningConfig.storePassword
-                keyAlias = debugSigningConfig.keyAlias
-                keyPassword = debugSigningConfig.keyPassword
-            }
+            storeFile = keystoreProperties.getProperty("storeFile")?.let(::file) ?: debug.storeFile
+            storePassword = keystoreProperties.getProperty("storePassword") ?: debug.storePassword
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: debug.keyAlias
+            keyPassword = keystoreProperties.getProperty("keyPassword") ?: debug.keyPassword
             enableV3Signing = true
             enableV4Signing = true
         }
@@ -81,12 +81,13 @@ android {
 }
 
 bundletool {
+    val release by android.signingConfigs
+
     signingConfig {
-        val releaseSigningConfig = android.signingConfigs["release"]
-        storeFile = releaseSigningConfig.storeFile
-        storePassword = releaseSigningConfig.storePassword
-        keyAlias = releaseSigningConfig.keyAlias
-        keyPassword = releaseSigningConfig.keyPassword
+        storeFile = release.storeFile
+        storePassword = release.storePassword
+        keyAlias = release.keyAlias
+        keyPassword = release.keyPassword
     }
 }
 
@@ -100,10 +101,4 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlinx.coroutines.test)
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(libs.versions.jdk.get())
-    }
 }

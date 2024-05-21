@@ -54,8 +54,9 @@ It is entirely built with [Jetpack Compose](https://developer.android.com/jetpac
 
   - Predictive back gestures ([Android 14+](https://developer.android.com/about/versions/13/features/predictive-back-gesture))
   - Per-app language preferences ([Android 13+](https://developer.android.com/about/versions/13/features/app-languages))
+  - Hardware memory tagging ([Android 13+](https://developer.android.com/ndk/guides/arm-mte))
   - Support for right-to-left languages
-  - Precise orientation handling
+  - Precise handling of orientation
   - Keyboard navigation
 
 ## Links

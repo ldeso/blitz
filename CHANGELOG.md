@@ -3,6 +3,10 @@
 
 ## 1.8.8 – Unreleased
 
+### Improvement
+
+- Use tabular numerals instead of a monospaced font
+
 ### Notes
 
 - Simplify declaration of signingConfigs

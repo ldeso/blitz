@@ -4,6 +4,7 @@
 package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.activity.BackEventCompat
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -65,37 +66,47 @@ fun ClockContent(
     val density = LocalDensity.current
     val displayOrientation = LocalConfiguration.current.orientation
 
+    // Total window size
     val windowMetricsCalculator = WindowMetricsCalculator.getOrCreate()
     val windowSize = windowMetricsCalculator.computeCurrentWindowMetrics(context).bounds
-    val windowHeight = windowSize.height()
     val windowWidth = windowSize.width()
+    val windowHeight = windowSize.height()
 
+    // Available size
     val windowInsets = WindowInsets.safeDrawing
-    val leftSpace = windowInsets.getLeft(density, LayoutDirection.Ltr)
-    val topSpace = windowInsets.getTop(density)
-    val rightSpace = windowInsets.getRight(density, LayoutDirection.Ltr)
-    val bottomSpace = windowInsets.getBottom(density)
+    val leftPadding = windowInsets.getLeft(density, LayoutDirection.Ltr)
+    val topPadding = windowInsets.getTop(density)
+    val rightPadding = windowInsets.getRight(density, LayoutDirection.Ltr)
+    val bottomPadding = windowInsets.getBottom(density)
+    val availableWidth = windowWidth - 2 * max(leftPadding, rightPadding)
+    val availableHeight = windowHeight / 2 - 2 * max(bottomPadding, topPadding)
 
-    val safeWidth = windowWidth - 2 * max(leftSpace, rightSpace)
-    val safeHeight = windowHeight - 4 * max(bottomSpace, topSpace)
+    // Text size
+    val sizeToWidthRatio = 0.28F
+    val sizeToHeightRatio = 0.84F
+    val maxHorizontalTextSize = availableWidth * sizeToWidthRatio
+    val maxVerticalTextSize = availableHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) {
+        sizeToHeightRatio
+    } else {
+        sizeToWidthRatio
+    }
+    val textSize = min(maxHorizontalTextSize, maxVerticalTextSize)
 
-    val fontSizePx = min(
-        safeWidth * 0.28F,
-        safeHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) 0.42F else 0.14F,
+    // Text style
+    val textStyle = TextStyle(
+        fontSize = with(density) { textSize.toSp() },
+        fontWeight = FontWeight.Bold,
+        fontFeatureSettings = "tnum",
     )
-    val fontSize = with(density) { fontSizePx.toSp() }
-    val fontWeight = FontWeight.Bold
     val timeOverColor = Color.Red
-
-    val infiniteTransition = rememberInfiniteTransition(label = "OscillatingAlphaTransition")
-    val oscillatingAlpha by infiniteTransition.animateFloat(
+    val oscillatingAlpha by rememberInfiniteTransition(label = "InfiniteTransition").animateFloat(
         initialValue = 1F,
         targetValue = 0.5F,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 500, easing = EaseInOut),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "OscillatingAlphaAnimation",
+        label = "OscillatingAlpha",
     )
 
     Column {
@@ -121,7 +132,7 @@ fun ClockContent(
                     )
                 }
                 .then(reusableItemModifier),
-            style = TextStyle(color = Color.White, fontSize = fontSize, fontWeight = fontWeight),
+            style = textStyle.merge(color = Color.White),
             timeOverColor = timeOverColor,
         )
         BasicTime(
@@ -142,7 +153,7 @@ fun ClockContent(
                     )
                 }
                 .then(reusableItemModifier),
-            style = TextStyle(color = Color.Black, fontSize = fontSize, fontWeight = fontWeight),
+            style = textStyle.merge(color = Color.Black),
             timeOverColor = timeOverColor,
         )
     }
@@ -159,7 +170,7 @@ fun ClockContent(
  * @param[backEventAction] What action is executed by the back gesture.
  * @param[backEventProgress] Progress of the back gesture.
  * @param[backEventSwipeEdge] Swipe edge where the back gesture starts.
- * @param[displayOrientation] The `ORIENTATION_PORTRAIT` or [ORIENTATION_LANDSCAPE] of the display.
+ * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
     isPlaying: Boolean,
@@ -172,23 +183,19 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     backEventSwipeEdge: Int,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
 ) {
-    rotationZ = if (displayOrientation == ORIENTATION_LANDSCAPE) {
-        0F
-    } else when (leaningSide) {
-        LeaningSide.LEFT -> 90F
-        LeaningSide.RIGHT -> -90F
+    if (displayOrientation == ORIENTATION_PORTRAIT) {
+        rotationZ = when (leaningSide) {
+            LeaningSide.LEFT -> 90F
+            LeaningSide.RIGHT -> -90F
+        }
     }
 
-    translationX = if (backEventAction == ClockBackAction.PAUSE && !isPlaying) {
-        0F
-    } else {
+    if (backEventAction != ClockBackAction.PAUSE || isPlaying) {
         val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
-        sign * backEventProgress * windowWidth
+        translationX = sign * backEventProgress * windowWidth
     }
 
-    alpha = if (clockState == ClockState.PAUSED && isPlaying) {
-        currentlyAdjustedAlpha
-    } else {
-        1F
+    if (clockState == ClockState.PAUSED && isPlaying) {
+        alpha = currentlyAdjustedAlpha
     }
 }

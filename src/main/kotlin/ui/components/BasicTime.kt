@@ -3,20 +3,14 @@
 
 package net.leodesouza.blitz.ui.components
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -33,33 +27,19 @@ fun BasicTime(
     timeOverColor: Color = style.color,
 ) {
     val time = 100.milliseconds * floor(timeProvider() / 100.milliseconds)
-    val punctuationStyle = if (time.isPositive()) style else style.merge(color = timeOverColor)
-    val digitStyle = punctuationStyle.merge(fontFamily = FontFamily.Monospace)
-    val hoursText: String
-    val minutesText: String
-    val secondsText: String
-    val decimalText: String
 
-    time.toComponents { hours, minutes, seconds, nanoseconds ->
-        hoursText = hours.toString()
-        minutesText = minutes.toString().padStart(length = 2, padChar = '0')
-        secondsText = seconds.toString().padStart(length = 2, padChar = '0')
-        decimalText = (ceil(nanoseconds / 100_000_000.0).toInt()).toString()
-    }
-
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Row(modifier) {
-            if (time >= 1.hours) {
-                BasicText(text = hoursText, style = digitStyle)
-                BasicText(text = ":", style = punctuationStyle)
+    BasicText(
+        text = time.toComponents { hours, minutes, seconds, nanoseconds ->
+            val paddedMinutes = minutes.toString().padStart(length = 2, padChar = '0')
+            val paddedSeconds = seconds.toString().padStart(length = 2, padChar = '0')
+            if (hours < 1) {
+                val decimal = ceil(nanoseconds / 100_000_000.0).toInt()
+                "$paddedMinutes:$paddedSeconds.$decimal"
+            } else {
+                "$hours:$paddedMinutes:$paddedSeconds"
             }
-            BasicText(text = minutesText, style = digitStyle)
-            BasicText(text = ":", style = punctuationStyle)
-            BasicText(text = secondsText, style = digitStyle)
-            if (time < 1.hours) {
-                BasicText(text = ".", style = punctuationStyle)
-                BasicText(text = decimalText, style = digitStyle)
-            }
-        }
-    }
+        },
+        modifier = modifier,
+        style = style.merge(color = if (time.isPositive()) style.color else timeOverColor),
+    )
 }

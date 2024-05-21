@@ -1,7 +1,9 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 1.8.8 – Unreleased
+## [1.8.8](https://github.com/ldeso/blitz/releases/tag/v1.8.8) – 2024-05-21
+
+This release improves the style of the text, enables hardware memory tagging on compatible devices and updates dependencies.
 
 ### Improvements
 

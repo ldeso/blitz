@@ -3,6 +3,8 @@
 
 package net.leodesouza.blitz.ui
 
+import android.content.Context
+import android.media.AudioManager
 import androidx.activity.BackEventCompat
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -16,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.LayoutDirection
@@ -55,6 +59,8 @@ fun ClockScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val displayOrientation = LocalConfiguration.current.orientation
     val layoutDirection = LocalLayoutDirection.current
+    val audioManager = LocalContext.current.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val haptics = LocalHapticFeedback.current
 
     val whiteTime by clockViewModel.whiteTime.collectAsStateWithLifecycle(lifecycleOwner)
     val blackTime by clockViewModel.blackTime.collectAsStateWithLifecycle(lifecycleOwner)
@@ -113,6 +119,8 @@ fun ClockScreen(
             isBusyProvider = { isBusy },
             displayOrientation = displayOrientation,
             layoutDirection = layoutDirection,
+            audioManager = audioManager,
+            haptics = haptics,
             start = {
                 onClockStart()
                 clockViewModel.start()

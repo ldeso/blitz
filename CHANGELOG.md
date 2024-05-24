@@ -7,6 +7,10 @@
 
 - Provide audible or haptic feedback on click
 
+### Note
+
+- Do not set redundant `layoutInDisplayCutoutMode`
+
 ## [1.8.8](https://github.com/ldeso/blitz/releases/tag/v1.8.8) – 2024-05-21
 
 This release improves the style of the text, enables hardware memory tagging on compatible devices and updates dependencies.

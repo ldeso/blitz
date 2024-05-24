@@ -7,6 +7,10 @@
 
 - Provide audible or haptic feedback on click
 
+### Improvement
+
+- Update dependencies
+
 ### Note
 
 - Do not set redundant `layoutInDisplayCutoutMode`

@@ -23,9 +23,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
+@ExperimentalCoroutinesApi
 class ClockViewModelTest {
     private val scheduler: TestCoroutineScheduler = TestCoroutineScheduler()
     private val duration: Duration = 5.minutes

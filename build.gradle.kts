@@ -8,6 +8,7 @@ val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStrea
 
 plugins {
     kotlin("android") version libs.versions.kotlin
+    kotlin("plugin.compose") version libs.versions.kotlin
     alias(libs.plugins.android.application)
     alias(libs.plugins.bundletool)
 }
@@ -58,10 +59,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
     }
 
     androidResources {

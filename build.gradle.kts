@@ -27,8 +27,8 @@ android {
         applicationId = "net.leodesouza.blitz"
         minSdk = 21
         targetSdk = 34
-        versionCode = 188
-        versionName = "1.8.8"
+        versionCode = 190
+        versionName = "1.9.0"
 
         base {
             archivesName = "${applicationId}_$versionCode"

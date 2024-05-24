@@ -10,9 +10,9 @@
   <a href="https://f-droid.org/packages/net.leodesouza.blitz/">
     <img src="https://img.shields.io/f-droid/v/net.leodesouza.blitz?logo=F-Droid&label=F-Droid" width="113" height="20" alt="F-Droid badge"></a>
   <a href="https://accrescent.app/app/net.leodesouza.blitz">
-    <img src="https://img.shields.io/badge/Accrescent-v1.8.8-blue.svg?logo=data:image/svg+xml;base64,PHN2ZyBmaWxsPSJ3aGl0ZXNtb2tlIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QWNjcmVzY2VudDwvdGl0bGU+PHBhdGggZD0iTTEyIDBBMTIgMTIgMCAwIDAgMCAxMmExMiAxMiAwIDAgMCAxMiAxMiAxMiAxMiAwIDAgMCAxMi0xMkExMiAxMiAwIDAgMCAxMiAwem0tLjMgMi45YTkgOSAwIDAgMSA4LjggNi43IDkgOSAwIDAgMS02LjMgMTFBOSA5IDAgMCAxIDQgMTYuM2E3LjggNy44IDAgMCAwIDUuNi42QTcuOCA3LjggMCAwIDAgMTUgNy40IDcuOCA3LjggMCAwIDAgMTEuNyAzeiIvPjwvc3ZnPg==" width="131" height="20" alt="Accrescent badge"></a>
+    <img src="https://img.shields.io/badge/Accrescent-v1.9.0-blue.svg?logo=data:image/svg+xml;base64,PHN2ZyBmaWxsPSJ3aGl0ZXNtb2tlIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QWNjcmVzY2VudDwvdGl0bGU+PHBhdGggZD0iTTEyIDBBMTIgMTIgMCAwIDAgMCAxMmExMiAxMiAwIDAgMCAxMiAxMiAxMiAxMiAwIDAgMCAxMi0xMkExMiAxMiAwIDAgMCAxMiAwem0tLjMgMi45YTkgOSAwIDAgMSA4LjggNi43IDkgOSAwIDAgMS02LjMgMTFBOSA5IDAgMCAxIDQgMTYuM2E3LjggNy44IDAgMCAwIDUuNi42QTcuOCA3LjggMCAwIDAgMTUgNy40IDcuOCA3LjggMCAwIDAgMTEuNyAzeiIvPjwvc3ZnPg==" width="131" height="20" alt="Accrescent badge"></a>
   <a href="https://play.google.com/store/apps/details?id=net.leodesouza.blitz">
-    <img src="https://img.shields.io/badge/Play%20Store-v1.8.8-blue?logo=Google-Play" width="129" height="20" alt="Play Store badge"></a>
+    <img src="https://img.shields.io/badge/Play%20Store-v1.9.0-blue?logo=Google-Play" width="129" height="20" alt="Play Store badge"></a>
   <a href="https://github.com/ldeso/blitz/releases/latest">
     <img src="https://img.shields.io/github/release/ldeso/blitz.svg?logo=github&label=GitHub" width="109" height="20" alt="GitHub badge"></a>
 </p>

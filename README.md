@@ -26,9 +26,24 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 
 ## Features
 
-  - Defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move).
-  - Total time and increment can be set by horizontal and vertical dragging.
-  - The back action pauses or resets the clock.
+**Fast and intuitive controls**
+
+  - Made for blitz: defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move)
+  - Fast: time and increment are set by horizontal and vertical dragging
+  - Responsive: haptic feedback is enabled by setting the ringtone on vibrate
+  - Intuitive: back gestures pause and reset the clock
+
+**Robust time implementation**
+
+  - Robust: tested with 100% code coverage
+  - Precise: uses the most precise time source available on the device
+  - FIDE-compliant: 5+3 Fischer timing starts at 5:03 (not 5:00)
+
+**Secure and privacy-friendly**
+
+  - Privacy-friendly: no ads, no permissions
+  - Free: open source with reproducible builds
+  - Secure: enforces Android 14 security improvements
 
 ## Install
 
@@ -42,15 +57,15 @@ The app can be installed from four different sources:
 As the app is signed using the same private signing key on all sources, it can be updated using a different source to the one it was installed from.
 For example, an app installed from F-Droid can be updated to a newer version downloaded from the Play Store.
 
-<details>
+<details style="margin-bottom: 15px">
   <summary>Public key certificate fingerprint</summary>
   <pre><code>6d7fd2715ed21cff64086dc5fcf8820a685a793ebd07d972163d86172babba75</code></pre>
 </details>
 
 ## About
 
-This is a native Android app that requires no permission and is compatible with Android 5.0+.
-It is entirely built with [Jetpack Compose](https://developer.android.com/jetpack/compose) and implements:
+This is a native Android app for Android 5.0+.
+It is built with [Jetpack Compose](https://developer.android.com/jetpack/compose) and implements:
 
   - Predictive back gestures ([Android 14+](https://developer.android.com/about/versions/13/features/predictive-back-gesture))
   - Per-app language preferences ([Android 13+](https://developer.android.com/about/versions/13/features/app-languages))

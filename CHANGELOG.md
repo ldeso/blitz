@@ -11,9 +11,10 @@
 
 - Update dependencies
 
-### Note
+### Notes
 
 - Do not set redundant `layoutInDisplayCutoutMode`
+- Improve app description
 
 ## [1.8.8](https://github.com/ldeso/blitz/releases/tag/v1.8.8) – 2024-05-21
 

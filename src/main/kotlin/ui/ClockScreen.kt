@@ -33,8 +33,9 @@ import net.leodesouza.blitz.ui.models.ClockState
 /**
  * Minimalist Fischer chess clock.
  *
- * Default to 5+3 Fischer timing (5 minutes + 3 seconds per move). Total time and increment can be
- * set by horizontal and vertical dragging. The back action pauses or resets the clock.
+ * Default to 5+3 Fischer timing (5 minutes + 3 seconds per move). Time and increment are set by
+ * horizontal and vertical dragging. Back gestures pause and reset the clock. Haptic feedback is
+ * activated by setting the ringtone on vibrate.
  *
  * @param[durationMinutes] Initial time for each player in minutes.
  * @param[incrementSeconds] Time increment in seconds.

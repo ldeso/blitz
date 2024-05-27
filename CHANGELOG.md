@@ -1,6 +1,12 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 1.9.1 – Unreleased
+
+### Note
+
+- Improve app description
+
 ## [1.9.0](https://github.com/ldeso/blitz/releases/tag/v1.9.0) – 2024-05-24
 
 This release adds an audible feedback when players touch the screen at the end of their turn, which becomes a haptic feedback if the ringtone is set to vibrate.

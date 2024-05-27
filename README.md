@@ -26,24 +26,29 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 
 ## Features
 
+**Made for blitz**
+
+  - Defaults to 5+3 Fischer timing: 5 minutes + 3 seconds per move
+  - FIDE-compliant: initial time for 5+3 is 5:03, not 5:00
+  - Privacy-friendly: no ads, no permissions
+
 **Fast and intuitive controls**
 
-  - Made for blitz: defaults to 5+3 Fischer timing (5 minutes + 3 seconds per move)
-  - Fast: time and increment are set by horizontal and vertical dragging
-  - Responsive: haptic feedback is enabled by setting the ringtone on vibrate
-  - Intuitive: back gestures pause and reset the clock
+  - Touching anywhere on the screen switches to the next player
+  - Time and increment are set by horizontal and vertical dragging
+  - Haptic feedback is enabled by setting the ringtone to vibrate
+  - Back gestures pause and reset the clock
 
 **Robust time implementation**
 
-  - Robust: tested with 100% code coverage
-  - Precise: uses the most precise time source available on the device
-  - FIDE-compliant: 5+3 Fischer timing starts at 5:03 (not 5:00)
+  - Uses the most precise time source available on the device
+  - Clock implementation tested with 100% code coverage
 
-**Secure and privacy-friendly**
+**Free and secure**
 
-  - Privacy-friendly: no ads, no permissions
-  - Free: open source with reproducible builds
-  - Secure: enforces Android 14 security improvements
+  - Open source with reproducible builds
+  - Enables memory tagging on compatible devices
+  - Meets Android 14 security requirements
 
 ## Install
 

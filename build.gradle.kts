@@ -53,7 +53,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-            signingConfig = signingConfigs["release"]
+            signingConfig = signingConfigs.named("release").get()
         }
     }
 
@@ -78,7 +78,7 @@ android {
 }
 
 bundletool {
-    val release by android.signingConfigs
+    val release = android.signingConfigs.named("release").get()
 
     signingConfig {
         storeFile = release.storeFile

@@ -3,8 +3,9 @@
 
 ## 1.9.1 – Unreleased
 
-### Note
+### Notes
 
+- Use Gradle task configuration avoidance API
 - Improve app description
 
 ## [1.9.0](https://github.com/ldeso/blitz/releases/tag/v1.9.0) – 2024-05-24

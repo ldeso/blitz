@@ -3,8 +3,9 @@
 
 ## 1.9.1 – Unreleased
 
-### Improvement
+### Improvements
 
+- Enable dependency verification
 - Update dependencies
 
 ### Notes

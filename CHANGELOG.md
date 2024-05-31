@@ -3,6 +3,10 @@
 
 ## 1.9.1 – Unreleased
 
+### Improvement
+
+- Update dependencies
+
 ### Notes
 
 - Use Gradle task configuration avoidance API

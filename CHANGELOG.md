@@ -3,8 +3,9 @@
 
 ## 1.9.2 – Unreleased
 
-### Note
+### Notes
 
+- Trust dependency signing keys globally
 - Improve app description
 
 ## [1.9.1](https://github.com/ldeso/blitz/releases/tag/v1.9.1) – 2024-05-31
@@ -687,7 +688,7 @@ This releases keeps the screen turned on and increases time precision by trackin
 
 - Update dependencies
 - Update JVM bytecode target version
-- Update graddle wrapper
+- Update Gradle wrapper
 - Remove themes.xml
 - Remove tools:targetApi="31" from manifest
 - Add documentation

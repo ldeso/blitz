@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Remove redundant `android.nonTransitiveRClass=true`
 - Trust dependency signing keys globally
 - Improve app description
 

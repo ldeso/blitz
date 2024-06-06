@@ -1,6 +1,12 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 1.9.2 – Unreleased
+
+### Note
+
+- Improve app description
+
 ## [1.9.1](https://github.com/ldeso/blitz/releases/tag/v1.9.1) – 2024-05-31
 
 This release enables [dependency verification](https://docs.gradle.org/current/userguide/dependency_verification.html) in Gradle and updates dependencies.

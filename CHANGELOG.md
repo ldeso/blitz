@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Update Gradle wrapper
 - Add toolchain resolver plugin
 - Remove redundant `android.nonTransitiveRClass=true`
 - Trust dependency signing keys globally

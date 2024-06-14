@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Add Obtainium badge
 - Update Gradle wrapper
 - Add toolchain resolver plugin
 - Remove redundant `android.nonTransitiveRClass=true`

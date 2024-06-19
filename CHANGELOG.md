@@ -9,6 +9,7 @@
 
 ### Notes
 
+- Create io package
 - Move back handlers to the components package
 - Minor code simplifications
 - Add Obtainium badge

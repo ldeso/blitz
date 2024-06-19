@@ -33,6 +33,8 @@ import net.leodesouza.blitz.ui.components.OrientationHandler
 import net.leodesouza.blitz.ui.components.ScopedBackHandler
 import net.leodesouza.blitz.ui.components.ScopedEffectHandler
 import net.leodesouza.blitz.ui.components.SwipeEdge
+import net.leodesouza.blitz.ui.io.clockFeedback
+import net.leodesouza.blitz.ui.io.clockInput
 import net.leodesouza.blitz.ui.models.BackAction
 import net.leodesouza.blitz.ui.models.ClockState
 
@@ -140,13 +142,15 @@ fun ClockScreen(
             isBusyProvider = { isBusy },
             displayOrientation = displayOrientation,
             layoutDirection = layoutDirection,
-            audioManager = audioManager,
-            haptics = haptics,
             start = {
                 onClockStart()
                 clockViewModel.start()
+                clockFeedback(audioManager, haptics)
             },
-            play = clockViewModel::play,
+            play = {
+                clockViewModel.play()
+                clockFeedback(audioManager, haptics)
+            },
             save = clockViewModel::save,
             restore = clockViewModel::restore,
         ),

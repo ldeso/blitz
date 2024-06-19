@@ -1,20 +1,15 @@
 // Copyright 2024 Léo de Souza
 // SPDX-License-Identifier: Apache-2.0
 
-package net.leodesouza.blitz.ui
+package net.leodesouza.blitz.ui.io
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.media.AudioManager
-import android.media.AudioManager.RINGER_MODE_NORMAL
-import android.media.AudioManager.RINGER_MODE_VIBRATE
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -37,8 +32,6 @@ import net.leodesouza.blitz.ui.models.ClockState
  * @param[isBusyProvider] Lambda for whether the clock is currently busy.
  * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
- * @param[audioManager] The interface used to play sound effects.
- * @param[haptics] The interface used to provide haptic feedback.
  * @param[start] Callback called to start the clock.
  * @param[play] Callback called to switch to the next player.
  * @param[save] Callback called to save the time or configuration.
@@ -52,8 +45,6 @@ fun Modifier.clockInput(
     isBusyProvider: () -> Boolean,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
-    audioManager: AudioManager,
-    haptics: HapticFeedback,
     start: () -> Unit,
     play: () -> Unit,
     save: () -> Unit,
@@ -63,8 +54,6 @@ fun Modifier.clockInput(
         onClickEvent(
             clockState = clockStateProvider(),
             isBusy = isBusyProvider(),
-            audioManager = audioManager,
-            haptics = haptics,
             start = start,
             play = play,
         )
@@ -88,11 +77,7 @@ fun Modifier.clockInput(
                 },
                 onDragEnd = {
                     onDragEnd(
-                        clockState = clockStateProvider(),
-                        isBusy = isBusyProvider(),
-                        audioManager = audioManager,
-                        haptics = haptics,
-                        play = play,
+                        clockState = clockStateProvider(), isBusy = isBusyProvider(), play = play,
                     )
                 },
                 onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
@@ -117,11 +102,7 @@ fun Modifier.clockInput(
                 },
                 onDragEnd = {
                     onDragEnd(
-                        clockState = clockStateProvider(),
-                        isBusy = isBusyProvider(),
-                        audioManager = audioManager,
-                        haptics = haptics,
-                        play = play,
+                        clockState = clockStateProvider(), isBusy = isBusyProvider(), play = play,
                     )
                 },
                 onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
@@ -144,31 +125,16 @@ fun Modifier.clockInput(
  *
  * @param[clockState] Current state of the clock.
  * @param[isBusy] Whether the clock is currently busy.
- * @param[audioManager] The interface used to play sound effects.
- * @param[haptics] The interface used to provide haptic feedback.
  * @param[start] Callback called to start the clock.
  * @param[play] Callback called to switch to the next player.
  */
 private fun onClickEvent(
-    clockState: ClockState,
-    isBusy: Boolean,
-    audioManager: AudioManager,
-    haptics: HapticFeedback,
-    start: () -> Unit,
-    play: () -> Unit,
+    clockState: ClockState, isBusy: Boolean, start: () -> Unit, play: () -> Unit,
 ) {
     if (!isBusy) {
         when (clockState) {
-            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
-                start()
-                provideFeedback(audioManager, haptics)
-            }
-
-            ClockState.TICKING -> run {
-                play()
-                provideFeedback(audioManager, haptics)
-            }
-
+            ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> start()
+            ClockState.TICKING -> play()
             ClockState.FINISHED -> Unit
         }
     }
@@ -244,20 +210,11 @@ private fun onDragStart(clockState: ClockState, isBusy: Boolean, save: () -> Uni
  *
  * @param[clockState] Current state of the clock.
  * @param[isBusy] Whether the clock is currently busy.
- * @param[audioManager] The interface used to play sound effects.
- * @param[haptics] The interface used to provide haptic feedback.
  * @param[play] Callback called to switch to the next player.
  */
-private fun onDragEnd(
-    clockState: ClockState,
-    isBusy: Boolean,
-    audioManager: AudioManager,
-    haptics: HapticFeedback,
-    play: () -> Unit,
-) {
+private fun onDragEnd(clockState: ClockState, isBusy: Boolean, play: () -> Unit) {
     if (!isBusy && clockState == ClockState.TICKING) {
         play()
-        provideFeedback(audioManager, haptics)
     }
 }
 
@@ -353,26 +310,5 @@ private fun onVerticalDrag(
 
             else -> Unit
         }
-    }
-}
-
-/**
- * Use the [audioManager] interface to play a sound effect when the ringtone mode is set to
- * [RINGER_MODE_NORMAL], or use the [haptics] interface to provide haptic feedback when
- * the ringtone mode is set to [RINGER_MODE_VIBRATE].
- */
-private fun provideFeedback(audioManager: AudioManager, haptics: HapticFeedback) {
-    when (audioManager.ringerMode) {
-        RINGER_MODE_NORMAL -> with(audioManager) {
-            val streamType = AudioManager.STREAM_MUSIC
-            val volumeIndex = getStreamVolume(streamType).toFloat()
-            if (volumeIndex > 0F) {
-                val maxVolumeIndex = getStreamMaxVolume(streamType).toFloat()
-                val volume = volumeIndex / maxVolumeIndex
-                playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, volume)
-            }
-        }
-
-        RINGER_MODE_VIBRATE -> haptics.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 }

@@ -89,12 +89,6 @@ fun ClockScreen(
     var backEventAction by remember { mutableStateOf(BackAction.PAUSE) }
     val isBusy by remember { derivedStateOf { backEventProgress != 0F } }
 
-    CallbackHandler(
-        clockStateProvider = { clockState },
-        onClockStart = onClockStart,
-        onClockStop = onClockStop,
-    )
-
     OrientationHandler { orientation = it }
 
     LeaningSideHandler(
@@ -133,6 +127,15 @@ fun ClockScreen(
 
     ScopedBackHandler(enabledProvider = { isBusy }) {}
 
+    ScopedEffectHandler(
+        enabledProvider = { clockState == ClockState.TICKING }, effect = onClockStart,
+    )
+
+    ScopedEffectHandler(
+        enabledProvider = { clockState == ClockState.PAUSED || clockState == ClockState.FINISHED },
+        effect = onClockStop,
+    )
+
     Box(
         modifier = Modifier.clockInput(
             dragSensitivity = dragSensitivity,
@@ -165,24 +168,5 @@ fun ClockScreen(
             backEventProgressProvider = { backEventProgress },
             backEventSwipeEdgeProvider = { backEventSwipeEdge },
         )
-    }
-}
-
-/**
- * Effect taking care of calling the callbacks [onClockStart] and [onClockStop] depending on the
- * state of the clock returned by [clockStateProvider].
- */
-@Composable
-private fun CallbackHandler(
-    clockStateProvider: () -> ClockState,
-    onClockStart: () -> Unit,
-    onClockStop: () -> Unit,
-) {
-    val clockState = clockStateProvider()
-
-    when (clockState) {
-        ClockState.TICKING -> onClockStart()
-        ClockState.PAUSED, ClockState.FINISHED -> onClockStop()
-        else -> Unit
     }
 }

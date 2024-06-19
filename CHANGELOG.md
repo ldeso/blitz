@@ -3,6 +3,10 @@
 
 ## 1.9.2 – Unreleased
 
+### Improvement
+
+- Disable backup and restore
+
 ### Notes
 
 - Minor code simplifications

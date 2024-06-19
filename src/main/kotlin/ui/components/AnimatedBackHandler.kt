@@ -31,31 +31,35 @@ fun AnimatedBackHandler(
     onCancellation: suspend () -> Unit = {},
     updateSwipeEdge: (swipeEdge: SwipeEdge) -> Unit = {},
     updateProgress: (progress: Float) -> Unit = {},
-) = PredictiveBackHandler(enabled = enabledProvider()) { backEvent ->
-    onBackStart()
+) {
+    PredictiveBackHandler(enabled = enabledProvider()) { backEvent ->
+        onBackStart()
 
-    try {
-        var progress = 0F
+        try {
+            var progress = 0F
 
-        backEvent.collect {
-            progress = it.progress
-            when (it.swipeEdge) {
-                BackEventCompat.EDGE_LEFT -> updateSwipeEdge(SwipeEdge.LEFT)
-                BackEventCompat.EDGE_RIGHT -> updateSwipeEdge(SwipeEdge.RIGHT)
+            backEvent.collect {
+                progress = it.progress
+                when (it.swipeEdge) {
+                    BackEventCompat.EDGE_LEFT -> updateSwipeEdge(SwipeEdge.LEFT)
+                    BackEventCompat.EDGE_RIGHT -> updateSwipeEdge(SwipeEdge.RIGHT)
+                }
+                updateProgress(progress)
             }
-            updateProgress(progress)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                animate(initialValue = progress, targetValue = 1F) { value, _ ->
+                    updateProgress(value)
+                }
+            }
+
+            onCompletion()
+
+        } catch (e: CancellationException) {
+            onCancellation()
+
+        } finally {
+            updateProgress(0F)
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            animate(initialValue = progress, targetValue = 1F) { value, _ -> updateProgress(value) }
-        }
-
-        onCompletion()
-
-    } catch (e: CancellationException) {
-        onCancellation()
-
-    } finally {
-        updateProgress(0F)
     }
 }

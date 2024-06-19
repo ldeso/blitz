@@ -39,6 +39,7 @@ class ClockViewModel(
     private val defaultDuration: Duration = durationMinutes.minutes
     private val defaultIncrement: Duration = incrementSeconds.seconds
     private val tickPeriodMillis: Long = tickPeriodMillis.toLong()
+
     private var duration: Duration = defaultDuration
     private var increment: Duration = defaultIncrement
     private var endMark: ComparableTimeMark = timeSource.markNow()
@@ -187,7 +188,8 @@ class ClockViewModel(
                 savedTimeSeconds.roundToInt().seconds
             }
             val newTime = newMinutes + newSeconds
-            val timeUpdateSign = if ((newTime - currentTime).isPositive()) 1F else -1F
+            val timeUpdate = newTime - currentTime
+            val timeUpdateSign = if (timeUpdate.isPositive()) 1F else -1F
             val isValidMinutesUpdate = addMinutes.sign == timeUpdateSign
             val isValidSecondsUpdate = addSeconds.sign == timeUpdateSign
             val isNotAnUpdate = addMinutes == 0F && addSeconds == 0F

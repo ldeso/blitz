@@ -1,6 +1,12 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 2.0.2 – Unreleased
+
+### Note
+
+- Minor formatting improvements
+
 ## [2.0.1](https://github.com/ldeso/blitz/releases/tag/v2.0.1) – 2024-06-19
 
 This release fixes a bug introduced in version [2.0.0](#200-2024-06-19) where the clock would not pause properly if the time ended during a back gesture.

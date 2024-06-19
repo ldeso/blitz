@@ -5,7 +5,7 @@ package net.leodesouza.blitz.ui.components
 
 import androidx.compose.runtime.Composable
 
-/** Which side the device is currently leaning towards. */
+/** Whether the device is currently leaning towards its [LEFT] side or its [RIGHT] side. */
 enum class LeaningSide { LEFT, RIGHT }
 
 /**

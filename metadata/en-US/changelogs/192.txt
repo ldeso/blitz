@@ -1,1 +1,2 @@
 • Disable backup and restore
+• Update dependencies

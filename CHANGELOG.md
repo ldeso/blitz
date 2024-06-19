@@ -3,9 +3,10 @@
 
 ## 1.9.2 – Unreleased
 
-### Improvement
+### Improvements
 
 - Disable backup and restore
+- Update dependencies
 
 ### Notes
 

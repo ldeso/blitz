@@ -15,7 +15,7 @@ plugins {
 
 kotlin {
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(libs.versions.jdk.get())
+        languageVersion = JavaLanguageVersion.of(libs.versions.jvmToolchain.get())
     }
 }
 

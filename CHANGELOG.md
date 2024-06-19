@@ -9,6 +9,7 @@
 
 ### Notes
 
+- Move back handlers to the components package
 - Minor code simplifications
 - Add Obtainium badge
 - Update Gradle wrapper

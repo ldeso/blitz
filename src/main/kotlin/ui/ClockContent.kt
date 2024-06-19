@@ -7,7 +7,6 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Paint
 import android.graphics.Typeface
-import androidx.activity.BackEventCompat
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -35,6 +34,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.window.layout.WindowMetricsCalculator
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
+import net.leodesouza.blitz.ui.components.SwipeEdge
+import net.leodesouza.blitz.ui.models.BackAction
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
 import kotlin.math.max
@@ -50,8 +51,8 @@ import kotlin.time.Duration
  * @param[playerStateProvider] Lambda for whether the current player is White or Black.
  * @param[leaningSideProvider] Lambda for which side the device is currently leaning towards.
  * @param[backEventActionProvider] Lambda for what action is executed by the back gesture.
- * @param[backEventProgressProvider] Lambda for the progress of the back gesture.
- * @param[backEventSwipeEdgeProvider] Lambda for the swipe edge where the back gesture starts.
+ * @param[backEventSwipeEdgeProvider] Lambda for which edge the back gesture starts from.
+ * @param[backEventProgressProvider] Lambda for how far along the back gesture is.
  */
 @Composable
 fun ClockContent(
@@ -60,9 +61,9 @@ fun ClockContent(
     clockStateProvider: () -> ClockState,
     playerStateProvider: () -> PlayerState,
     leaningSideProvider: () -> LeaningSide,
-    backEventActionProvider: () -> ClockBackAction,
+    backEventActionProvider: () -> BackAction,
+    backEventSwipeEdgeProvider: () -> SwipeEdge,
     backEventProgressProvider: () -> Float,
-    backEventSwipeEdgeProvider: () -> Int,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -135,8 +136,8 @@ fun ClockContent(
                         clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
                         backEventAction = backEventActionProvider(),
-                        backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
+                        backEventProgress = backEventProgressProvider(),
                         displayOrientation = displayOrientation,
                     )
                 }
@@ -156,8 +157,8 @@ fun ClockContent(
                         clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
                         backEventAction = backEventActionProvider(),
-                        backEventProgress = backEventProgressProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
+                        backEventProgress = backEventProgressProvider(),
                         displayOrientation = displayOrientation,
                     )
                 }
@@ -177,8 +178,8 @@ fun ClockContent(
  * @param[clockState] Current state of the clock.
  * @param[leaningSide] Which side the device is currently leaning towards.
  * @param[backEventAction] What action is executed by the back gesture.
- * @param[backEventProgress] Progress of the back gesture.
- * @param[backEventSwipeEdge] Swipe edge where the back gesture starts.
+ * @param[backEventSwipeEdge] Which edge the back gesture starts from.
+ * @param[backEventProgress] How far along the back gesture is.
  * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
@@ -187,9 +188,9 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     currentlyAdjustedAlpha: Float,
     clockState: ClockState,
     leaningSide: LeaningSide,
-    backEventAction: ClockBackAction,
+    backEventAction: BackAction,
+    backEventSwipeEdge: SwipeEdge,
     backEventProgress: Float,
-    backEventSwipeEdge: Int,
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
 ) {
     if (displayOrientation == ORIENTATION_PORTRAIT) {
@@ -199,12 +200,14 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
         }
     }
 
-    if (backEventAction != ClockBackAction.PAUSE || isPlaying) {
-        val sign = if (backEventSwipeEdge == BackEventCompat.EDGE_RIGHT) -1F else 1F
-        translationX = sign * backEventProgress * windowWidth
+    if (isPlaying || backEventAction != BackAction.PAUSE) {
+        translationX = when (backEventSwipeEdge) {
+            SwipeEdge.RIGHT -> -backEventProgress * windowWidth
+            SwipeEdge.LEFT -> backEventProgress * windowWidth
+        }
     }
 
-    if (clockState == ClockState.PAUSED && isPlaying) {
+    if (isPlaying && clockState == ClockState.PAUSED) {
         alpha = currentlyAdjustedAlpha
     }
 }

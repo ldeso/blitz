@@ -5,7 +5,7 @@ package net.leodesouza.blitz.ui
 
 import android.content.Context
 import android.media.AudioManager
-import androidx.activity.BackEventCompat
+import android.os.Build
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -25,9 +25,15 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
+import net.leodesouza.blitz.ui.components.AnimatedBackHandler
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.LeaningSideHandler
 import net.leodesouza.blitz.ui.components.OrientationHandler
+import net.leodesouza.blitz.ui.components.ScopedBackHandler
+import net.leodesouza.blitz.ui.components.ScopedEffectHandler
+import net.leodesouza.blitz.ui.components.SwipeEdge
+import net.leodesouza.blitz.ui.models.BackAction
 import net.leodesouza.blitz.ui.models.ClockState
 
 /**
@@ -71,14 +77,14 @@ fun ClockScreen(
 
     var orientation by remember { mutableIntStateOf(0) }
     var leaningSide by remember { mutableStateOf(LeaningSide.RIGHT) }
-    var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventSwipeEdge by remember {
         when (layoutDirection) {
-            LayoutDirection.Ltr -> mutableIntStateOf(BackEventCompat.EDGE_LEFT)
-            LayoutDirection.Rtl -> mutableIntStateOf(BackEventCompat.EDGE_RIGHT)
+            LayoutDirection.Ltr -> mutableStateOf(SwipeEdge.LEFT)
+            LayoutDirection.Rtl -> mutableStateOf(SwipeEdge.RIGHT)
         }
     }
-    var backEventAction by remember { mutableStateOf(ClockBackAction.PAUSE) }
+    var backEventProgress by remember { mutableFloatStateOf(0F) }
+    var backEventAction by remember { mutableStateOf(BackAction.PAUSE) }
     val isBusy by remember { derivedStateOf { backEventProgress != 0F } }
 
     CallbackHandler(
@@ -98,17 +104,32 @@ fun ClockScreen(
         }
     }
 
-    ClockBackHandler(
-        clockStateProvider = { clockState },
-        isBusyProvider = { isBusy },
-        pause = clockViewModel::pause,
-        reset = clockViewModel::reset,
-        save = clockViewModel::save,
-        restore = { clockViewModel.restore(isDecimalRestored = true) },
-        updateAction = { backEventAction = it },
-        updateProgress = { backEventProgress = it },
+    AnimatedBackHandler(
+        enabledProvider = { clockState != ClockState.FULL_RESET },
+        onBackStart = {
+            backEventAction = if (clockState == ClockState.TICKING) {
+                clockViewModel.save()
+                BackAction.PAUSE
+            } else {
+                BackAction.RESET
+            }
+        },
+        onCompletion = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                delay(100L)
+            }
+            if (clockState == ClockState.TICKING) {
+                clockViewModel.pause()
+                clockViewModel.restore(isDecimalRestored = true)
+            } else {
+                clockViewModel.reset()
+            }
+        },
         updateSwipeEdge = { backEventSwipeEdge = it },
+        updateProgress = { backEventProgress = it },
     )
+
+    ScopedBackHandler(enabledProvider = { isBusy }) {}
 
     Box(
         modifier = Modifier.clockInput(

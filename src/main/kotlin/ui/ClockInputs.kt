@@ -8,15 +8,10 @@ import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.media.AudioManager
 import android.media.AudioManager.RINGER_MODE_NORMAL
 import android.media.AudioManager.RINGER_MODE_VIBRATE
-import android.os.Build
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.animate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -29,79 +24,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.LayoutDirection
-import kotlinx.coroutines.delay
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.models.ClockState
-
-/** What action is executed by a back gesture. */
-enum class ClockBackAction { PAUSE, RESET }
-
-/**
- * Effect making system back gestures pause or reset the clock.
- *
- * @param[clockStateProvider] Lambda for the current state of the clock.
- * @param[isBusyProvider] Lambda for whether the clock is currently busy.
- * @param[pause] Callback called to pause the clock.
- * @param[reset] Callback called to reset the clock.
- * @param[save] Callback called to save the time or configuration.
- * @param[restore] Callback called to restore the saved time or configuration.
- * @param[updateProgress] Callback called to update the progress of the back gesture.
- * @param[updateSwipeEdge] Callback called to update the swipe edge where the back gesture starts.
- */
-@Composable
-fun ClockBackHandler(
-    clockStateProvider: () -> ClockState,
-    isBusyProvider: () -> Boolean,
-    pause: () -> Unit,
-    reset: () -> Unit,
-    save: () -> Unit,
-    restore: () -> Unit,
-    updateAction: (action: ClockBackAction) -> Unit,
-    updateProgress: (progress: Float) -> Unit,
-    updateSwipeEdge: (swipeEdge: Int) -> Unit,
-) {
-    val clockState = clockStateProvider()
-    val isBusy = isBusyProvider()
-
-    PredictiveBackHandler(enabled = clockState != ClockState.FULL_RESET) { backEvent ->
-        val action = if (clockState == ClockState.TICKING) {
-            save()
-            ClockBackAction.PAUSE
-        } else {
-            ClockBackAction.RESET
-        }
-        updateAction(action)
-
-        try {
-            var progress = 0F
-            backEvent.collect {
-                progress = it.progress
-                updateProgress(progress)
-                updateSwipeEdge(it.swipeEdge)
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                animate(initialValue = progress, targetValue = 1F) { value, _ ->
-                    updateProgress(value)
-                }
-                delay(100L)
-            }
-            when (action) {
-                ClockBackAction.PAUSE -> run {
-                    pause()
-                    restore()
-                }
-
-                ClockBackAction.RESET -> reset()
-            }
-
-        } finally {
-            updateProgress(0F)
-        }
-    }
-
-    BackHandler(enabled = isBusy) {}
-}
 
 /**
  * Modifier to control the chess clock through click events, dragging events and key presses.

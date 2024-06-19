@@ -1,7 +1,13 @@
 <!-- Copyright 2024 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 2.0.0 – 2024-06-19
+## 2.0.1 – Unreleased
+
+### Note
+
+- Switch links to HTTPS in README.md
+
+## [2.0.0](https://github.com/ldeso/blitz/releases/tag/v2.0.0) – 2024-06-19
 
 This release targets Android 15, removes unnecessary backup and restore functionality and updates dependencies. The app is now considered feature-complete. 
 

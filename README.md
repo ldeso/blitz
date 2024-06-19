@@ -50,7 +50,7 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 
   - Open source with reproducible builds
   - Enables memory tagging on compatible devices
-  - Meets Android 14 security requirements
+  - Meets Android 15 security requirements
 
 ## Install
 

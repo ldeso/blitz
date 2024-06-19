@@ -5,6 +5,7 @@
 
 ### Improvements
 
+- Target Android 15
 - Disable backup and restore
 - Update dependencies
 

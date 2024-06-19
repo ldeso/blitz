@@ -83,6 +83,16 @@ android {
     }
 }
 
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                output.outputFileName = "${base.archivesName.get()}.apk"
+            }
+        }
+    }
+}
+
 bundletool {
     val release by android.signingConfigs.existing
 

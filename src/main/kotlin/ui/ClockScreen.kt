@@ -114,11 +114,13 @@ fun ClockScreen(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 delay(100L)
             }
-            if (clockState == ClockState.TICKING) {
-                clockViewModel.pause()
-                clockViewModel.restore(isDecimalRestored = true)
-            } else {
-                clockViewModel.reset()
+            when (backEventAction) {
+                BackAction.PAUSE -> run {
+                    clockViewModel.pause()
+                    clockViewModel.restore(isDecimalRestored = true)
+                }
+
+                BackAction.RESET -> clockViewModel.reset()
             }
         },
         updateSwipeEdge = { backEventSwipeEdge = it },

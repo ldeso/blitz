@@ -1,0 +1,1 @@
+• Fix bug where clock would reset if time ended during back gesture

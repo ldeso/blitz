@@ -3,6 +3,10 @@
 
 ## 2.0.1 – Unreleased
 
+### Bug Fix
+
+- Fix bug where clock would reset if time ended during back gesture
+
 ### Note
 
 - Switch links to HTTPS in README.md

@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Minor code simplifications
 - Add Obtainium badge
 - Update Gradle wrapper
 - Add toolchain resolver plugin

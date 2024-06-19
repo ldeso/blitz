@@ -87,18 +87,16 @@ fun ClockScreen(
         onClockStop = onClockStop,
     )
 
-    OrientationHandler(onOrientationChanged = { orientation = it })
+    OrientationHandler { orientation = it }
 
     LeaningSideHandler(
-        orientationProvider = { orientation },
-        leaningSideProvider = { leaningSide },
-        onLeaningSideChanged = {
-            leaningSide = when (leaningSide) {
-                LeaningSide.LEFT -> LeaningSide.RIGHT
-                LeaningSide.RIGHT -> LeaningSide.LEFT
-            }
-        },
-    )
+        orientationProvider = { orientation }, leaningSideProvider = { leaningSide },
+    ) {
+        leaningSide = when (leaningSide) {
+            LeaningSide.LEFT -> LeaningSide.RIGHT
+            LeaningSide.RIGHT -> LeaningSide.LEFT
+        }
+    }
 
     ClockBackHandler(
         clockStateProvider = { clockState },

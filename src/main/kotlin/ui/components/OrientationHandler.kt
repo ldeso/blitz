@@ -34,9 +34,7 @@ fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
 
     val orientationEventListener = object : OrientationEventListener(context) {
         override fun onOrientationChanged(orientation: Int) {
-            if (orientation == ORIENTATION_UNKNOWN) {
-                return
-            } else {
+            if (orientation != ORIENTATION_UNKNOWN) {
                 currentOnOrientationChanged((orientation + rotation) % 360)
             }
         }
@@ -45,8 +43,6 @@ fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
     LifecycleStartEffect(Unit, lifecycleOwner) {
         orientationEventListener.enable()
 
-        onStopOrDispose {
-            orientationEventListener.disable()
-        }
+        onStopOrDispose { orientationEventListener.disable() }
     }
 }

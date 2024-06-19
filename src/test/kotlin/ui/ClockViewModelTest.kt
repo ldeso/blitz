@@ -88,13 +88,11 @@ class ClockViewModelTest {
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
-        val newMinutes: Float
-        val newSeconds: Float
-        initialTime.toComponents { minutes, seconds, nanoseconds ->
-            newMinutes = minutes.toFloat() + addMinutes
-            newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
+        val expectedTime = initialTime.toComponents { minutes, seconds, nanoseconds ->
+            val newMinutes = minutes.toFloat() + addMinutes
+            val newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
+            newMinutes.roundToInt().minutes + newSeconds.roundToInt().seconds
         }
-        val expectedTime = newMinutes.roundToInt().minutes + newSeconds.roundToInt().seconds
         assertEquals(expectedTime, clockViewModel.whiteTime.value)
         assertEquals(expectedTime, clockViewModel.blackTime.value)
     }
@@ -227,16 +225,12 @@ class ClockViewModelTest {
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
-        val newMinutes: Float
-        val newSeconds: Float
-        (initialTime - delayTime).toComponents { minutes, seconds, nanoseconds ->
-            newMinutes = minutes.toFloat() + addMinutes
-            newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
+        val expectedTime = (initialTime - delayTime).toComponents { minutes, seconds, nanoseconds ->
+            val newMinutes = minutes.toFloat() + addMinutes
+            val newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
+            newMinutes.roundToInt().minutes + newSeconds.roundToInt().seconds
         }
-        assertEquals(
-            newMinutes.roundToInt().minutes + newSeconds.roundToInt().seconds,
-            clockViewModel.whiteTime.value,
-        )
+        assertEquals(expectedTime, clockViewModel.whiteTime.value)
     }
 
     @Test

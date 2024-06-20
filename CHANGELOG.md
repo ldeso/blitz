@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Use static badges for Accrescent and Google Play versions
 - Add comment about origin of app icon in REUSE.toml
 - Minor formatting improvements
 

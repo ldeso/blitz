@@ -3,8 +3,9 @@
 
 ## 2.0.2 – Unreleased
 
-### Note
+### Notes
 
+- Add comment about origin of app icon in REUSE.toml
 - Minor formatting improvements
 
 ## [2.0.1](https://github.com/ldeso/blitz/releases/tag/v2.0.1) – 2024-06-19

@@ -10,6 +10,7 @@ SPDX-License-Identifier = "Apache-2.0"
 
 [[annotations]]
 path = [ "favicon.ico", "src/main/res/mipmap-*dpi/ic_launcher.webp" ]
+SPDX-FileComment = "Adapted from the av_timer glyph in the Material Icons Round font"
 SPDX-FileCopyrightText = """
 Copyright 2024 Léo de Souza
 Copyright 2019 Google, Inc."""

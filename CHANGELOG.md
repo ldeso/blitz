@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Use delegated property to access release signingConfig
 - Move delay after animation back to `AnimatedBackHandler`
 - Use static badges for Accrescent and Google Play versions
 - Add comment about origin of app icon in REUSE.toml

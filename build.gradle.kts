@@ -78,13 +78,13 @@ android {
 }
 
 bundletool {
-    val release = android.signingConfigs.named("release").get()
+    val release by android.signingConfigs.existing
 
     signingConfig {
-        storeFile = release.storeFile
-        storePassword = release.storePassword
-        keyAlias = release.keyAlias
-        keyPassword = release.keyPassword
+        storeFile = release.get().storeFile
+        storePassword = release.get().storePassword
+        keyAlias = release.get().keyAlias
+        keyPassword = release.get().keyPassword
     }
 }
 

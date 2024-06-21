@@ -5,7 +5,6 @@ package net.leodesouza.blitz.ui
 
 import android.content.Context
 import android.media.AudioManager
-import android.os.Build
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -25,7 +24,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.delay
 import net.leodesouza.blitz.ui.components.AnimatedBackHandler
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.LeaningSideHandler
@@ -111,9 +109,6 @@ fun ClockScreen(
             }
         },
         onCompletion = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                delay(100L)
-            }
             when (backEventAction) {
                 BackAction.PAUSE -> run {
                     clockViewModel.pause()

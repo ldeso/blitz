@@ -9,6 +9,7 @@ import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.animate
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 
 /** Which edge the back gesture starts from. */
 enum class SwipeEdge { LEFT, RIGHT }
@@ -51,6 +52,7 @@ fun AnimatedBackHandler(
                 animate(initialValue = progress, targetValue = 1F) { value, _ ->
                     updateProgress(value)
                 }
+                delay(100L)
             }
 
             onCompletion()

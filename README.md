@@ -23,7 +23,7 @@
 
 A minimalist [Fischer chess clock](https://en.wikipedia.org/wiki/Fischer_clock) for Android.
 
-This app is free software.
+This app is [free software](https://www.gnu.org/philosophy/free-sw.html).
 Its [source code](https://github.com/ldeso/blitz) is available under the [Apache License 2.0](LICENSES/Apache-2.0.md).
 
 ## Features
@@ -36,8 +36,8 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 
 **Fast and intuitive controls**
 
-  - Touching anywhere on the screen switches to the next player
-  - Time and increment are set by horizontal and vertical dragging
+  - Touching the screen switches to the next player
+  - Horizontal and vertical dragging set the time and increment
   - Haptic feedback is enabled by setting the ringtone to vibrate
   - Back gestures pause and reset the clock
 
@@ -48,9 +48,9 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 
 **Free and secure**
 
-  - Open source with reproducible builds
-  - Enables memory tagging on compatible devices
+  - Free software with reproducible builds
   - Meets Android 15 security requirements
+  - Enables memory tagging on compatible devices
 
 ## Install
 

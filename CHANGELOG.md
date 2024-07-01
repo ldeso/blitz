@@ -3,6 +3,10 @@
 
 ## 2.0.2 – Unreleased
 
+### Improvement
+
+- Update dependencies
+
 ### Notes
 
 - Improve app description

@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 
@@ -21,7 +20,6 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 @Composable
 fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
     val currentOnOrientationChanged by rememberUpdatedState(onOrientationChanged)
-    val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val display = ContextCompat.getDisplayOrDefault(context)
 
@@ -40,7 +38,7 @@ fun OrientationHandler(onOrientationChanged: (orientation: Int) -> Unit) {
         }
     }
 
-    LifecycleStartEffect(Unit, lifecycleOwner) {
+    LifecycleStartEffect(Unit) {
         orientationEventListener.enable()
 
         onStopOrDispose { orientationEventListener.disable() }

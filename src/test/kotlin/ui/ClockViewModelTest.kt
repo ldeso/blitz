@@ -5,10 +5,9 @@ package net.leodesouza.blitz.ui
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -84,7 +83,7 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `save-restore, whiteTime and blackTime are set`() = runTest {
+    fun `save-restore, whiteTime and blackTime are set correctly`() = runTest {
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
 
@@ -93,6 +92,7 @@ class ClockViewModelTest {
             val newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
             newMinutes.roundToInt().minutes + newSeconds.roundToInt().seconds
         }
+
         assertEquals(expectedTime, clockViewModel.whiteTime.value)
         assertEquals(expectedTime, clockViewModel.blackTime.value)
     }
@@ -107,22 +107,22 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `save-restore-start-advance-reset, clockState is SOFT_RESET`() = runTest {
+    fun `save-restore-start-delay-reset, clockState is SOFT_RESET`() = runTest {
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.reset()
 
         assertEquals(ClockState.SOFT_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `save-restore-start-advance-reset-reset, clockState is FULL_RESET`() = runTest {
+    fun `save-restore-start-delay-reset-reset, clockState is FULL_RESET`() = runTest {
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.reset()
         clockViewModel.reset()
 
@@ -137,57 +137,56 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-advance, blackTime does not change`() = runTest {
+    fun `start-delay, blackTime does not change`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
 
         assertEquals(initialTime, clockViewModel.blackTime.value)
     }
 
     @Test
-    fun `start-advance, whiteTime is set to the next multiple of tickPeriod`() = runTest {
+    fun `start-delay, whiteTime is set to the next multiple of tickPeriod`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
 
-        assertEquals(
-            tickPeriod * (((initialTime - delayTime) / tickPeriod).toInt() + 1),
-            clockViewModel.whiteTime.value,
-        )
+        val expectedTime = tickPeriod * (((initialTime - delayTime) / tickPeriod).toInt() + 1)
+
+        assertEquals(expectedTime, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-pause, clockState is PAUSED`() = runTest {
+    fun `start-delay-pause, clockState is PAUSED`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.pause()
 
         assertEquals(ClockState.PAUSED, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `start-advance-pause, whiteTime is set to exact current value`() = runTest {
+    fun `start-delay-pause, whiteTime is set to exact current value`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.pause()
 
         assertEquals(initialTime - delayTime, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-pause-advance, whiteTime does not change after pause`() = runTest {
+    fun `start-delay-pause-delay, whiteTime does not change after pause`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.pause()
         val expectedTime = clockViewModel.whiteTime.value
-        advanceTimeBy(delayTime)
+        delay(delayTime)
 
         assertEquals(expectedTime, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-pause-save-restore, blackTime does not change`() = runTest {
+    fun `start-delay-pause-save-restore, blackTime does not change`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.pause()
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
@@ -196,31 +195,28 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-advance-pause-save-restore, whiteTime is set and not rounded`() = runTest {
+    fun `start-delay-pause-save-restore, whiteTime is set correctly and not rounded`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.pause()
         clockViewModel.save()
         clockViewModel.restore(
             addMinutes = addMinutes, addSeconds = addSeconds, isDecimalRestored = true,
         )
 
-        val newMinutes: Float
-        val newSeconds: Float
-        (initialTime - delayTime).toComponents { minutes, seconds, nanoseconds ->
-            newMinutes = minutes.toFloat() + addMinutes
-            newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
+        val expectedTime = (initialTime - delayTime).toComponents { minutes, seconds, nanoseconds ->
+            val newMinutes = minutes.toFloat() + addMinutes
+            val newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
+            newMinutes.roundToInt().minutes + (newSeconds * 1_000F).roundToInt().milliseconds
         }
-        assertEquals(
-            newMinutes.roundToInt().minutes + (newSeconds * 1_000F).roundToInt().milliseconds,
-            clockViewModel.whiteTime.value,
-        )
+
+        assertEquals(expectedTime, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-pause-save-restore, whiteTime is set and rounded`() = runTest {
+    fun `start-delay-pause-save-restore, whiteTime is set correctly and rounded`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.pause()
         clockViewModel.save()
         clockViewModel.restore(addMinutes = addMinutes, addSeconds = addSeconds)
@@ -230,77 +226,78 @@ class ClockViewModelTest {
             val newSeconds = seconds.toFloat() + nanoseconds.toFloat() / 1_000_000_000F + addSeconds
             newMinutes.roundToInt().minutes + newSeconds.roundToInt().seconds
         }
+
         assertEquals(expectedTime, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-play, playerState is BLACK`() = runTest {
+    fun `start-delay-play, playerState is BLACK`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
 
         assertEquals(PlayerState.BLACK, clockViewModel.playerState.value)
     }
 
     @Test
-    fun `start-advance-play, whiteTime is set to exact current value plus increment`() = runTest {
+    fun `start-delay-play, whiteTime is set to exact current value plus increment`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
 
         assertEquals(initialTime - delayTime + increment, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-play-advance, whiteTime does not change after play`() = runTest {
+    fun `start-delay-play-delay, whiteTime does not change after play`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
         val expectedWhiteTime = clockViewModel.whiteTime.value
-        advanceTimeBy(delayTime)
+        delay(delayTime)
 
         assertEquals(expectedWhiteTime, clockViewModel.whiteTime.value)
     }
 
     @Test
-    fun `start-advance-play-advance-play, playerState is WHITE`() = runTest {
+    fun `start-delay-play-delay-play, playerState is WHITE`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
 
         assertEquals(PlayerState.WHITE, clockViewModel.playerState.value)
     }
 
     @Test
-    fun `start-advance-play-advance-reset, clockState is FULL_RESET`() = runTest {
+    fun `start-delay-play-delay-reset, clockState is FULL_RESET`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.reset()
 
         assertEquals(ClockState.FULL_RESET, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `start-advance-play-advance-reset, playerState is WHITE`() = runTest {
+    fun `start-delay-play-delay-reset, playerState is WHITE`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.reset()
 
         assertEquals(PlayerState.WHITE, clockViewModel.playerState.value)
     }
 
     @Test
-    fun `start-advance-play-advance-reset, whiteTime and blackTime are reset`() = runTest {
+    fun `start-delay-play-delay-reset, whiteTime and blackTime are reset`() = runTest {
         clockViewModel.start()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.play()
-        advanceTimeBy(delayTime)
+        delay(delayTime)
         clockViewModel.reset()
 
         assertEquals(initialTime, clockViewModel.whiteTime.value)
@@ -308,17 +305,17 @@ class ClockViewModelTest {
     }
 
     @Test
-    fun `start-idle, clockState is FINISHED`() = runTest {
+    fun `start-wait, clockState is FINISHED`() = runTest {
         clockViewModel.start()
-        advanceUntilIdle()
+        delay(initialTime + 1.milliseconds)
 
         assertEquals(ClockState.FINISHED, clockViewModel.clockState.value)
     }
 
     @Test
-    fun `start-idle, whiteTime is zero`() = runTest {
+    fun `start-wait, whiteTime is zero`() = runTest {
         clockViewModel.start()
-        advanceUntilIdle()
+        delay(initialTime + 1.milliseconds)
 
         assertEquals(Duration.ZERO, clockViewModel.whiteTime.value)
     }

@@ -5,6 +5,7 @@
 
 ### Notes
 
+- Do not use manual execution control in local tests
 - Fix anchor links in CHANGELOG.md
 - Improve app description
 - Use delegated property to access release signingConfig

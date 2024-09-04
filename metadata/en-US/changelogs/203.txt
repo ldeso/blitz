@@ -1,0 +1,1 @@
+• Fix bug where time could exceed ten hours and take too much space

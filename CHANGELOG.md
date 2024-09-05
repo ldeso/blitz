@@ -12,6 +12,10 @@
 - Do not color text in red when there is still less than 100 ms left
 - Increase precision by not stopping the clock when switching players
 
+### Note
+
+- Minor formatting improvements
+
 ## [2.0.2](https://github.com/ldeso/blitz/releases/tag/v2.0.2) – 2024-09-01
 
 This release updates dependencies.
@@ -510,7 +514,7 @@ This release fixes a bug introduced in version [1.5.3](#153--2024-03-14) where 
 
 This release updates Compose dependencies and introduces the website https://blitz.leodesouza.net built with GitHub Pages.
 
-### Enhancement
+### Improvement
 
 - Update dependencies
 
@@ -525,7 +529,7 @@ This release updates Compose dependencies and introduces the website https://bli
 
 This release simplifies the codebase and updates metadata.
 
-### Enhancement
+### Improvement
 
 - Store state directly in chess clock model
 
@@ -564,7 +568,7 @@ This release is a big refactor of the code that tries to follow the principle of
 
 This release reverts the behavior of rounding up to nearest second when above one hour that was introduced in version [1.4.7](#147--2024-03-06).
 
-### Enhancement
+### Improvement
 
 - Revert rounding up to nearest second above one hour
 
@@ -580,7 +584,7 @@ This release fixes a bug introduced in the last release where, above one hour, t
 
 This release improves the precision of the counter and of the time display.
 
-### Enhancement
+### Improvement
 
 - Round up to show the current (thenth of a) second
 
@@ -605,7 +609,7 @@ This release is another refactor that makes triggering the next turn more consis
 
 This release vastly increases the sensitivity to touch events when counting down.
 
-### Enhancement
+### Improvement
 
 - Also trigger next turn from drag events
 
@@ -617,7 +621,7 @@ This release vastly increases the sensitivity to touch events when counting down
 
 This release increases the precision and readability of the clock.
 
-### Enhancement
+### Improvement
 
 - Use a bold font to increase readability
 
@@ -629,7 +633,7 @@ This release increases the precision and readability of the clock.
 
 This release is a big refactor of the code handling dragging events, fixing two issues and improving the dragging experience.
 
-### Enhancement
+### Improvement
 
 - Improve single player's time settings ([#3](https://github.com/ldeso/blitz/issues/3))
 
@@ -647,7 +651,7 @@ This release is a big refactor of the code handling dragging events, fixing two 
 
 This release restores the orientation sensor when using reverse portrait mode while avoiding issues when the orientation is locked.
 
-### Enhancement
+### Improvement
 
 - Restore orientation sensor when in reverse portrait
 
@@ -672,7 +676,7 @@ This release adds support for landscape mode and for devices without a touchscre
 - Add true landscape support
 - Add support for devices with only a D-pad controller
 
-### Enhancement
+### Improvement
 
 - Enable per-app language support
 
@@ -704,7 +708,7 @@ This release allows flipping the clock orientation for left-handed players and f
 
 - Flip clock based on orientation for left-handed players
 
-### Enhancements
+### Improvements
 
 - Support right-to-left layout direction
 - Add support for the predictive back gesture
@@ -738,7 +742,7 @@ This releases keeps the screen turned on and increases time precision by trackin
 
 - Keep screen on during countdown
 
-### Enhancement
+### Improvement
 
 - Increase precision by updating time independently from refresh rate
 
@@ -759,7 +763,7 @@ This releases keeps the screen turned on and increases time precision by trackin
 
 This release adds metadata and slightly simplifies the source code.
 
-### Enhancements
+### Improvements
 
 - Add metadata
 - Remove an if block to simplify code
@@ -773,7 +777,7 @@ This release improves compatibility and fixes a bug preventing a reset when both
 
 - Allow reset when times are equal to their initial values
 
-### Enhancements
+### Improvements
 
 - Set minimum SDK version to 21 (Android 5.0)
 - Enable Gradle configuration cache
@@ -803,7 +807,7 @@ This release adds the possibility to select the time period using vertical dragg
 
 This release updates and reduces dependencies, bringing the size of the APK down to 686 KiB.
 
-### Enhancements
+### Improvements
 
 - Use Compose Foundation instead of Material 3
 - Update dependencies
@@ -833,7 +837,7 @@ This release fixes some bugs introduced with the reset functionality.
 
 This release makes it possible to reset the clock with the "back" action when the clock is paused.
 
-### Enhancement
+### Improvement
 
 - Make the "back" action reset a paused clock
 
@@ -846,7 +850,7 @@ This release makes it possible to reset the clock with the "back" action when th
 
 This release enables resource shrinking and app optimization to bring the size of the APK below one megabyte.
 
-### Enhancement
+### Improvement
 
 - Enable resource shrinking and app optimization
 
@@ -854,7 +858,7 @@ This release enables resource shrinking and app optimization to bring the size o
 
 This release improves the app icon.
 
-### Enhancements
+### Improvements
 
 - Implement adaptive icon
 - Remove circular icon

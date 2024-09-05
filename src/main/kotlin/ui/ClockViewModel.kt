@@ -127,7 +127,8 @@ class ClockViewModel(
 
     fun play() {
         tickingJob?.cancel()
-        val remainingTime = endMark - timeSource.markNow()
+        val playMark = timeSource.markNow()
+        val remainingTime = endMark - playMark
         currentTime = (remainingTime + increment).coerceAtMost(35_999.seconds)
         _playerState.update {
             when (it) {
@@ -135,7 +136,7 @@ class ClockViewModel(
                 PlayerState.BLACK -> PlayerState.WHITE
             }
         }
-        endMark = timeSource.markNow() + currentTime
+        endMark = playMark + currentTime
         tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 

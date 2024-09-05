@@ -7,6 +7,10 @@
 
 - Fix bug where time could exceed ten hours and take too much space
 
+### Improvement
+
+- Do not color text in red when there is still less than 100 ms left
+
 ## [2.0.2](https://github.com/ldeso/blitz/releases/tag/v2.0.2) – 2024-09-01
 
 This release updates dependencies.

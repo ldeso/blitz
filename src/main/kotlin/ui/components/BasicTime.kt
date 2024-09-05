@@ -8,10 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import kotlin.math.ceil
-import kotlin.math.floor
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Basic element that displays the time returned by a [timeProvider] in the format "H:MM:SS" or
@@ -26,14 +23,14 @@ fun BasicTime(
     style: TextStyle = TextStyle.Default,
     timeOverColor: Color = style.color,
 ) {
-    val time = 100.milliseconds * floor(timeProvider() / 100.milliseconds)
+    val time = timeProvider()
 
     BasicText(
         text = time.toComponents { hours, minutes, seconds, nanoseconds ->
             val paddedMinutes = minutes.toString().padStart(length = 2, padChar = '0')
             val paddedSeconds = seconds.toString().padStart(length = 2, padChar = '0')
             if (hours < 1) {
-                val decimal = ceil(nanoseconds / 100_000_000.0).toInt()
+                val decimal = nanoseconds.toString().padStart(length = 9, padChar = '0').first()
                 "$paddedMinutes:$paddedSeconds.$decimal"
             } else {
                 "$hours:$paddedMinutes:$paddedSeconds"

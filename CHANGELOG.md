@@ -1,4 +1,4 @@
-<!-- Copyright 2024 Léo de Souza -->
+<!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
 ## 2.0.3 – Unreleased
@@ -13,9 +13,10 @@
 - Increase precision by not stopping the clock when switching players
 - Update dependencies
 
-### Note
+### Notes
 
 - Minor formatting improvements
+- Update copyright year
 
 ## [2.0.2](https://github.com/ldeso/blitz/releases/tag/v2.0.2) – 2024-09-01
 

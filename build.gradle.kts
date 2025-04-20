@@ -21,12 +21,12 @@ kotlin {
 
 android {
     namespace = "net.leodesouza.blitz"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "net.leodesouza.blitz"
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 202
         versionName = "2.0.2"
 

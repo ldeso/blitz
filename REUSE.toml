@@ -18,5 +18,5 @@ SPDX-License-Identifier = "Apache-2.0"
 
 [[annotations]]
 path = "gradle**"
-SPDX-FileCopyrightText = "Copyright 2024 the original author or authors."
+SPDX-FileCopyrightText = "Copyright 2025 the original author or authors."
 SPDX-License-Identifier = "Apache-2.0"

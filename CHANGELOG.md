@@ -17,6 +17,7 @@
 
 - Minor formatting improvements
 - Update copyright year
+- Follow REUSE specification, version 3.3
 
 ## [2.0.2](https://github.com/ldeso/blitz/releases/tag/v2.0.2) – 2024-09-01
 

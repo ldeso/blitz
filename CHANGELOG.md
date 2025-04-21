@@ -1,6 +1,12 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 2.0.4 – Unreleased
+
+### Note
+
+- Remove predictive back opt-in after API 36
+
 ## [2.0.3](https://github.com/ldeso/blitz/releases/tag/v2.0.3) – 2025-04-20
 
 This release fixes a bug where the time could reach over ten hours and take too much space. This release also targets Android 16, improves the UX and precision of the clock and updates dependencies.

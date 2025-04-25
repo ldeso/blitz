@@ -1,1 +1,2 @@
 • Remove unneeded native code to increase app compatibility
+• Update dependencies

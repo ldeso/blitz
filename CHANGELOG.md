@@ -3,9 +3,10 @@
 
 ## 2.0.4 – Unreleased
 
-### Improvement
+### Improvements
 
 - Remove unneeded native code to increase app compatibility
+- Update dependencies
 
 ### Note
 

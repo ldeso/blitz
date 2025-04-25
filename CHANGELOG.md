@@ -3,6 +3,10 @@
 
 ## 2.0.4 – Unreleased
 
+### Improvement
+
+- Remove unneeded native code to increase app compatibility
+
 ### Note
 
 - Remove predictive back opt-in after API 36

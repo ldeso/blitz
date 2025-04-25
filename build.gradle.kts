@@ -75,6 +75,12 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+
+    packaging {
+        jniLibs {
+            excludes += "**/libandroidx.graphics.path.so"
+        }
+    }
 }
 
 bundletool {

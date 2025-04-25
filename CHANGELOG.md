@@ -1,7 +1,9 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 2.0.4 – Unreleased
+## [2.0.4](https://github.com/ldeso/blitz/releases/tag/v2.0.4) – 2025-04-25
+
+The only difference in this release is that it does not include the androidx.graphics.path system library, which started to be included by default with Compose 1.7. This makes the app completely free of native code and therefore compatible with all processor architectures.
 
 ### Improvement
 

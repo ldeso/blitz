@@ -11,6 +11,7 @@
 ### Note
 
 - Use `TextAutoSize` to find the optimal text size
+- Remove the last references to `android.graphics`
 - Remove predictive back opt-in after API 36
 
 ## [2.0.3](https://github.com/ldeso/blitz/releases/tag/v2.0.3) – 2025-04-20

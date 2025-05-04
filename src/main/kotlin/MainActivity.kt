@@ -3,24 +3,27 @@
 
 package net.leodesouza.blitz
 
-import android.graphics.Color.BLACK
-import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import net.leodesouza.blitz.ui.ClockScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(scrim = TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.light(scrim = TRANSPARENT, darkScrim = BLACK),
+            statusBarStyle = SystemBarStyle.dark(scrim = Color.Transparent.toArgb()),
+            navigationBarStyle = SystemBarStyle.light(
+                scrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Black.toArgb(),
+            ),
         )
+
+        super.onCreate(savedInstanceState)
 
         setContent {
             ClockScreen(

@@ -4,6 +4,7 @@
 package net.leodesouza.blitz.ui.components
 
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +22,7 @@ fun BasicTime(
     timeProvider: () -> Duration,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
+    autoSize: TextAutoSize? = null,
     timeOverColor: Color = style.color,
 ) {
     val time = timeProvider()
@@ -38,5 +40,7 @@ fun BasicTime(
         },
         modifier = modifier,
         style = style.merge(color = if (time.isPositive()) style.color else timeOverColor),
+        softWrap = false,
+        autoSize = autoSize,
     )
 }

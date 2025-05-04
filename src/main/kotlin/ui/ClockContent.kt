@@ -5,8 +5,6 @@ package net.leodesouza.blitz.ui
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.graphics.Paint
-import android.graphics.Typeface
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -15,10 +13,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.TextAutoSize.Companion.StepBased
+import androidx.compose.foundation.text.modifiers.TextAutoSizeLayoutScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -27,10 +27,11 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.TextUnit
 import androidx.window.layout.WindowMetricsCalculator
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
@@ -38,8 +39,6 @@ import net.leodesouza.blitz.ui.components.SwipeEdge
 import net.leodesouza.blitz.ui.models.BackAction
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.time.Duration
 
 /**
@@ -66,48 +65,15 @@ fun ClockContent(
     backEventProgressProvider: () -> Float,
 ) {
     val context = LocalContext.current
-    val density = LocalDensity.current
     val displayOrientation = LocalConfiguration.current.orientation
 
-    // Total window size
+    // Window width
     val windowMetricsCalculator = WindowMetricsCalculator.getOrCreate()
-    val windowSize = windowMetricsCalculator.computeCurrentWindowMetrics(context).bounds
-    val windowWidth = windowSize.width()
-    val windowHeight = windowSize.height()
-
-    // Available size
-    val windowInsets = WindowInsets.safeDrawing
-    val leftPadding = windowInsets.getLeft(density, LayoutDirection.Ltr)
-    val topPadding = windowInsets.getTop(density)
-    val rightPadding = windowInsets.getRight(density, LayoutDirection.Ltr)
-    val bottomPadding = windowInsets.getBottom(density)
-    val availableWidth = windowWidth - 2 * max(leftPadding, rightPadding)
-    val availableHeight = windowHeight / 2 - 2 * max(bottomPadding, topPadding)
-
-    // Text size
-    val simulatedTextPaint = Paint().apply {
-        typeface = Typeface.DEFAULT_BOLD
-        fontFeatureSettings = "tnum"
-    }
-    val simulatedTextWidth = simulatedTextPaint.measureText("05:03.0 ")
-    val simulatedTextHeight = simulatedTextPaint.fontSpacing
-    val simulatedTextSize = simulatedTextPaint.textSize
-    val sizeToWidthRatio = simulatedTextSize / simulatedTextWidth
-    val sizeToHeightRatio = simulatedTextSize / simulatedTextHeight
-    val maxHorizontalTextSize = availableWidth * sizeToWidthRatio
-    val maxVerticalTextSize = availableHeight * if (displayOrientation == ORIENTATION_LANDSCAPE) {
-        sizeToHeightRatio
-    } else {
-        sizeToWidthRatio
-    }
-    val textSize = min(maxHorizontalTextSize, maxVerticalTextSize)
+    val windowMetrics = windowMetricsCalculator.computeCurrentWindowMetrics(context)
+    val windowWidth = windowMetrics.bounds.width()
 
     // Text style
-    val textStyle = TextStyle(
-        fontSize = with(density) { textSize.toSp() },
-        fontWeight = FontWeight.Bold,
-        fontFeatureSettings = "tnum",
-    )
+    val textStyle = TextStyle(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
     val timeOverColor = Color.Red
     val oscillatingAlpha by rememberInfiniteTransition(label = "InfiniteTransition").animateFloat(
         initialValue = 1F,
@@ -128,6 +94,7 @@ fun ClockContent(
             timeProvider = blackTimeProvider,
             modifier = Modifier
                 .background(Color.Black)
+                .safeDrawingPadding()
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.BLACK,
@@ -143,12 +110,14 @@ fun ClockContent(
                 }
                 .then(reusableItemModifier),
             style = textStyle.merge(color = Color.White),
+            autoSize = StepBasedWithOrientation(displayOrientation == ORIENTATION_PORTRAIT),
             timeOverColor = timeOverColor,
         )
         BasicTime(
             timeProvider = whiteTimeProvider,
             modifier = Modifier
                 .background(Color.White)
+                .safeDrawingPadding()
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.WHITE,
@@ -164,6 +133,7 @@ fun ClockContent(
                 }
                 .then(reusableItemModifier),
             style = textStyle.merge(color = Color.Black),
+            autoSize = StepBasedWithOrientation(displayOrientation == ORIENTATION_PORTRAIT),
             timeOverColor = timeOverColor,
         )
     }
@@ -209,5 +179,24 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
 
     if (isPlaying && clockState == ClockState.PAUSED) {
         alpha = currentlyAdjustedAlpha
+    }
+}
+
+/**
+ * Automatically size the text with the biggest font size that fits the available space, taking into
+ * account whether the orientation of the text [isVertical] or horizontal.
+ */
+data class StepBasedWithOrientation(private val isVertical: Boolean) : TextAutoSize {
+    override fun TextAutoSizeLayoutScope.getFontSize(
+        constraints: Constraints,
+        text: AnnotatedString,
+    ): TextUnit {
+        val adjustedConstraints = if (isVertical) {
+            Constraints(maxWidth = constraints.maxHeight, maxHeight = constraints.maxWidth)
+        } else {
+            constraints
+        }
+
+        return with(StepBased()) { getFontSize(adjustedConstraints, text) }
     }
 }

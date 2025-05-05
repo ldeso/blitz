@@ -3,7 +3,6 @@
 
 package net.leodesouza.blitz.ui
 
-import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -84,6 +83,7 @@ fun ClockContent(
         ),
         label = "OscillatingAlpha",
     )
+    val isTextVertical = (displayOrientation == ORIENTATION_PORTRAIT)
 
     Column {
         val reusableItemModifier = Modifier
@@ -105,12 +105,12 @@ fun ClockContent(
                         backEventAction = backEventActionProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
                         backEventProgress = backEventProgressProvider(),
-                        displayOrientation = displayOrientation,
+                        isTextVertical = isTextVertical,
                     )
                 }
                 .then(reusableItemModifier),
             style = textStyle.merge(color = Color.White),
-            autoSize = StepBasedWithOrientation(displayOrientation == ORIENTATION_PORTRAIT),
+            autoSize = StepBasedWithOrientation(isTextVertical),
             timeOverColor = timeOverColor,
         )
         BasicTime(
@@ -128,12 +128,12 @@ fun ClockContent(
                         backEventAction = backEventActionProvider(),
                         backEventSwipeEdge = backEventSwipeEdgeProvider(),
                         backEventProgress = backEventProgressProvider(),
-                        displayOrientation = displayOrientation,
+                        isTextVertical = isTextVertical,
                     )
                 }
                 .then(reusableItemModifier),
             style = textStyle.merge(color = Color.Black),
-            autoSize = StepBasedWithOrientation(displayOrientation == ORIENTATION_PORTRAIT),
+            autoSize = StepBasedWithOrientation(isTextVertical),
             timeOverColor = timeOverColor,
         )
     }
@@ -150,7 +150,7 @@ fun ClockContent(
  * @param[backEventAction] What action is executed by the back gesture.
  * @param[backEventSwipeEdge] Which edge the back gesture starts from.
  * @param[backEventProgress] How far along the back gesture is.
- * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
+ * @param[isTextVertical] Whether the text should be rotated to be vertical.
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
     isPlaying: Boolean,
@@ -161,9 +161,9 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
     backEventAction: BackAction,
     backEventSwipeEdge: SwipeEdge,
     backEventProgress: Float,
-    displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
+    isTextVertical: Boolean,
 ) {
-    if (displayOrientation == ORIENTATION_PORTRAIT) {
+    if (isTextVertical) {
         rotationZ = when (leaningSide) {
             LeaningSide.LEFT -> 90F
             LeaningSide.RIGHT -> -90F
@@ -186,7 +186,7 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
  * Automatically size the text with the biggest font size that fits the available space, taking into
  * account whether the orientation of the text [isVertical] or horizontal.
  */
-data class StepBasedWithOrientation(private val isVertical: Boolean) : TextAutoSize {
+private data class StepBasedWithOrientation(private val isVertical: Boolean) : TextAutoSize {
     override fun TextAutoSizeLayoutScope.getFontSize(
         constraints: Constraints,
         text: AnnotatedString,

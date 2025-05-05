@@ -7,8 +7,9 @@
 
 - Restore predictive back on Android 15
 
-### Note
+### Notes
 
+- Simplify ClockContent logic
 - Fix typo
 
 ## [2.0.4](https://github.com/ldeso/blitz/releases/tag/v2.0.4) – 2025-05-05

@@ -74,7 +74,7 @@ For example, if the app was installed from F-Droid, it can be updated to a newer
 <details style="margin-bottom: 15px">
   <summary>Code transparency key certificate fingerprint</summary>
   <pre><code>FA BD 43 3F C7 1A 5E 00 39 1B 0D 48 B1 2E 42 F6 33 3F 0E 18 EE C9 3A C0 81 74 C6 95 4F 13 B9 6F</code></pre>
-  <p>To verify that the DEX files present in an APK were not modified by Google, create a ZIP archive of the APK and and check that the above fingerprint is identical to the <a href="https://developer.android.com/guide/app-bundle/code-transparency/">code transparency</a> fingerprint output by <a href="https://developer.android.com/studio/command-line/">bundletool</a>:</p>
+  <p>To verify that the DEX files present in an APK were not modified by Google, create a ZIP archive of the APK and check that the above fingerprint is identical to the <a href="https://developer.android.com/guide/app-bundle/code-transparency/">code transparency</a> fingerprint output by <a href="https://developer.android.com/studio/command-line/">bundletool</a>:</p>
   <pre><code>bundletool check-transparency --mode=apk --apk-zip=blitz.apk.zip</code></pre>
 </details>
 

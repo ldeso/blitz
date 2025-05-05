@@ -1,6 +1,12 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 2.0.5 – Unreleased
+
+### Note
+
+- Fix typo
+
 ## [2.0.4](https://github.com/ldeso/blitz/releases/tag/v2.0.4) – 2025-05-05
 
 This release brings two improvements. First, it adds a [code transparency](https://developer.android.com/guide/app-bundle/code-transparency/) signature that lets users check that DEX files in the APK were not modified by Google. Second, it removes the androidx.graphics.path system library which was included by default with Compose 1.7+, making the app free of native code and therefore compatible with all processor architectures.
@@ -11,7 +17,7 @@ This release brings two improvements. First, it adds a [code transparency](https
 - Remove unneeded native code to increase app compatibility
 - Update dependencies
 
-### Note
+### Notes
 
 - Use `TextAutoSize` to find the optimal text size
 - Remove the last references to `android.graphics`

@@ -69,6 +69,15 @@ android {
         language {
             enableSplit = false
         }
+
+        codeTransparency {
+            signing {
+                storeFile = keystoreProperties.getProperty("storeFile")?.let(::file)
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("transparencyAlias")
+                keyPassword = keystoreProperties.getProperty("transparencyPassword")
+            }
+        }
     }
 
     dependenciesInfo {

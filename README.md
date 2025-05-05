@@ -61,12 +61,21 @@ The app can be installed from four different sources:
   3. [Play Store](https://play.google.com/store/apps/details?id=net.leodesouza.blitz): built and signed by Google who can [modify the app](https://play.google/play-app-signing-terms/) to optimize its performance, security and/or size.
   4. [GitHub](https://github.com/ldeso/blitz/releases/latest): built and signed by the developer but requires [Obtainium](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://app/%7B%22id%22%3A%22net.leodesouza.blitz%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fldeso%2Fblitz%22%2C%22author%22%3A%22L%C3%A9o%20de%20Souza%22%2C%22name%22%3A%22Blitz%3A%20Fischer%20Chess%20Clock%22%2C%22additionalSettings%22%3A%22%7B%5C%22about%5C%22%3A%5C%22A%20minimalist%20Fischer%20chess%20clock%20for%20Android.%5C%22%7D%22%7D) to update automatically.
 
-As the app is signed using the same private signing key on all sources, it can be updated using a different source to the one it was installed from.
-For example, an app installed from F-Droid can be updated to a newer version downloaded from the Play Store.
+The app can be updated from a different source.
+For example, if the app was installed from F-Droid, it can be updated to a newer version from the Play Store.
 
 <details style="margin-bottom: 15px">
-  <summary>Public key certificate fingerprint</summary>
-  <pre><code>6d7fd2715ed21cff64086dc5fcf8820a685a793ebd07d972163d86172babba75</code></pre>
+  <summary>Signing key certificate fingerprint</summary>
+  <pre><code>6D 7F D2 71 5E D2 1C FF 64 08 6D C5 FC F8 82 0A 68 5A 79 3E BD 07 D9 72 16 3D 86 17 2B AB BA 75</code></pre>
+  <p>To verify that an APK was signed with the developer's signing key, check that the above fingerprint is identical to the one output by <a href="https://developer.android.com/studio/command-line/">apksigner</a>:</p>
+  <pre><code>apksigner verify --min-sdk-version 24 --print-certs blitz.apk</code></pre>
+</details>
+
+<details style="margin-bottom: 15px">
+  <summary>Code transparency key certificate fingerprint</summary>
+  <pre><code>FA BD 43 3F C7 1A 5E 00 39 1B 0D 48 B1 2E 42 F6 33 3F 0E 18 EE C9 3A C0 81 74 C6 95 4F 13 B9 6F</code></pre>
+  <p>To verify that the DEX files present in an APK were not modified by Google, create a ZIP archive of the APK and and check that the above fingerprint is identical to the <a href="https://developer.android.com/guide/app-bundle/code-transparency/">code transparency</a> fingerprint output by <a href="https://developer.android.com/studio/command-line/">bundletool</a>:</p>
+  <pre><code>bundletool check-transparency --mode=apk --apk-zip=blitz.apk.zip</code></pre>
 </details>
 
 ## About

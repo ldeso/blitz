@@ -5,6 +5,7 @@
 
 ### Improvements
 
+- Add code transparency signature
 - Remove unneeded native code to increase app compatibility
 - Update dependencies
 

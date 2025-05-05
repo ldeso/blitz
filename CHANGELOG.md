@@ -3,6 +3,10 @@
 
 ## 2.0.5 – Unreleased
 
+### Bug Fix
+
+- Restore predictive back on Android 15
+
 ### Note
 
 - Fix typo

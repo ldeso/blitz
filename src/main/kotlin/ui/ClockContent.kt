@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.max
-import androidx.window.layout.WindowMetricsCalculator
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.SwipeEdge
@@ -69,16 +67,11 @@ fun ClockContent(
     backEventSwipeEdgeProvider: () -> SwipeEdge,
     backEventProgressProvider: () -> Float,
 ) {
-    val context = LocalContext.current
     val displayOrientation = LocalConfiguration.current.orientation
 
-    // Window width
-    val windowMetricsCalculator = WindowMetricsCalculator.getOrCreate()
-    val windowMetrics = windowMetricsCalculator.computeCurrentWindowMetrics(context)
-    val windowWidth = windowMetrics.bounds.width()
-
     // Symmetric padding
-    val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
+    val windowInsets = WindowInsets.safeDrawing
+    val paddingValues = windowInsets.asPaddingValues()
     val leftPadding = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
     val rightPadding = paddingValues.calculateRightPadding(LayoutDirection.Ltr)
     val topPadding = paddingValues.calculateTopPadding()
@@ -115,7 +108,6 @@ fun ClockContent(
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.BLACK,
-                        windowWidth = windowWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
@@ -138,7 +130,6 @@ fun ClockContent(
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.WHITE,
-                        windowWidth = windowWidth,
                         currentlyAdjustedAlpha = oscillatingAlpha,
                         clockState = clockStateProvider(),
                         leaningSide = leaningSideProvider(),
@@ -160,7 +151,6 @@ fun ClockContent(
  * Set the rotation, translation and opacity of a BasicTime element in a graphics layer scope.
  *
  * @param[isPlaying] Whether the player is currently playing.
- * @param[windowWidth] Current window width in pixels.
  * @param[currentlyAdjustedAlpha] Opacity of the text if the time can currently be adjusted.
  * @param[clockState] Current state of the clock.
  * @param[leaningSide] Which side the device is currently leaning towards.
@@ -171,7 +161,6 @@ fun ClockContent(
  */
 private fun GraphicsLayerScope.setBasicTimeGraphics(
     isPlaying: Boolean,
-    windowWidth: Int,
     currentlyAdjustedAlpha: Float,
     clockState: ClockState,
     leaningSide: LeaningSide,
@@ -189,8 +178,8 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
 
     if (isPlaying || backEventAction != BackAction.PAUSE) {
         translationX = when (backEventSwipeEdge) {
-            SwipeEdge.RIGHT -> -backEventProgress * windowWidth
-            SwipeEdge.LEFT -> backEventProgress * windowWidth
+            SwipeEdge.RIGHT -> -backEventProgress * size.width
+            SwipeEdge.LEFT -> backEventProgress * size.width
         }
     }
 

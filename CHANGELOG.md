@@ -10,6 +10,7 @@
 
 ### Notes
 
+- Remove dependency on WindowManager
 - Simplify ClockContent logic
 - Fix typo
 

@@ -3,8 +3,9 @@
 
 ## 2.0.5 – Unreleased
 
-### Bug Fix
+### Bug Fixes
 
+- Restore vertical and horizontal text centering
 - Restore predictive back on Android 15
 
 ### Notes

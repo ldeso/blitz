@@ -12,8 +12,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.TextAutoSize.Companion.StepBased
@@ -30,7 +34,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.max
 import androidx.window.layout.WindowMetricsCalculator
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
@@ -71,6 +77,17 @@ fun ClockContent(
     val windowMetrics = windowMetricsCalculator.computeCurrentWindowMetrics(context)
     val windowWidth = windowMetrics.bounds.width()
 
+    // Symmetric padding
+    val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
+    val leftPadding = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
+    val rightPadding = paddingValues.calculateRightPadding(LayoutDirection.Ltr)
+    val topPadding = paddingValues.calculateTopPadding()
+    val bottomPadding = paddingValues.calculateBottomPadding()
+    val symmetricPaddingValues = PaddingValues(
+        horizontal = max(leftPadding, rightPadding),
+        vertical = max(bottomPadding, topPadding),
+    )
+
     // Text style
     val textStyle = TextStyle(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
     val timeOverColor = Color.Red
@@ -94,7 +111,7 @@ fun ClockContent(
             timeProvider = blackTimeProvider,
             modifier = Modifier
                 .background(Color.Black)
-                .safeDrawingPadding()
+                .padding(symmetricPaddingValues)
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.BLACK,
@@ -117,7 +134,7 @@ fun ClockContent(
             timeProvider = whiteTimeProvider,
             modifier = Modifier
                 .background(Color.White)
-                .safeDrawingPadding()
+                .padding(symmetricPaddingValues)
                 .graphicsLayer {
                     setBasicTimeGraphics(
                         isPlaying = playerStateProvider() == PlayerState.WHITE,

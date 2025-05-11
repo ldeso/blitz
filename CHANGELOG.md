@@ -8,6 +8,10 @@
 - Restore vertical and horizontal text centering
 - Restore predictive back on Android 15
 
+### Improvement
+
+- Update dependencies
+
 ### Notes
 
 - Remove dependency on WindowManager

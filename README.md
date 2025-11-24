@@ -92,7 +92,7 @@ It is built with [Jetpack Compose](https://developer.android.com/jetpack/compose
 
 ## Links
 
-[License: Apache-2.0](LICENSES/Apache-2.0.md) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Privacy Policy](PRIVACY_POLICY.md)
+[License: Apache-2.0](LICENSES/Apache-2.0.md) — [Website](https://blitz.leodesouza.net) — [Issue Tracker](https://github.com/ldeso/blitz/issues) — [Source Code](https://github.com/ldeso/blitz) — [Changelog](CHANGELOG.md) — [Reproducibility Status](https://verification.f-droid.org/packages/net.leodesouza.blitz/)
 
 ## Screenshots
 

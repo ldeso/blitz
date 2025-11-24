@@ -8,9 +8,10 @@
 - Set minimum SDK version to 23 (Android 6.0)
 - Update dependencies
 
-### Note
+### Notes
 
 - Call `super.onCreate` before `enableEdgeToEdge`
+- Add link to F-Droid reproducibility status page
 
 ## [2.0.5](https://github.com/ldeso/blitz/releases/tag/v2.0.5) – 2025-05-12
 

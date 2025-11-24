@@ -8,6 +8,10 @@
 - Set minimum SDK version to 23 (Android 6.0)
 - Update dependencies
 
+### Note
+
+- Call `super.onCreate` before `enableEdgeToEdge`
+
 ## [2.0.5](https://github.com/ldeso/blitz/releases/tag/v2.0.5) – 2025-05-12
 
 This release fixes two regressions introduced in version [2.0.4](#204--2025-05-05) and updates dependencies.

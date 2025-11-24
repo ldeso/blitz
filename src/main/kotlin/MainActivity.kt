@@ -15,6 +15,7 @@ import net.leodesouza.blitz.ui.ClockScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(scrim = Color.Transparent.toArgb()),
             navigationBarStyle = SystemBarStyle.light(
@@ -22,9 +23,6 @@ class MainActivity : ComponentActivity() {
                 darkScrim = Color.Black.toArgb(),
             ),
         )
-
-        super.onCreate(savedInstanceState)
-
         setContent {
             ClockScreen(
                 onClockStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },

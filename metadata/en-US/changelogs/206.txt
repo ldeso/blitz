@@ -1,1 +1,2 @@
 • Set minimum SDK version to 23 (Android 6.0)
+• Update dependencies

@@ -21,7 +21,11 @@ kotlin {
 
 android {
     namespace = "net.leodesouza.blitz"
-    compileSdk = 36
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "net.leodesouza.blitz"
@@ -29,10 +33,6 @@ android {
         targetSdk = 36
         versionCode = 205
         versionName = "2.0.5"
-
-        base {
-            archivesName = "${applicationId}_$versionCode"
-        }
     }
 
     signingConfigs {
@@ -92,14 +92,18 @@ android {
     }
 }
 
+base {
+    archivesName = "${android.defaultConfig.applicationId}_${android.defaultConfig.versionCode}"
+}
+
 bundletool {
     val release by android.signingConfigs.existing
 
     signingConfig {
-        storeFile = release.get().storeFile
-        storePassword = release.get().storePassword
-        keyAlias = release.get().keyAlias
-        keyPassword = release.get().keyPassword
+        storeFile.set(release.get().storeFile)
+        storePassword.set(release.get().storePassword)
+        keyAlias.set(release.get().keyAlias)
+        keyPassword.set(release.get().keyPassword)
     }
 }
 

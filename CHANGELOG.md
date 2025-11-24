@@ -3,9 +3,10 @@
 
 ## 2.0.6 – Unreleased
 
-### Improvement
+### Improvements
 
 - Set minimum SDK version to 23 (Android 6.0)
+- Update dependencies
 
 ## [2.0.5](https://github.com/ldeso/blitz/releases/tag/v2.0.5) – 2025-05-12
 

@@ -49,7 +49,7 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 **Free and secure**
 
   - Free software with reproducible builds
-  - Meets Android 15 security requirements
+  - Meets Android 16 security requirements
   - Enables memory tagging on compatible devices
 
 ## Install
@@ -80,7 +80,7 @@ For example, if the app was installed from F-Droid, it can be updated to a newer
 
 ## About
 
-This is a native Android app for Android 5.0+.
+This is a native Android app for Android 6.0+.
 It is built with [Jetpack Compose](https://developer.android.com/jetpack/compose) and implements:
 
   - Predictive back gestures ([Android 14+](https://developer.android.com/about/versions/13/features/predictive-back-gesture))

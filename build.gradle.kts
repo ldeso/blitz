@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         applicationId = "net.leodesouza.blitz"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 36
         versionCode = 205
         versionName = "2.0.5"

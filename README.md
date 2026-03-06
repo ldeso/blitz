@@ -31,7 +31,7 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 **A chess clock made for blitz**
 
   - Defaults to 5+3 Fischer timing: 5 minutes + 3 seconds per move
-  - FIDE-compliant: initial time for 5+3 is 5:03, not 5:00
+  - FIDE-compliant: initial time for 5+3 is 5:03, not 5:00 (see [Article 6: The Chessclock](https://rcc.fide.com/article6/#:~:text=Each%20player%20also%20receives%20a%20%E2%80%98fixed%20extra%20time%E2%80%99%20with%20every%20move.%20The%20countdown%20of%20the%20main%20thinking%20time%20only%20commences%20after%20the%20fixed%20extra%20time%20has%20expired.))
   - Privacy-friendly: no ads, no permissions
 
 **Fast and intuitive controls**

@@ -11,6 +11,10 @@
 
 - Switch players on finger press instead of release ([#6](https://github.com/ldeso/blitz/issues/6))
 
+### Note
+
+- Add a link for more details about FIDE-compliant timing ([#8](https://github.com/ldeso/blitz/issues/8))
+
 ## [2.0.6](https://github.com/ldeso/blitz/releases/tag/v2.0.6) – 2025-11-24
 
 This release updates dependencies.

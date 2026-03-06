@@ -1,1 +1,2 @@
 • Update dependencies
+• Switch players on finger press instead of release

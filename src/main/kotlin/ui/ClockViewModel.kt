@@ -42,7 +42,9 @@ class ClockViewModel(
 
     private var duration: Duration = defaultDuration
     private var increment: Duration = defaultIncrement
+    private var savedTime: Duration = duration + increment
     private var endMark: ComparableTimeMark = timeSource.markNow()
+    private var savedMark: ComparableTimeMark = endMark
     private var tickingJob: Job? = null
 
     val whiteTime: StateFlow<Duration>
@@ -128,6 +130,11 @@ class ClockViewModel(
         tickingJob?.cancel()
         val playMark = timeSource.markNow()
         val remainingTime = endMark - playMark
+        savedTime = when (playerState.value) {
+            PlayerState.WHITE -> blackTime.value
+            PlayerState.BLACK -> whiteTime.value
+        }
+        savedMark = endMark
         currentTime = (remainingTime + increment).coerceAtMost(35_999.seconds)
         playerState.update {
             when (it) {
@@ -136,6 +143,20 @@ class ClockViewModel(
             }
         }
         endMark = playMark + currentTime
+        tickingJob = viewModelScope.launch { tickUntilFinished() }
+    }
+
+    fun undo() {
+        tickingJob?.cancel()
+        currentTime = savedTime
+        endMark = savedMark
+        playerState.update {
+            when (it) {
+                PlayerState.WHITE -> PlayerState.BLACK
+                PlayerState.BLACK -> PlayerState.WHITE
+            }
+        }
+        currentTime = endMark - timeSource.markNow()
         tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 

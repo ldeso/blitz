@@ -6,6 +6,7 @@ package net.leodesouza.blitz.ui.io
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.Modifier
@@ -54,6 +55,16 @@ fun Modifier.clockInput(
         play = play,
     )
 }
+    .pointerInput(Unit) {
+        awaitEachGesture {
+            onPressEvent(
+                pressEvent = awaitPointerEvent().changes.first(),
+                clockState = clockStateProvider(),
+                isBusy = isBusyProvider(),
+                play = play,
+            )
+        }
+    }
     .onKeyEvent {
         onKeyEvent(
             keyEvent = it,
@@ -69,11 +80,6 @@ fun Modifier.clockInput(
             onDragStart = {
                 onDragStart(
                     clockState = clockStateProvider(), isBusy = isBusyProvider(), save = save,
-                )
-            },
-            onDragEnd = {
-                onDragEnd(
-                    clockState = clockStateProvider(), isBusy = isBusyProvider(), play = play,
                 )
             },
             onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
@@ -94,11 +100,6 @@ fun Modifier.clockInput(
             onDragStart = {
                 onDragStart(
                     clockState = clockStateProvider(), isBusy = isBusyProvider(), save = save,
-                )
-            },
-            onDragEnd = {
-                onDragEnd(
-                    clockState = clockStateProvider(), isBusy = isBusyProvider(), play = play,
                 )
             },
             onVerticalDrag = { _: PointerInputChange, dragAmount: Float ->
@@ -132,6 +133,23 @@ private fun onClickEvent(
             ClockState.TICKING -> play()
             ClockState.FINISHED -> Unit
         }
+    }
+}
+
+/**
+ * Switch to the next player if the clock is ticking on press events.
+ *
+ * @param[pressEvent] The touch down event to intercept.
+ * @param[clockState] Current state of the clock.
+ * @param[isBusy] Whether the clock is currently busy.
+ * @param[play] Callback called to switch to the next player.
+ */
+private fun onPressEvent(
+    pressEvent: PointerInputChange, clockState: ClockState, isBusy: Boolean, play: () -> Unit,
+) {
+    if (!isBusy && clockState == ClockState.TICKING) {
+        pressEvent.consume()
+        play()
     }
 }
 
@@ -197,19 +215,6 @@ private fun onDragStart(clockState: ClockState, isBusy: Boolean, save: () -> Uni
             ClockState.PAUSED, ClockState.SOFT_RESET, ClockState.FULL_RESET -> save()
             else -> Unit
         }
-    }
-}
-
-/**
- * Switch to the next player if the clock is ticking at the end of a drag gesture.
- *
- * @param[clockState] Current state of the clock.
- * @param[isBusy] Whether the clock is currently busy.
- * @param[play] Callback called to switch to the next player.
- */
-private fun onDragEnd(clockState: ClockState, isBusy: Boolean, play: () -> Unit) {
-    if (!isBusy && clockState == ClockState.TICKING) {
-        play()
     }
 }
 

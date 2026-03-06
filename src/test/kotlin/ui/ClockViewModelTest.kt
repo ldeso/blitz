@@ -22,6 +22,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.times
 
 @ExperimentalCoroutinesApi
 class ClockViewModelTest {
@@ -271,6 +272,18 @@ class ClockViewModelTest {
     }
 
     @Test
+    fun `start-delay-play-delay-play-undo, playerState is BLACK`() = runTest {
+        clockViewModel.start()
+        delay(delayTime)
+        clockViewModel.play()
+        delay(delayTime)
+        clockViewModel.play()
+        clockViewModel.undo()
+
+        assertEquals(PlayerState.BLACK, clockViewModel.playerState.value)
+    }
+
+    @Test
     fun `start-delay-play-delay-reset, clockState is FULL_RESET`() = runTest {
         clockViewModel.start()
         delay(delayTime)
@@ -302,6 +315,49 @@ class ClockViewModelTest {
 
         assertEquals(initialTime, clockViewModel.whiteTime.value)
         assertEquals(initialTime, clockViewModel.blackTime.value)
+    }
+
+    @Test
+    fun `start-delay-play-undo, clockState is TICKING`() = runTest {
+        clockViewModel.start()
+        delay(delayTime)
+        clockViewModel.play()
+        clockViewModel.undo()
+
+        assertEquals(ClockState.TICKING, clockViewModel.clockState.value)
+    }
+
+    @Test
+    fun `start-delay-play-undo, playerState is WHITE`() = runTest {
+        clockViewModel.start()
+        delay(delayTime)
+        clockViewModel.play()
+        clockViewModel.undo()
+
+        assertEquals(PlayerState.WHITE, clockViewModel.playerState.value)
+    }
+
+    @Test
+    fun `start-delay-play-undo, whiteTime is set to exact current value`() = runTest {
+        clockViewModel.start()
+        delay(delayTime)
+        clockViewModel.play()
+        clockViewModel.undo()
+
+        assertEquals(initialTime - delayTime, clockViewModel.whiteTime.value)
+    }
+
+    @Test
+    fun `start-delay-play-undo-delay, whiteTime continues decreasing`() = runTest {
+        clockViewModel.start()
+        delay(delayTime)
+        clockViewModel.play()
+        clockViewModel.undo()
+        delay(delayTime)
+
+        val expectedTime = tickPeriod * (((initialTime - 2 * delayTime) / tickPeriod).toInt() + 1)
+
+        assertEquals(expectedTime, clockViewModel.whiteTime.value)
     }
 
     @Test

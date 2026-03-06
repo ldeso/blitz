@@ -45,24 +45,23 @@ class ClockViewModel(
     private var endMark: ComparableTimeMark = timeSource.markNow()
     private var tickingJob: Job? = null
 
-    private val _whiteTime: MutableStateFlow<Duration> = MutableStateFlow(duration + increment)
-    private val _blackTime: MutableStateFlow<Duration> = MutableStateFlow(duration + increment)
-    private val _clockState: MutableStateFlow<ClockState> = MutableStateFlow(ClockState.FULL_RESET)
-    private val _playerState: MutableStateFlow<PlayerState> = MutableStateFlow(PlayerState.WHITE)
-
-    val whiteTime: StateFlow<Duration> = _whiteTime.asStateFlow()
-    val blackTime: StateFlow<Duration> = _blackTime.asStateFlow()
-    val clockState: StateFlow<ClockState> = _clockState.asStateFlow()
-    val playerState: StateFlow<PlayerState> = _playerState.asStateFlow()
+    val whiteTime: StateFlow<Duration>
+        field = MutableStateFlow(duration + increment)
+    val blackTime: StateFlow<Duration>
+        field = MutableStateFlow(duration + increment)
+    val clockState: StateFlow<ClockState>
+        field = MutableStateFlow(ClockState.FULL_RESET)
+    val playerState: StateFlow<PlayerState>
+        field = MutableStateFlow(PlayerState.WHITE)
 
     private var currentTime: Duration
-        get() = when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value
-            PlayerState.BLACK -> _blackTime.value
+        get() = when (playerState.value) {
+            PlayerState.WHITE -> whiteTime.value
+            PlayerState.BLACK -> blackTime.value
         }
-        set(time) = when (_playerState.value) {
-            PlayerState.WHITE -> _whiteTime.value = time
-            PlayerState.BLACK -> _blackTime.value = time
+        set(time) = when (playerState.value) {
+            PlayerState.WHITE -> whiteTime.value = time
+            PlayerState.BLACK -> blackTime.value = time
         }
 
     private var savedTimeMinutes: Float = durationMinutes.toFloat()
@@ -102,7 +101,7 @@ class ClockViewModel(
         }
 
     private suspend fun tickUntilFinished() {
-        while (_clockState.value == ClockState.TICKING) {
+        while (clockState.value == ClockState.TICKING) {
             val remainingTime = endMark - timeSource.markNow()
             val delayTimeMillis = (remainingTime.inWholeMilliseconds - 1L) % tickPeriodMillis + 1L
             val delayTime = delayTimeMillis.milliseconds
@@ -113,7 +112,7 @@ class ClockViewModel(
                 currentTime = newTime
             } else {
                 currentTime = Duration.ZERO
-                _clockState.value = ClockState.FINISHED
+                clockState.value = ClockState.FINISHED
             }
         }
     }
@@ -121,7 +120,7 @@ class ClockViewModel(
     fun start() {
         tickingJob?.cancel()
         endMark = timeSource.markNow() + currentTime
-        _clockState.value = ClockState.TICKING
+        clockState.value = ClockState.TICKING
         tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
@@ -130,7 +129,7 @@ class ClockViewModel(
         val playMark = timeSource.markNow()
         val remainingTime = endMark - playMark
         currentTime = (remainingTime + increment).coerceAtMost(35_999.seconds)
-        _playerState.update {
+        playerState.update {
             when (it) {
                 PlayerState.WHITE -> PlayerState.BLACK
                 PlayerState.BLACK -> PlayerState.WHITE
@@ -143,19 +142,19 @@ class ClockViewModel(
     fun pause() {
         tickingJob?.cancel()
         currentTime = endMark - timeSource.markNow()
-        _clockState.value = ClockState.PAUSED
+        clockState.value = ClockState.PAUSED
     }
 
     fun reset() {
         tickingJob?.cancel()
-        if (_clockState.value == ClockState.SOFT_RESET) {
+        if (clockState.value == ClockState.SOFT_RESET) {
             duration = defaultDuration
             increment = defaultIncrement
         }
-        _whiteTime.value = duration + increment
-        _blackTime.value = duration + increment
-        _playerState.value = PlayerState.WHITE
-        _clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
+        whiteTime.value = duration + increment
+        blackTime.value = duration + increment
+        playerState.value = PlayerState.WHITE
+        clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
             ClockState.FULL_RESET
         } else {
             ClockState.SOFT_RESET
@@ -163,7 +162,7 @@ class ClockViewModel(
     }
 
     fun save() {
-        when (_clockState.value) {
+        when (clockState.value) {
             ClockState.SOFT_RESET, ClockState.FULL_RESET -> run {
                 savedDurationMinutes = duration.inWholeMinutes.toFloat()
                 savedIncrementSeconds = increment.inWholeSeconds.toFloat()
@@ -179,7 +178,7 @@ class ClockViewModel(
     fun restore(
         addMinutes: Float = 0F, addSeconds: Float = 0F, isDecimalRestored: Boolean = false,
     ) {
-        if (_clockState.value == ClockState.PAUSED) {
+        if (clockState.value == ClockState.PAUSED) {
             savedTimeMinutes += addMinutes
             savedTimeSeconds += addSeconds
             val newMinutes = savedTimeMinutes.roundToInt().minutes
@@ -205,9 +204,9 @@ class ClockViewModel(
             duration = savedDurationMinutes.roundToInt().minutes
             increment = savedIncrementSeconds.roundToInt().seconds
             val newTime = duration + increment
-            _whiteTime.value = newTime
-            _blackTime.value = newTime
-            _clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
+            whiteTime.value = newTime
+            blackTime.value = newTime
+            clockState.value = if (duration == defaultDuration && increment == defaultIncrement) {
                 ClockState.FULL_RESET
             } else {
                 ClockState.SOFT_RESET

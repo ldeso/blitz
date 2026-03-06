@@ -1,6 +1,12 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 2.0.7 – Unreleased
+
+### Improvement
+
+- Update dependencies
+
 ## [2.0.6](https://github.com/ldeso/blitz/releases/tag/v2.0.6) – 2025-11-24
 
 This release updates dependencies.

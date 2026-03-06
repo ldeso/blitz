@@ -7,7 +7,6 @@ val keystorePropertiesFile = file("keystore.properties").takeIf { it.isFile }
 val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStream()?.let(::load) }
 
 plugins {
-    kotlin("android") version libs.versions.kotlin
     kotlin("plugin.compose") version libs.versions.kotlin
     alias(libs.plugins.android.application)
     alias(libs.plugins.bundletool)
@@ -16,6 +15,10 @@ plugins {
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(libs.versions.jvmToolchain.get())
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 
@@ -114,6 +117,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit"))
     testImplementation(libs.kotlinx.coroutines.test)
 }

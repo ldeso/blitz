@@ -116,7 +116,7 @@ fun ClockScreen(
             }
         },
         onCancellation = {
-            if (backEventAction == BackAction.PAUSE) {
+            if (backEventAction == BackAction.PAUSE && clockState == ClockState.TICKING) {
                 clockViewModel.play()
             }
         },

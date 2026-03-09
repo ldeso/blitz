@@ -7,17 +7,21 @@
 
 - Fix back gestures switching players even with no time left
 
-## [2.0.7](https://github.com/ldeso/blitz/releases/tag/v2.0.7) – 2026-03-06
-
-This release updates dependencies and fixes a bug where the clock would switch players on finger release instead of finger press, adding unnecessary delay.
-
 ### Improvement
 
 - Update dependencies
 
+## [2.0.7](https://github.com/ldeso/blitz/releases/tag/v2.0.7) – 2026-03-06
+
+This release updates dependencies and fixes a bug where the clock would switch players on finger release instead of finger press, adding unnecessary delay.
+
 ### Bug Fix
 
 - Switch players on finger press instead of release ([#6](https://github.com/ldeso/blitz/issues/6))
+
+### Improvement
+
+- Update dependencies
 
 ### Note
 

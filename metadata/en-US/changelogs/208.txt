@@ -1,1 +1,2 @@
 • Fix back gestures switching players even with no time left
+• Update dependencies

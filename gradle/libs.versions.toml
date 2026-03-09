@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [versions]
-androidGradlePlugin = "9.0.1"
+androidGradlePlugin = "9.1.0"
 androidxActivity = "1.12.4"
 androidxComposeBom = "2026.02.01"
 androidxLifecycle = "2.10.0"

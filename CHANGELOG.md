@@ -1,7 +1,9 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 2.0.8 – Unreleased
+## [2.0.8](https://github.com/ldeso/blitz/releases/tag/v2.0.8) – 2026-03-10
+
+This releases updates dependencies and fixes a bug where completing a back gesture with no time left would still switch to the next player.
 
 ### Bug Fix
 

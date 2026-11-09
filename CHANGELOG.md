@@ -3,8 +3,9 @@
 
 ## 2.0.9 – Unreleased
 
-### Improvement
+### Improvements
 
+- Target Android 17
 - Update dependencies
 
 ## [2.0.8](https://github.com/ldeso/blitz/releases/tag/v2.0.8) – 2026-03-10

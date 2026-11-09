@@ -1,1 +1,2 @@
+• Target Android 17
 • Update dependencies

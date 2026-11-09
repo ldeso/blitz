@@ -49,7 +49,7 @@ Its [source code](https://github.com/ldeso/blitz) is available under the [Apache
 **Free and secure**
 
   - Free software with reproducible builds
-  - Meets Android 16 security requirements
+  - Meets Android 17 security requirements
   - Enables memory tagging on compatible devices
 
 ## Install

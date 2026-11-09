@@ -6,6 +6,7 @@
 /.kotlin/
 /build/
 /captures/
+/debug/
 /release/
 .DS_Store
 keystore.properties

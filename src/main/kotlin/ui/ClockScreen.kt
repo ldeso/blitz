@@ -123,6 +123,7 @@ fun ClockScreen(
 
     ScopedBackHandler(enabledProvider = { isBusy }) {}
 
+    // Interactions already give feedback through clockFeedback, so skip the default click sounds.
     SoundEffectOnInteraction(enabled = false) {
         Box(
             modifier = Modifier.clockInput(

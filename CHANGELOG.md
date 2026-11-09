@@ -8,6 +8,11 @@
 - Target Android 17
 - Update dependencies
 
+### Notes
+
+- Replace the bundletool plugin with a build script task
+- Copy APKs, app bundles and APK sets to `debug/` and `release/` without the variant suffix
+
 ## [2.0.8](https://github.com/ldeso/blitz/releases/tag/v2.0.8) – 2026-03-10
 
 This releases updates dependencies and fixes a bug where completing a back gesture with no time left would still switch to the next player.

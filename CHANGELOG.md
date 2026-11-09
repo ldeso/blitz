@@ -1,7 +1,9 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 2.0.9 – Unreleased
+## [2.0.9](https://github.com/ldeso/blitz/releases/tag/v2.0.9) – 2026-11-09
+
+This release targets Android 17 and updates dependencies.
 
 ### Improvements
 

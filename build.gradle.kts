@@ -36,8 +36,8 @@ android {
         applicationId = "net.leodesouza.blitz"
         minSdk = 23
         targetSdk = 37
-        versionCode = 208
-        versionName = "2.0.8"
+        versionCode = 209
+        versionName = "2.0.9"
     }
 
     signingConfigs {

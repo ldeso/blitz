@@ -4,7 +4,6 @@
 package net.leodesouza.blitz
 
 import android.os.Bundle
-import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -24,10 +23,7 @@ class MainActivity : ComponentActivity() {
             ),
         )
         setContent {
-            ClockScreen(
-                onClockStart = { window.addFlags(FLAG_KEEP_SCREEN_ON) },
-                onClockStop = { window.clearFlags(FLAG_KEEP_SCREEN_ON) },
-            )
+            ClockScreen()
         }
     }
 }

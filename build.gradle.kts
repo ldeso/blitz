@@ -16,17 +16,13 @@ kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(libs.versions.jvmToolchain.get())
     }
-
-    compilerOptions {
-        freeCompilerArgs.add("-Xexplicit-backing-fields")
-    }
 }
 
 android {
     namespace = "net.leodesouza.blitz"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
+        version = release(37) {
+            minorApiLevel = 2
         }
     }
 
@@ -39,7 +35,7 @@ android {
     }
 
     signingConfigs {
-        val debug by getting
+        val debug = getByName("debug")
 
         register("release") {
             storeFile = keystoreProperties.getProperty("storeFile")?.let(::file) ?: debug.storeFile
@@ -53,10 +49,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-            signingConfig = signingConfigs.named("release").get()
+            optimization {
+                enable = true
+                keepRules {
+                    ignoreFrom("androidx.graphics:graphics-path")
+                }
+            }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -100,13 +99,13 @@ base {
 }
 
 bundletool {
-    val release by android.signingConfigs.existing
+    val release = android.signingConfigs.getByName("release")
 
     signingConfig {
-        storeFile.set(release.get().storeFile)
-        storePassword.set(release.get().storePassword)
-        keyAlias.set(release.get().keyAlias)
-        keyPassword.set(release.get().keyPassword)
+        storeFile.set(release.storeFile)
+        storePassword.set(release.storePassword)
+        keyAlias.set(release.keyAlias)
+        keyPassword.set(release.keyPassword)
     }
 }
 

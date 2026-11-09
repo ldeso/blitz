@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [versions]
-androidGradlePlugin = "9.1.0"
-androidxActivity = "1.12.4"
-androidxComposeBom = "2026.02.01"
-androidxLifecycle = "2.10.0"
+androidGradlePlugin = "9.5.1"
+androidxActivity = "1.13.0"
+androidxComposeBom = "2026.09.00"
+androidxLifecycle = "2.11.0"
 bundletoolGradlePlugin = "0.2.4"
-jvmToolchain = "17"
-kotlin = "2.3.10"
-kotlinxCoroutines = "1.10.2"
+jvmToolchain = "25"
+kotlin = "2.4.21"
+kotlinxCoroutines = "1.11.0"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }

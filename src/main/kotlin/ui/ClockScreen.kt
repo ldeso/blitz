@@ -19,15 +19,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.SoundEffectOnInteraction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import net.leodesouza.blitz.ui.components.AnimatedBackHandler
+import net.leodesouza.blitz.ui.components.KeepScreenOnHandler
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.LeaningSideHandler
 import net.leodesouza.blitz.ui.components.OrientationHandler
 import net.leodesouza.blitz.ui.components.ScopedBackHandler
-import net.leodesouza.blitz.ui.components.ScopedEffectHandler
 import net.leodesouza.blitz.ui.components.SwipeEdge
 import net.leodesouza.blitz.ui.io.clockFeedback
 import net.leodesouza.blitz.ui.io.clockInput
@@ -45,8 +46,6 @@ import net.leodesouza.blitz.ui.models.ClockState
  * @param[incrementSeconds] Time increment in seconds.
  * @param[tickPeriodMillis] Period between ticks in milliseconds.
  * @param[dragSensitivity] How many minutes or seconds to add per dragged pixel.
- * @param[onClockStart] Callback called before the clock starts ticking.
- * @param[onClockStop] Callback called after the clock stops ticking.
  * @param[clockViewModel] ViewModel holding the state and logic for this screen.
  */
 @Composable
@@ -55,8 +54,6 @@ fun ClockScreen(
     incrementSeconds: Int = 3,
     tickPeriodMillis: Int = 100,
     dragSensitivity: Float = 0.01F,
-    onClockStart: () -> Unit = {},
-    onClockStop: () -> Unit = {},
     clockViewModel: ClockViewModel = viewModel {
         ClockViewModel(durationMinutes, incrementSeconds, tickPeriodMillis)
     },
@@ -126,45 +123,38 @@ fun ClockScreen(
 
     ScopedBackHandler(enabledProvider = { isBusy }) {}
 
-    ScopedEffectHandler(
-        enabledProvider = { clockState == ClockState.TICKING }, effect = onClockStart,
-    )
-
-    ScopedEffectHandler(
-        enabledProvider = { clockState == ClockState.PAUSED || clockState == ClockState.FINISHED },
-        effect = onClockStop,
-    )
-
-    Box(
-        modifier = Modifier.clockInput(
-            dragSensitivity = dragSensitivity,
-            clockStateProvider = { clockState },
-            leaningSideProvider = { leaningSide },
-            isBusyProvider = { isBusy },
-            displayOrientation = displayOrientation,
-            layoutDirection = layoutDirection,
-            start = {
-                onClockStart()
-                clockViewModel.start()
-                clockFeedback(audioManager, haptics)
-            },
-            play = {
-                clockViewModel.play()
-                clockFeedback(audioManager, haptics)
-            },
-            save = clockViewModel::save,
-            restore = clockViewModel::restore,
-        ),
-    ) {
-        ClockContent(
-            whiteTimeProvider = { whiteTime },
-            blackTimeProvider = { blackTime },
-            clockStateProvider = { clockState },
-            playerStateProvider = { playerState },
-            leaningSideProvider = { leaningSide },
-            backEventActionProvider = { backEventAction },
-            backEventProgressProvider = { backEventProgress },
-            backEventSwipeEdgeProvider = { backEventSwipeEdge },
-        )
+    SoundEffectOnInteraction(enabled = false) {
+        Box(
+            modifier = Modifier.clockInput(
+                dragSensitivity = dragSensitivity,
+                clockStateProvider = { clockState },
+                leaningSideProvider = { leaningSide },
+                isBusyProvider = { isBusy },
+                displayOrientation = displayOrientation,
+                layoutDirection = layoutDirection,
+                start = {
+                    clockViewModel.start()
+                    clockFeedback(audioManager, haptics)
+                },
+                play = {
+                    clockViewModel.play()
+                    clockFeedback(audioManager, haptics)
+                },
+                save = clockViewModel::save,
+                restore = clockViewModel::restore,
+            ),
+        ) {
+            KeepScreenOnHandler(enabledProvider = { clockState == ClockState.TICKING })
+            ClockContent(
+                whiteTimeProvider = { whiteTime },
+                blackTimeProvider = { blackTime },
+                clockStateProvider = { clockState },
+                playerStateProvider = { playerState },
+                leaningSideProvider = { leaningSide },
+                backEventActionProvider = { backEventAction },
+                backEventProgressProvider = { backEventProgress },
+                backEventSwipeEdgeProvider = { backEventSwipeEdge },
+            )
+        }
     }
 }

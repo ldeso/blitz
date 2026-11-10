@@ -11,6 +11,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -19,23 +20,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.foundation.text.TextAutoSize.Companion.StepBased
-import androidx.compose.foundation.text.modifiers.TextAutoSizeLayoutScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.sp
 import net.leodesouza.blitz.ui.components.BasicTime
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.SwipeEdge
@@ -99,9 +102,7 @@ fun ClockContent(
         val reusableItemModifier = Modifier
             .weight(1F)
             .fillMaxSize()
-            .wrapContentSize()
-        BasicTime(
-            timeProvider = blackTimeProvider,
+        BoxWithConstraints(
             modifier = Modifier
                 .background(Color.Black)
                 .padding(symmetricPaddingValues)
@@ -118,12 +119,19 @@ fun ClockContent(
                     )
                 }
                 .then(reusableItemModifier),
-            style = textStyle.merge(color = Color.White),
-            autoSize = StepBasedWithOrientation(isTextVertical),
-            timeOverColor = timeOverColor,
-        )
-        BasicTime(
-            timeProvider = whiteTimeProvider,
+            contentAlignment = Alignment.Center,
+        ) {
+            BasicTime(
+                timeProvider = blackTimeProvider,
+                modifier = Modifier.wrapContentSize(unbounded = true),
+                style = textStyle.merge(
+                    color = Color.White,
+                    fontSize = fittingFontSize(textStyle, constraints, isTextVertical),
+                ),
+                timeOverColor = timeOverColor,
+            )
+        }
+        BoxWithConstraints(
             modifier = Modifier
                 .background(Color.White)
                 .padding(symmetricPaddingValues)
@@ -140,10 +148,18 @@ fun ClockContent(
                     )
                 }
                 .then(reusableItemModifier),
-            style = textStyle.merge(color = Color.Black),
-            autoSize = StepBasedWithOrientation(isTextVertical),
-            timeOverColor = timeOverColor,
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            BasicTime(
+                timeProvider = whiteTimeProvider,
+                modifier = Modifier.wrapContentSize(unbounded = true),
+                style = textStyle.merge(
+                    color = Color.Black,
+                    fontSize = fittingFontSize(textStyle, constraints, isTextVertical),
+                ),
+                timeOverColor = timeOverColor,
+            )
+        }
     }
 }
 
@@ -189,20 +205,33 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
 }
 
 /**
- * Automatically size the text with the biggest font size that fits the available space, taking into
- * account whether the orientation of the text [isVertical] or horizontal.
+ * Get the biggest font size at which any time displayed by [BasicTime] fits in the given
+ * [constraints] with the given [style], taking into account whether the text [isVertical].
  */
-private data class StepBasedWithOrientation(private val isVertical: Boolean) : TextAutoSize {
-    override fun TextAutoSizeLayoutScope.getFontSize(
-        constraints: Constraints,
-        text: AnnotatedString,
-    ): TextUnit {
-        val adjustedConstraints = if (isVertical) {
-            Constraints(maxWidth = constraints.maxHeight, maxHeight = constraints.maxWidth)
-        } else {
-            constraints
+@Composable
+private fun fittingFontSize(
+    style: TextStyle,
+    constraints: Constraints,
+    isVertical: Boolean,
+): TextUnit {
+    val referenceFontSize = 100.sp
+    val textMeasurer = rememberTextMeasurer()
+    val referenceSize = remember(textMeasurer, style) {
+        val referenceStyle = style.merge(fontSize = referenceFontSize)
+        val sizes = listOf("00:00.0", "0:00:00").map {
+            textMeasurer.measure(it, referenceStyle).size
         }
-
-        return with(StepBased()) { getFontSize(adjustedConstraints, text) }
+        IntSize(width = sizes.maxOf { it.width }, height = sizes.maxOf { it.height })
     }
+    val (width, height) = if (isVertical) {
+        constraints.maxHeight to constraints.maxWidth
+    } else {
+        constraints.maxWidth to constraints.maxHeight
+    }
+    val scale = minOf(
+        width.toFloat() / referenceSize.width,
+        height.toFloat() / referenceSize.height,
+    )
+
+    return with(LocalDensity.current) { (referenceFontSize.toPx() * scale).toSp() }
 }

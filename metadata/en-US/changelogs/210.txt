@@ -1,0 +1,1 @@
+• Fix the text size not updating when the window is resized

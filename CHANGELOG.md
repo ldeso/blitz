@@ -1,6 +1,12 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
+## 2.1.0 – Unreleased
+
+### Bug Fix
+
+- Fix the text size not updating when the window is resized
+
 ## [2.0.9](https://github.com/ldeso/blitz/releases/tag/v2.0.9) – 2026-11-09
 
 This release targets Android 17 and updates dependencies.
@@ -10,10 +16,9 @@ This release targets Android 17 and updates dependencies.
 - Target Android 17
 - Update dependencies
 
-### Notes
+### Note
 
-- Replace the bundletool plugin with a build script task
-- Copy APKs, app bundles and APK sets to `debug/` and `release/` without the variant suffix
+- Manage build outputs in build script tasks
 
 ## [2.0.8](https://github.com/ldeso/blitz/releases/tag/v2.0.8) – 2026-03-10
 

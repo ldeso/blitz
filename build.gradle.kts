@@ -151,7 +151,6 @@ androidComponents.onVariants { variant ->
     val outputDir = layout.projectDirectory.dir(variant.name)
     val fileName = base.archivesName.get()
     val signingConfig = variant.buildType?.let(android.buildTypes::getByName)?.signingConfig
-        ?: return@onVariants
 
     for (output in variant.outputs) {
         output.outputFileName = "$fileName.apk"
@@ -187,10 +186,10 @@ androidComponents.onVariants { variant ->
         bundle = variant.artifacts.get(SingleArtifact.BUNDLE)
         apks = outputDir.file("$fileName.apks")
         aapt2 = androidComponents.sdkComponents.aapt2.flatMap { it.executable }
-        storeFile = signingConfig.storeFile
-        keyAlias = signingConfig.keyAlias
-        storePassword = signingConfig.storePassword
-        keyPassword = signingConfig.keyPassword
+        storeFile = signingConfig?.storeFile
+        keyAlias = signingConfig?.keyAlias
+        storePassword = signingConfig?.storePassword
+        keyPassword = signingConfig?.keyPassword
     }
 }
 

@@ -11,7 +11,7 @@ import java.util.Properties
 import kotlin.io.path.moveTo
 
 val keystorePropertiesFile = file("keystore.properties").takeIf(File::isFile)
-val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStream()?.let(::load) }
+val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStream()?.use(::load) }
 
 plugins {
     kotlin("plugin.compose") version libs.versions.kotlin

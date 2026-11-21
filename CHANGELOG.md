@@ -7,6 +7,10 @@
 
 - Fix the text size not updating when the window is resized
 
+### Note
+
+- Close the keystore properties file after reading it
+
 ## [2.0.9](https://github.com/ldeso/blitz/releases/tag/v2.0.9) – 2026-11-09
 
 This release targets Android 17 and updates dependencies.

@@ -10,6 +10,7 @@ import java.util.Optional
 import java.util.Properties
 import kotlin.io.path.moveTo
 
+// Read optional release signing keys from keystore.properties when the file exists
 val keystorePropertiesFile = file("keystore.properties").takeIf(File::isFile)
 val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStream()?.use(::load) }
 
@@ -151,7 +152,6 @@ androidComponents.onVariants { variant ->
     val outputDir = layout.projectDirectory.dir(variant.name)
     val fileName = base.archivesName.get()
     val signingConfig = variant.buildType?.let(android.buildTypes::getByName)?.signingConfig
-        ?: return@onVariants
 
     for (output in variant.outputs) {
         output.outputFileName = "$fileName.apk"
@@ -187,10 +187,10 @@ androidComponents.onVariants { variant ->
         bundle = variant.artifacts.get(SingleArtifact.BUNDLE)
         apks = outputDir.file("$fileName.apks")
         aapt2 = androidComponents.sdkComponents.aapt2.flatMap { it.executable }
-        storeFile = signingConfig.storeFile
-        keyAlias = signingConfig.keyAlias
-        storePassword = signingConfig.storePassword
-        keyPassword = signingConfig.keyPassword
+        storeFile = signingConfig?.storeFile
+        keyAlias = signingConfig?.keyAlias
+        storePassword = signingConfig?.storePassword
+        keyPassword = signingConfig?.keyPassword
     }
 }
 

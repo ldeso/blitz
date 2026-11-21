@@ -7,9 +7,10 @@
 
 - Fix the text size not updating when the window is resized
 
-### Note
+### Notes
 
 - Close the keystore properties file after reading it
+- Only require signing for the APK set task
 
 ## [2.0.9](https://github.com/ldeso/blitz/releases/tag/v2.0.9) – 2026-11-09
 

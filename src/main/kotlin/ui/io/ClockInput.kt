@@ -16,12 +16,15 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.LayoutDirection
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.models.ClockState
+import net.leodesouza.blitz.ui.models.PressState
 
 /**
  * Modifier to control the chess clock through click events, dragging events and key presses.
@@ -33,7 +36,8 @@ import net.leodesouza.blitz.ui.models.ClockState
  * @param[displayOrientation] The [ORIENTATION_PORTRAIT] or [ORIENTATION_LANDSCAPE] of the display.
  * @param[layoutDirection] Whether the layout direction is left-to-right or right-to-left.
  * @param[start] Callback called to start the clock.
- * @param[play] Callback called to switch to the next player.
+ * @param[play] Callback called to switch to the next player, with whether the press is held.
+ * @param[liftPress] Callback called when that press is lifted, with whether it was taken over.
  * @param[save] Callback called to save the time or configuration.
  * @param[restore] Callback called to restore the saved time or configuration.
  */
@@ -45,7 +49,8 @@ fun Modifier.clockInput(
     displayOrientation: Int,  // ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
     layoutDirection: LayoutDirection,
     start: () -> Unit,
-    play: () -> Unit,
+    play: (pressState: PressState) -> Unit,
+    liftPress: (pressState: PressState) -> Unit,
     save: () -> Unit,
     restore: (addMinutes: Float, addSeconds: Float) -> Unit,
 ): Modifier = clickable(interactionSource = null, indication = null) {
@@ -53,12 +58,13 @@ fun Modifier.clockInput(
         clockState = clockStateProvider(),
         isBusy = isBusyProvider(),
         start = start,
-        play = play,
+        play = { play(PressState.NONE) },
     )
 }
     .pointerInput(Unit) {
         awaitEachGesture {
             var playMillis: Long? = null
+            var playId: PointerId? = null
 
             do {
                 val event = awaitPointerEvent()
@@ -68,9 +74,18 @@ fun Modifier.clockInput(
                         playMillis = playMillis,
                         clockState = clockStateProvider(),
                         isBusy = isBusyProvider(),
-                        play = play,
+                        play = { play(PressState.HELD) },
                     )
-                    if (isPlayed) playMillis = pressEvent.uptimeMillis
+                    if (isPlayed) {
+                        playMillis = pressEvent.uptimeMillis
+                        playId = pressEvent.id
+                    }
+                }
+                if (event.changes.any { it.id == playId && it.changedToUpIgnoreConsumed() }) {
+                    // Pointers taken over by the system are lifted without an Android motion event
+                    val isTakenOver = event.motionEvent == null
+                    liftPress(if (isTakenOver) PressState.TAKEN_OVER else PressState.NONE)
+                    playId = null
                 }
             } while (event.changes.any { it.pressed })
         }

@@ -24,16 +24,19 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import net.leodesouza.blitz.ui.components.AnimatedBackHandler
+import net.leodesouza.blitz.ui.components.BackSource
 import net.leodesouza.blitz.ui.components.KeepScreenOnHandler
 import net.leodesouza.blitz.ui.components.LeaningSide
 import net.leodesouza.blitz.ui.components.LeaningSideHandler
 import net.leodesouza.blitz.ui.components.OrientationHandler
 import net.leodesouza.blitz.ui.components.ScopedBackHandler
 import net.leodesouza.blitz.ui.components.SwipeEdge
+import net.leodesouza.blitz.ui.components.WindowFocusLossHandler
 import net.leodesouza.blitz.ui.io.clockFeedback
 import net.leodesouza.blitz.ui.io.clockInput
 import net.leodesouza.blitz.ui.models.BackAction
 import net.leodesouza.blitz.ui.models.ClockState
+import net.leodesouza.blitz.ui.models.PressState
 
 /**
  * Minimalist Fischer chess clock.
@@ -78,6 +81,7 @@ fun ClockScreen(
     }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventAction by remember { mutableStateOf(BackAction.PAUSE) }
+    var pressState by remember { mutableStateOf(PressState.NONE) }
     val isBusy by remember { computedStateOf { backEventProgress != 0F } }
 
     OrientationHandler { orientation = it }
@@ -93,18 +97,24 @@ fun ClockScreen(
 
     AnimatedBackHandler(
         enabledProvider = { clockState != ClockState.FULL_RESET },
-        onBackStart = {
+        onBackStart = { backSource ->
+            val isMoveUndone = when (pressState) {
+                PressState.NONE -> false
+                PressState.HELD -> backSource == BackSource.SWIPE
+                PressState.TAKEN_OVER -> true
+            }
+            pressState = PressState.NONE
             backEventAction = if (clockState == ClockState.TICKING) {
-                clockViewModel.undo()
+                if (isMoveUndone) clockViewModel.undo()
                 clockViewModel.save()
-                BackAction.PAUSE
+                if (isMoveUndone) BackAction.UNDO else BackAction.PAUSE
             } else {
                 BackAction.RESET
             }
         },
         onCompletion = {
             when (backEventAction) {
-                BackAction.PAUSE -> run {
+                BackAction.PAUSE, BackAction.UNDO -> run {
                     clockViewModel.pause()
                     clockViewModel.restore(isDecimalRestored = true)
                 }
@@ -113,7 +123,7 @@ fun ClockScreen(
             }
         },
         onCancellation = {
-            if (backEventAction == BackAction.PAUSE && clockState == ClockState.TICKING) {
+            if (backEventAction == BackAction.UNDO && clockState == ClockState.TICKING) {
                 clockViewModel.play()
             }
         },
@@ -122,6 +132,8 @@ fun ClockScreen(
     )
 
     ScopedBackHandler(enabledProvider = { isBusy }) {}
+
+    WindowFocusLossHandler { pressState = PressState.NONE }
 
     // Interactions already give feedback through clockFeedback, so skip the default click sounds.
     SoundEffectOnInteraction(enabled = false) {
@@ -139,8 +151,10 @@ fun ClockScreen(
                 },
                 play = {
                     clockViewModel.play()
+                    pressState = it
                     clockFeedback(audioManager, haptics)
                 },
+                liftPress = { if (pressState == PressState.HELD) pressState = it },
                 save = clockViewModel::save,
                 restore = clockViewModel::restore,
             ),

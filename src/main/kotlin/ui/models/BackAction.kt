@@ -3,5 +3,5 @@
 
 package net.leodesouza.blitz.ui.models
 
-/** Whether the current back gesture should [PAUSE] or [RESET] the clock. */
-enum class BackAction { PAUSE, RESET }
+/** Whether the current back gesture should [PAUSE] the clock, [UNDO] a move first or [RESET] it. */
+enum class BackAction { PAUSE, UNDO, RESET }

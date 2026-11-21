@@ -192,7 +192,7 @@ private fun GraphicsLayerScope.setBasicTimeGraphics(
         }
     }
 
-    if (isPlaying || backEventAction != BackAction.PAUSE) {
+    if (isPlaying || backEventAction == BackAction.RESET) {
         translationX = when (backEventSwipeEdge) {
             SwipeEdge.RIGHT -> -backEventProgress * size.width
             SwipeEdge.LEFT -> backEventProgress * size.width

@@ -9,6 +9,7 @@
 
 ### Bug Fixes
 
+- Fix the back button switching players instead of only pausing the clock
 - Fix the text size not updating when the window is resized
 - Fix the remaining time changing when pausing the clock
 - Fix moves counting after the time runs out

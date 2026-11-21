@@ -7,7 +7,7 @@ import android.content.Context
 import android.media.AudioManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -78,7 +78,7 @@ fun ClockScreen(
     }
     var backEventProgress by remember { mutableFloatStateOf(0F) }
     var backEventAction by remember { mutableStateOf(BackAction.PAUSE) }
-    val isBusy by remember { derivedStateOf { backEventProgress != 0F } }
+    val isBusy by remember { computedStateOf { backEventProgress != 0F } }
 
     OrientationHandler { orientation = it }
 

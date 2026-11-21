@@ -7,9 +7,10 @@
 
 - Fix the text size not updating when the window is resized
 
-### Improvement
+### Improvements
 
 - Set minimum SDK version to 24 (Android 7.0)
+- Update dependencies
 
 ### Notes
 

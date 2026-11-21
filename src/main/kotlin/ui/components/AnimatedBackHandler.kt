@@ -59,6 +59,7 @@ fun AnimatedBackHandler(
 
         } catch (e: CancellationException) {
             onCancellation()
+            throw e
 
         } finally {
             updateProgress(0F)

@@ -20,6 +20,7 @@
 - Only require signing for the APK set task
 - Start with an empty ticking job
 - Test clock implementation with 100% branch coverage
+- Rethrow back gesture cancellations
 
 ## [2.0.9](https://github.com/ldeso/blitz/releases/tag/v2.0.9) – 2026-11-09
 

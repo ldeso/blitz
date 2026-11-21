@@ -37,16 +37,22 @@
             <trusting group="androidx.core" name="core-viewtree" version="1.0.0"/>
             <trusting group="androidx.graphics" version="1.1.0"/>
             <trusting group="androidx.lifecycle" version="2.9.4"/>
+            <trusting group="androidx.test" name="monitor" version="1.8.0"/>
+            <trusting group="androidx.test.espresso" version="3.7.0"/>
+            <trusting group="androidx.test.services" name="storage" version="1.6.0"/>
             <trusting group="androidx.window" version="1.5.0"/>
             <trusting group="androidx\.core" name="core(-ktx)?" version="1\.19\.0" regex="true"/>
             <trusting group="androidx\.navigationevent" version="1\.(0|1)\.0" regex="true"/>
             <trusting group="androidx\.savedstate" version="1\.(3\.1|4\.0|5\.0)" regex="true"/>
+            <trusting group="androidx\.test" name="core|runner" version="1\.7\.0" regex="true"/>
          </trusted-key>
          <trusted-key id="10F3C7A02ECA55E502BADCF3991EFB94DB91127D" group="org.ow2" name="ow2" version="1.5.1"/>
          <trusted-key id="190D5A957FF22273E601F7A7C92C5FEC70161C62" group="org.apache" name="apache" version="18"/>
          <trusted-key id="19BEAB2D799C020F17C69126B16698A4ADF4D638" group="org\.checkerframework" name="checker-qual" version="2\.5\.8|3\.43\.0" regex="true"/>
          <trusted-key id="1A55F091AD28C07F831FA44D7905DE25C78AD456" group="com.google.protobuf" version="3.25.5"/>
          <trusted-key id="1D0A8B5E77C678A7C724445ABF984B4145EA13F7" group="com.squareup" name="javapoet" version="1.13.0"/>
+         <trusted-key id="2BAB4466B44F54F8F99BBBDD5ED22F661BBF0ACC" group="com.almworks.sqlite4java" name="sqlite4java" version="1.0.392"/>
+         <trusted-key id="2BCBDD0F23EA1CAFCC11D4860374CF2E8DD1BDFD" group="org.sonatype.oss" name="oss-parent" version="4"/>
          <trusted-key id="2DB4F1EF0FA761ECC4EA935C86FDC7E2A11262CB">
             <trusting group="commons-codec" name="commons-codec" version="1.17.1"/>
             <trusting group="commons-io" name="commons-io" version="2.16.1"/>
@@ -55,18 +61,27 @@
             <trusting group="org\.apache\.commons" name="commons-parent" version="69|71|72" regex="true"/>
          </trusted-key>
          <trusted-key id="2E3A1AFFE42B5F53AF19F780BCF4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
+         <trusted-key id="2FC53E6B1F681184F4CCD637F5C81DE10A0B8ECC" group="org.yaml" name="snakeyaml" version="2.7"/>
          <trusted-key id="3051D45031E13516A6E8FAFF280D66A55F5316C5" group="org.bitbucket.b_c" name="jose4j" version="0.9.5"/>
          <trusted-key id="31BAE2E51D95E0F8AD9B7BCC40A3C4432BD7308C" group="com.googlecode.juniversalchardet" name="juniversalchardet" version="1.0.3"/>
          <trusted-key id="33FD4BFD33554634053D73C0C2148900BCD3C2AF" group="org.jetbrains" name="annotations" version="23.0.0"/>
          <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B" group="org.apache.groovy" version="4.0.29"/>
-         <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4" group="org.jspecify" name="jspecify" version="1.0.0"/>
+         <trusted-key id="3EC80CAD1A3D50AFBBEFC136C2B98E64C61147AC" group="org.conscrypt" name="conscrypt-openjdk-uber" version="2.8.0"/>
+         <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4" group="org\.jspecify" name="jspecify" version="1\.0\.(0|1)" regex="true"/>
          <trusted-key id="44FBDBBC1A00FE414F1C1873586654072EAD6677" group="org.sonatype.oss" name="oss-parent" version="9"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j" version="1.7.30"/>
          <trusted-key id="4BF79B8259007B566D2FCE82296CD27F60EED12C" group="com.google.crypto.tink" name="tink" version="1.7.0"/>
          <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest" version="1.3"/>
+         <trusted-key id="4F7E32D440EF90A83011A8FC6425559C47CC79C4" group="javax.annotation" name="javax.annotation-api" version="1.3.2"/>
          <trusted-key id="4F8FEC6785F611D9A712EA2734918B7D3969D2F5" group="com.google.dagger" name="dagger" version="2.28.3"/>
          <trusted-key id="517B94F8D0A46317A28D8AB30DA8A5EC02D11EAD" group="net.sf.jopt-simple" name="jopt-simple" version="4.9"/>
+         <trusted-key id="5767F9CDE920750621875079A40E24B5B408DBD5">
+            <trusting group="org.robolectric" version="4.18.1"/>
+            <trusting group="org.robolectric" name="android-all-instrumented" version="17-robolectric-16653203-i7"/>
+            <trusting group="org.robolectric" name="nativeruntime-dist-compat" version="1.0.20"/>
+         </trusted-key>
          <trusted-key id="5897253BEA3046AEEA95A067E93671C7272B7B3F" group="org.jdom" name="jdom2" version="2.0.6"/>
+         <trusted-key id="638DBA7FF338F537EACB7AC0AE1B9D6007DDFA7C" group="com.google.testparameterinjector" version="1.25"/>
          <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1">
             <trusting group="com.google.guava" name="guava-parent" version="26.0-android"/>
             <trusting group="com.google.jimfs" version="1.1"/>
@@ -76,14 +91,18 @@
          <trusted-key id="6F7E5ACBCD02DB60DFD232E45E1F79A7C298661E" group="com.google.auto" name="auto-parent" version="6"/>
          <trusted-key id="7440F1F7D27BAC115F953D55EB095DA7D2F6AC0E" group="org.tensorflow" name="tensorflow-lite-metadata" version="0.2.0"/>
          <trusted-key id="7616EB882DAF57A11477AAF559A252FB1199D873" group="com.google.code.findbugs" name="jsr305" version="3.0.2"/>
-         <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org\.bouncycastle" version="1\.80(\.2)?" regex="true"/>
+         <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org\.bouncycastle" version="1\.(80\.2|86(\.2)?)" regex="true"/>
          <trusted-key id="7F36E793AE3252E5D9E9B98FEE9E7DC9D92FC896" group="com.google.errorprone" version="2.3.1"/>
          <trusted-key id="8461EFA0E74ABAE010DE66994EB27DB2A3B88B8B" group="androidx.tracing" version="1.2.0"/>
          <trusted-key id="84789D24DF77A32433CE1F079EB80E92EB2135B1" group="org\.apache" name="apache" version="31|32|33" regex="true"/>
          <trusted-key id="90EE19787A7BCF6FD37A1E9180C08B1C29100955" group="com.squareup" name="javawriter" version="2.5.0"/>
-         <trusted-key id="A413F67D71BEEC23ADD0CE0ACB43338E060CF9FA" group="org.jacoco" version="0.8.15"/>
-         <trusted-key id="A5BD02B93E7A40482EB1D66A5F69AD087600B22C" group="org\.ow2\.asm" version="9\.(9(\.1)?|10\.1)" regex="true"/>
+         <trusted-key id="A413F67D71BEEC23ADD0CE0ACB43338E060CF9FA">
+            <trusting group="com.google.code.findbugs" name="jsr305" version="2.0.2"/>
+            <trusting group="org.jacoco" version="0.8.15"/>
+         </trusted-key>
+         <trusted-key id="A5BD02B93E7A40482EB1D66A5F69AD087600B22C" group="org\.ow2\.asm" version="9\.(9(\.1)?|10\.1|11\.1)" regex="true"/>
          <trusted-key id="A5F483CD733A4EBAEA378B2AE88979FB9B30ACF2">
+            <trusting group="androidx.concurrent" version="1.2.0"/>
             <trusting group="androidx.graphics" version="1.0.1"/>
             <trusting group="androidx.profileinstaller" version="1.4.0"/>
             <trusting group="androidx\.annotation" version="1\.(4\.1|8\.1|9\.1)" regex="true"/>
@@ -91,25 +110,29 @@
          <trusted-key id="AA70C7C433D501636392EC02153E7A3C2B4E5118" group="org\.eclipse\.ee4j" name="project" version="1\.0\.(2|5)" regex="true"/>
          <trusted-key id="BCC135FC7ED8214F823D73E97FE9900F412D622E" group="com.google.flatbuffers" name="flatbuffers-java" version="1.12.0"/>
          <trusted-key id="BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE">
-            <trusting group="com.google.guava" name="failureaccess" version="1.0.2"/>
+            <trusting group="com.google.guava" name="guava-parent" version="33.4.0-android"/>
             <trusting group="com.google.j2objc" name="j2objc-annotations" version="3.0.0"/>
-            <trusting group="com\.google\.guava" name="guava(-parent)?" version="33\.4\.0-jre" regex="true"/>
+            <trusting group="com\.google\.guava" name="failureaccess" version="1\.0\.(2|3)" regex="true"/>
+            <trusting group="com\.google\.guava" name="guava(-parent)?" version="33\.(4\.0|7\.2)-jre" regex="true"/>
             <trusting group="com\.google\.guava" name="listenablefuture" version="1\.0|9999\.0-empty-to-avoid-conflict-with-guava" regex="true"/>
          </trusted-key>
+         <trusted-key id="C3259D20DAEC4ACE6D57CC83340B090F727518D8" group="com.google.j2objc" name="j2objc-annotations" version="3.1"/>
          <trusted-key id="C7BE5BCC9FEC15518CFDA882B0F3710FA64900E7">
-            <trusting group="com.google.auto.value" version="1.6.2"/>
             <trusting group="com.google.code.gson" version="2.11.0"/>
+            <trusting group="com\.google\.auto\.value" version="1\.(6\.2|11\.1)" regex="true"/>
          </trusted-key>
          <trusted-key id="D6F1BC78607808EC8E9F69437A8860944FAD5F62" group="org.apache.commons" name="commons-parent" version="34"/>
+         <trusted-key id="E52F07877A5805F9AF4AB0ACD46C5610D06E7001" group="com.ibm.icu" name="icu4j" version="79.1"/>
          <trusted-key id="E7DC75FC24FB3C8DFE8086AD3D5839A2262CBBFB">
             <trusting group="org\.jetbrains\.kotlinx" name="kotlinx-coroutines.*" version="1\.(8\.(0|1)|9\.0|11\.0)" regex="true"/>
             <trusting group="org\.jetbrains\.kotlinx" name="kotlinx-serialization.*" version="1\.7\.3" regex="true"/>
          </trusted-key>
+         <trusted-key id="E82D2EAF2E83830CE1F7F6BE571A5291E827E1C7" group="net.java" name="jvnet-parent" version="3"/>
          <trusted-key id="EB1B3DE71713C9EC2E87CC26EE92349AD86DE446" group="com.google.j2objc" name="j2objc-annotations" version="2.8"/>
-         <trusted-key id="EE0CA873074092F806F59B65D364ABAA39A47320" group="com\.google\.errorprone" version="2\.(18\.0|27\.0|36\.0)" regex="true"/>
+         <trusted-key id="EE0CA873074092F806F59B65D364ABAA39A47320" group="com\.google\.errorprone" version="2\.(18\.0|27\.0|36\.0|50\.0)" regex="true"/>
          <trusted-key id="F254B35617DC255D9344BCFA873A8E86B4372146" group="org.apache" name="apache" version="13"/>
          <trusted-key id="F3FF33E96F18AA62DD580F9651FBF517CE6D6B80" group="gradle" name="gradle" version="9.9.2"/>
-         <trusted-key id="FA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A" group="org\.apache" name="apache" version="21|23" regex="true"/>
+         <trusted-key id="FA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A" group="org.apache" name="apache" version="21"/>
          <trusted-key id="FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD" group="net.java.dev.jna" version="5.6.0"/>
          <trusted-key id="FC411CD3CB7DCB0ABC9801058118B3BCDB1A5000" group="jakarta.xml.bind" version="2.3.2"/>
          <trusted-key id="FF6E2C001948C5F2F38B0CC385911F425EC61B51">
@@ -228,9 +251,73 @@
             <sha256 value="cfd96cf6450c6e2b697598924729ad9a0495c5a4fcf4ebee7e2f81b07e415865" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
+      <component group="androidx.test" name="annotation" version="1.0.1">
+         <artifact name="annotation-1.0.1-sources.jar">
+            <sha256 value="2880a29fd9120527ab45afceb611b62c62f5464a655a12801df63e78ed9d50ce" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="annotation-1.0.1.aar">
+            <sha256 value="c0754928effe1968c3a9a7b55d1dfc7ceb1e1e7c9f3f09f98afd42431f712492" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="annotation-1.0.1.pom">
+            <sha256 value="39e978b32726354a67ea6efe8535ab6579f4760fd579c9deaacb347b0bff0c3e" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="androidx.test" name="core" version="1.5.0">
+         <artifact name="core-1.5.0-javadoc.jar">
+            <sha256 value="65a026ae570a0bafd3e204e744faf3401c079f08ba023c358f7bb0a28b0362cc" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="core-1.5.0-sources.jar">
+            <sha256 value="505e01edc532ac8259ad52264bc0f004f42043c446b47957438e673f82fd1944" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="core-1.5.0.aar">
+            <sha256 value="2c06715c0d0843cee2143ab8bb322bb3f34d5247630402fc8c1b6a0eafa15b9f" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="core-1.5.0.pom">
+            <sha256 value="18a6187c16b8d14b51b6a69e32de4a1416a0dc12cff3357d56fbe5feb70a15f2" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="androidx.test.ext" name="junit" version="1.1.5">
+         <artifact name="junit-1.1.5-javadoc.jar">
+            <sha256 value="055ab12367c23ef8897a1e771a6872fcf5d0324b59f77a1aff2cab880a0aaf22" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="junit-1.1.5-sources.jar">
+            <sha256 value="751febaf516e08ff72749e693b2f5351c97af8a1451c23dcf18b522cd1940e96" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="junit-1.1.5.aar">
+            <sha256 value="4307c0e60f5d701db9c59bcd9115af705113c36a9132fa3dbad58db1294e9bfd" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="junit-1.1.5.pom">
+            <sha256 value="4cff0df04cae25831e821ef2f9129245783460e98d0fd67d8f6824065a134c4e" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="androidx.test.services" name="storage" version="1.4.2">
+         <artifact name="storage-1.4.2-javadoc.jar">
+            <sha256 value="fa01afd20fd3b4c7a633050dd4fd47e8a07ba40f54b82bab8dedc7d6b9d874b3" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="storage-1.4.2-sources.jar">
+            <sha256 value="160b0c0c957fa33046d93942a0937b7d08bc09ccb51003e83c1e94f65b64034a" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="storage-1.4.2.aar">
+            <sha256 value="b34861f0cd920cb1089f08c3f27e5865b7f920284cc45f4ed12ef8d6980dac48" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="storage-1.4.2.pom">
+            <sha256 value="9b6301b11212641fa2cea00e48a98d0bf6f9de9fa4eabfdb31828b9a97c3ad89" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
       <component group="androidx.tracing" name="tracing" version="1.0.0">
          <artifact name="tracing-1.0.0.module">
             <sha256 value="fc8b21ebe5fa3a7c96ee098bcdcd00f077ebce73f243fa858e2b0671615f75d8" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="androidx.tracing" name="tracing" version="1.1.0">
+         <artifact name="tracing-1.1.0-sources.jar">
+            <sha256 value="e00efd9f977ae4d524dceefa2228be44a413c33646c1f5114016c65e9a90e1b9" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="tracing-1.1.0.aar">
+            <sha256 value="5b78e2c618fc10b3d14decc01df76158f15954ad746aacf0607766721da081f6" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="tracing-1.1.0.module">
+            <sha256 value="b1fed4309623b6f20bc817d8fbd70e4ea7085e40647694cd399ae58d2f0049e3" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
       <component group="androidx.versionedparcelable" name="versionedparcelable" version="1.1.1">
@@ -274,7 +361,15 @@
             <sha256 value="36c25576b19993df360170528cc62b7246c37776d6158154a67cdf8fc2d58e13" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
+      <component group="com.google.guava" name="guava" version="33.7.2-jre">
+         <artifact name="guava-33.7.2-android.jar">
+            <sha256 value="b949fe975a32421c1a2633c07a4f1578b462f2f467668aa0a4023c5ff7c4a808" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
       <component group="javax.inject" name="javax.inject" version="1">
+         <artifact name="javax.inject-1-javadoc.jar">
+            <sha256 value="f938e8eb481314d7306ae16ad91998409c8c8056bf336bc0732b4a07ad4a4f44" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
          <artifact name="javax.inject-1-sources.jar">
             <sha256 value="c4b87ee2911c139c3daf498a781967f1eb2e75bc1a8529a2e7b328a15d0e433e" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>

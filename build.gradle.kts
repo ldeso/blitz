@@ -14,6 +14,12 @@ import kotlin.io.path.moveTo
 val keystorePropertiesFile = file("keystore.properties").takeIf(File::isFile)
 val keystoreProperties = Properties().apply { keystorePropertiesFile?.inputStream()?.use(::load) }
 
+// Download Robolectric's Android SDK jar through Gradle so that dependency verification checks it
+val robolectricSdk = configurations.dependencyScope("robolectricSdk")
+val robolectricSdkFiles = files(configurations.resolvable("robolectricSdkFiles") {
+    extendsFrom(robolectricSdk.get())
+})
+
 plugins {
     kotlin("plugin.compose") version libs.versions.kotlin
     alias(libs.plugins.android.application)
@@ -97,6 +103,20 @@ android {
     packaging {
         jniLibs {
             excludes += "**/libandroidx.graphics.path.so"
+        }
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all { test ->
+                val sdkFiles = robolectricSdkFiles
+                test.inputs.files(sdkFiles)
+                test.jvmArgs("--enable-native-access=ALL-UNNAMED")
+                test.jvmArgumentProviders += CommandLineArgumentProvider {
+                    listOf("-Drobolectric.dependency.dir=${sdkFiles.singleFile.parent}")
+                }
+            }
         }
     }
 }
@@ -201,6 +221,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     testImplementation(kotlin("test-junit"))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+
+    robolectricSdk(libs.robolectric.android.all)
 }

@@ -3,9 +3,10 @@
 
 ## 2.1.0 – Unreleased
 
-### Bug Fix
+### Bug Fixes
 
 - Fix the text size not updating when the window is resized
+- Fix the remaining time changing when pausing the clock
 
 ### Improvements
 

@@ -22,6 +22,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TestTimeSource
 import kotlin.time.times
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -39,6 +40,13 @@ class ClockViewModelTest {
         incrementSeconds = increment.inWholeSeconds.toInt(),
         tickPeriodMillis = tickPeriod.inWholeMilliseconds.toInt(),
         timeSource = scheduler.timeSource,
+    )
+    private val untickedTimeSource: TestTimeSource = TestTimeSource()
+    private val untickedViewModel: ClockViewModel = ClockViewModel(
+        durationMinutes = duration.inWholeMinutes.toInt(),
+        incrementSeconds = increment.inWholeSeconds.toInt(),
+        tickPeriodMillis = tickPeriod.inWholeMilliseconds.toInt(),
+        timeSource = untickedTimeSource,
     )
 
     @BeforeTest
@@ -296,6 +304,17 @@ class ClockViewModelTest {
     }
 
     @Test
+    fun `start-delay-pause-save-restore, whiteTime is restored exactly below 1 second`() = runTest {
+        clockViewModel.start()
+        delay(initialTime - 200.milliseconds)
+        clockViewModel.pause()
+        clockViewModel.save()
+        clockViewModel.restore(isDecimalRestored = true)
+
+        assertEquals(200.milliseconds, clockViewModel.whiteTime.value)
+    }
+
+    @Test
     fun `start-delay-pause-save-restore, whiteTime is set correctly and not rounded`() = runTest {
         clockViewModel.start()
         delay(delayTime)
@@ -345,6 +364,21 @@ class ClockViewModelTest {
         }
 
         assertEquals(expectedTime, clockViewModel.whiteTime.value)
+    }
+
+    @Test
+    fun `start-delay-pause-save-start-delay-pause-save-restore, whiteTime is restored`() = runTest {
+        clockViewModel.start()
+        delay(initialTime - 3.minutes - 300.milliseconds)
+        clockViewModel.pause()
+        clockViewModel.save()
+        clockViewModel.start()
+        delay(2.minutes + 30.seconds)
+        clockViewModel.pause()
+        clockViewModel.save()
+        clockViewModel.restore(isDecimalRestored = true)
+
+        assertEquals(30.seconds + 300.milliseconds, clockViewModel.whiteTime.value)
     }
 
     @Test
@@ -504,6 +538,20 @@ class ClockViewModelTest {
 
         assertEquals(expectedTime, clockViewModel.whiteTime.value)
         assertEquals(expectedTime, clockViewModel.blackTime.value)
+    }
+
+    @Test
+    fun `start-play-undo-save-pause-restore, whiteTime is zero if time is up`() {
+        untickedViewModel.start()
+        untickedTimeSource += initialTime - 1.milliseconds
+        untickedViewModel.play()
+        untickedTimeSource += 2.milliseconds
+        untickedViewModel.undo()
+        untickedViewModel.save()
+        untickedViewModel.pause()
+        untickedViewModel.restore(isDecimalRestored = true)
+
+        assertEquals(Duration.ZERO, untickedViewModel.whiteTime.value)
     }
 
     @Test

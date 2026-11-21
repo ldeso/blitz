@@ -66,22 +66,7 @@ class ClockViewModel(
         }
 
     private var savedTimeMinutes: Float = durationMinutes.toFloat()
-        set(minutes) {
-            val seconds = savedTimeSeconds.roundToInt()
-            field = minutes.coerceIn(
-                minimumValue = (-seconds / 60).toFloat() + if (seconds % 60 == 0) 1F else 0F,
-                maximumValue = (599 - seconds / 60).toFloat(),
-            )
-        }
-
     private var savedTimeSeconds: Float = incrementSeconds.toFloat()
-        set(seconds) {
-            val minutes = savedTimeMinutes.roundToInt()
-            field = seconds.coerceIn(
-                minimumValue = (1 - minutes * 60).toFloat(),
-                maximumValue = (35_999 - minutes * 60).toFloat(),
-            )
-        }
 
     private var savedDurationMinutes: Float = durationMinutes.toFloat()
         set(minutes) {
@@ -155,7 +140,7 @@ class ClockViewModel(
                 PlayerState.BLACK -> PlayerState.WHITE
             }
         }
-        currentTime = endMark - timeSource.markNow()
+        currentTime = (endMark - timeSource.markNow()).coerceAtLeast(Duration.ZERO)
         tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
@@ -199,8 +184,20 @@ class ClockViewModel(
         addMinutes: Float = 0F, addSeconds: Float = 0F, isDecimalRestored: Boolean = false,
     ) {
         if (clockState.value == ClockState.PAUSED) {
-            savedTimeMinutes += addMinutes
-            savedTimeSeconds += addSeconds
+            if (addMinutes != 0F) {
+                val seconds = savedTimeSeconds.roundToInt()
+                savedTimeMinutes = (savedTimeMinutes + addMinutes).coerceIn(
+                    minimumValue = (-seconds / 60).toFloat() + if (seconds % 60 == 0) 1F else 0F,
+                    maximumValue = (599 - seconds / 60).toFloat(),
+                )
+            }
+            if (addSeconds != 0F) {
+                val minutes = savedTimeMinutes.roundToInt()
+                savedTimeSeconds = (savedTimeSeconds + addSeconds).coerceIn(
+                    minimumValue = (1 - minutes * 60).toFloat(),
+                    maximumValue = (35_999 - minutes * 60).toFloat(),
+                )
+            }
             val newMinutes = savedTimeMinutes.roundToInt().minutes
             val newSeconds = if (isDecimalRestored) {
                 (savedTimeSeconds * 1_000F).roundToInt().milliseconds

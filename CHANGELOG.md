@@ -1,7 +1,9 @@
 <!-- Copyright 2025 Léo de Souza -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-## 2.1.0 – Unreleased
+## [2.1.0](https://github.com/ldeso/blitz/releases/tag/v2.1.0) – 2026-11-21
+
+This release makes the clock handle players tapping the clock at nearly the same time, improves test coverage, fixes several bugs and corner cases, and updates dependencies.
 
 ### New Feature
 

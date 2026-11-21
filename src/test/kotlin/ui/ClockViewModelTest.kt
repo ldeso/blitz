@@ -541,6 +541,49 @@ class ClockViewModelTest {
     }
 
     @Test
+    fun `start-play, clockState is FINISHED if time is up`() {
+        untickedViewModel.start()
+        untickedTimeSource += initialTime + 1.milliseconds
+        untickedViewModel.play()
+
+        assertEquals(ClockState.FINISHED, untickedViewModel.clockState.value)
+    }
+
+    @Test
+    fun `start-play, playerState is WHITE if time is up`() {
+        untickedViewModel.start()
+        untickedTimeSource += initialTime + 1.milliseconds
+        untickedViewModel.play()
+
+        assertEquals(PlayerState.WHITE, untickedViewModel.playerState.value)
+    }
+
+    @Test
+    fun `start-play, whiteTime is zero if time is up`() {
+        untickedViewModel.start()
+        untickedTimeSource += initialTime + 1.milliseconds
+        untickedViewModel.play()
+
+        assertEquals(Duration.ZERO, untickedViewModel.whiteTime.value)
+    }
+
+    @Test
+    fun `start-play, whiteTime is zero if time is up without increment`() {
+        val noIncrementTimeSource = TestTimeSource()
+        val noIncrementViewModel = ClockViewModel(
+            durationMinutes = duration.inWholeMinutes.toInt(),
+            incrementSeconds = 0,
+            tickPeriodMillis = tickPeriod.inWholeMilliseconds.toInt(),
+            timeSource = noIncrementTimeSource,
+        )
+        noIncrementViewModel.start()
+        noIncrementTimeSource += duration + 1.milliseconds
+        noIncrementViewModel.play()
+
+        assertEquals(Duration.ZERO, noIncrementViewModel.whiteTime.value)
+    }
+
+    @Test
     fun `start-play-undo-save-pause-restore, whiteTime is zero if time is up`() {
         untickedViewModel.start()
         untickedTimeSource += initialTime - 1.milliseconds

@@ -114,6 +114,11 @@ class ClockViewModel(
         tickingJob.cancel()
         val playMark = timeSource.markNow()
         val remainingTime = endMark - playMark
+        if (!remainingTime.isPositive()) {
+            currentTime = Duration.ZERO
+            clockState.value = ClockState.FINISHED
+            return
+        }
         savedTime = when (playerState.value) {
             PlayerState.WHITE -> blackTime.value
             PlayerState.BLACK -> whiteTime.value

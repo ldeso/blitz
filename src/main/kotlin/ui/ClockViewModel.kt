@@ -44,7 +44,7 @@ class ClockViewModel(
     private var savedTime: Duration = duration + increment
     private var endMark: ComparableTimeMark = timeSource.markNow()
     private var savedMark: ComparableTimeMark = endMark
-    private var tickingJob: Job? = null
+    private var tickingJob: Job = Job()
 
     val whiteTime: StateFlow<Duration>
         field = MutableStateFlow(duration + increment)
@@ -119,14 +119,14 @@ class ClockViewModel(
     }
 
     fun start() {
-        tickingJob?.cancel()
+        tickingJob.cancel()
         endMark = timeSource.markNow() + currentTime
         clockState.value = ClockState.TICKING
         tickingJob = viewModelScope.launch { tickUntilFinished() }
     }
 
     fun play() {
-        tickingJob?.cancel()
+        tickingJob.cancel()
         val playMark = timeSource.markNow()
         val remainingTime = endMark - playMark
         savedTime = when (playerState.value) {
@@ -146,7 +146,7 @@ class ClockViewModel(
     }
 
     fun undo() {
-        tickingJob?.cancel()
+        tickingJob.cancel()
         currentTime = savedTime
         endMark = savedMark
         playerState.update {
@@ -160,13 +160,13 @@ class ClockViewModel(
     }
 
     fun pause() {
-        tickingJob?.cancel()
+        tickingJob.cancel()
         currentTime = endMark - timeSource.markNow()
         clockState.value = ClockState.PAUSED
     }
 
     fun reset() {
-        tickingJob?.cancel()
+        tickingJob.cancel()
         if (clockState.value == ClockState.SOFT_RESET) {
             duration = defaultDuration
             increment = defaultIncrement
@@ -218,7 +218,7 @@ class ClockViewModel(
                 endMark = timeSource.markNow() + newTime
             }
         } else {
-            tickingJob?.cancel()
+            tickingJob.cancel()
             savedDurationMinutes += addMinutes
             savedIncrementSeconds += addSeconds
             duration = savedDurationMinutes.roundToInt().minutes

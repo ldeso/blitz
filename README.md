@@ -80,7 +80,7 @@ For example, if the app was installed from F-Droid, it can be updated to a newer
 
 ## About
 
-This is a native Android app for Android 6.0+.
+This is a native Android app for Android 7.0+.
 It is built with [Jetpack Compose](https://developer.android.com/jetpack/compose) and implements:
 
   - Predictive back gestures ([Android 14+](https://developer.android.com/about/versions/13/features/predictive-back-gesture))

@@ -7,7 +7,6 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.LayoutDirection
 import net.leodesouza.blitz.ui.components.LeaningSide
@@ -58,12 +58,21 @@ fun Modifier.clockInput(
 }
     .pointerInput(Unit) {
         awaitEachGesture {
-            onPressEvent(
-                pressEvent = awaitFirstDown(requireUnconsumed = false),
-                clockState = clockStateProvider(),
-                isBusy = isBusyProvider(),
-                play = play,
-            )
+            var playMillis: Long? = null
+
+            do {
+                val event = awaitPointerEvent()
+                event.changes.filter { it.changedToDownIgnoreConsumed() }.forEach { pressEvent ->
+                    val isPlayed = onPressEvent(
+                        pressEvent = pressEvent,
+                        playMillis = playMillis,
+                        clockState = clockStateProvider(),
+                        isBusy = isBusyProvider(),
+                        play = play,
+                    )
+                    if (isPlayed) playMillis = pressEvent.uptimeMillis
+                }
+            } while (event.changes.any { it.pressed })
         }
     }
     .onKeyEvent {
@@ -138,19 +147,29 @@ private fun onClickEvent(
 }
 
 /**
- * Switch to the next player if the clock is ticking on press events.
+ * Switch to the next player on presses while ticking, unless the gesture did so in the last 100 ms.
  *
  * @param[pressEvent] The touch down event to intercept.
+ * @param[playMillis] When a press of the same gesture last switched to the next player, if any.
  * @param[clockState] Current state of the clock.
  * @param[isBusy] Whether the clock is currently busy.
  * @param[play] Callback called to switch to the next player.
+ * @return Whether the press switched to the next player.
  */
 private fun onPressEvent(
-    pressEvent: PointerInputChange, clockState: ClockState, isBusy: Boolean, play: () -> Unit,
-) {
-    if (!isBusy && clockState == ClockState.TICKING) {
+    pressEvent: PointerInputChange,
+    playMillis: Long?,
+    clockState: ClockState,
+    isBusy: Boolean,
+    play: () -> Unit,
+): Boolean {
+    val isTooSoon = playMillis != null && pressEvent.uptimeMillis - playMillis < 100L
+    if (!isTooSoon && !isBusy && clockState == ClockState.TICKING) {
         pressEvent.consume()
         play()
+        return true
+    } else {
+        return false
     }
 }
 

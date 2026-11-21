@@ -50,6 +50,18 @@ class ClockScreenTest {
         timeSource += 10.seconds
     }
 
+    private fun overlappingTaps(delayMillis: Long) {
+        composeTestRule.onRoot().performTouchInput {
+            down(pointerId = 0, position = center)
+            advanceEventTime(delayMillis)
+            down(pointerId = 1, position = centerRight)
+            up(pointerId = 1)
+            up(pointerId = 0)
+        }
+        composeTestRule.waitForIdle()
+        timeSource += 10.seconds
+    }
+
     private fun hover() {
         composeTestRule.onRoot().performMouseInput {
             moveTo(center)
@@ -89,6 +101,22 @@ class ClockScreenTest {
     fun `tap-tap, playerState is BLACK`() {
         tap()
         tap()
+
+        assertEquals(PlayerState.BLACK, clockViewModel.playerState.value)
+    }
+
+    @Test
+    fun `tap-overlappingTaps, playerState is WHITE`() {
+        tap()
+        overlappingTaps(delayMillis = 200L)
+
+        assertEquals(PlayerState.WHITE, clockViewModel.playerState.value)
+    }
+
+    @Test
+    fun `tap-overlappingTaps within 100 ms, playerState is BLACK`() {
+        tap()
+        overlappingTaps(delayMillis = 50L)
 
         assertEquals(PlayerState.BLACK, clockViewModel.playerState.value)
     }

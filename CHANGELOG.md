@@ -3,6 +3,10 @@
 
 ## 2.1.0 – Unreleased
 
+### New Feature
+
+- Handle players tapping the clock at nearly the same time
+
 ### Bug Fixes
 
 - Fix the text size not updating when the window is resized

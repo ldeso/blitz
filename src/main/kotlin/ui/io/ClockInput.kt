@@ -7,6 +7,7 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.Modifier
@@ -58,7 +59,7 @@ fun Modifier.clockInput(
     .pointerInput(Unit) {
         awaitEachGesture {
             onPressEvent(
-                pressEvent = awaitPointerEvent().changes.first(),
+                pressEvent = awaitFirstDown(requireUnconsumed = false),
                 clockState = clockStateProvider(),
                 isBusy = isBusyProvider(),
                 play = play,

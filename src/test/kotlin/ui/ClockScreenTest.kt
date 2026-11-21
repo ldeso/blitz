@@ -7,6 +7,7 @@ import androidx.activity.BackEventCompat
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import net.leodesouza.blitz.ui.models.ClockState
 import net.leodesouza.blitz.ui.models.PlayerState
@@ -16,6 +17,7 @@ import org.robolectric.RobolectricTestRunner
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TestTimeSource
 
@@ -46,6 +48,15 @@ class ClockScreenTest {
         }
         composeTestRule.waitForIdle()
         timeSource += 10.seconds
+    }
+
+    private fun hover() {
+        composeTestRule.onRoot().performMouseInput {
+            moveTo(center)
+            moveTo(centerRight)
+            scroll(delta = 1F)
+        }
+        composeTestRule.waitForIdle()
     }
 
     private fun backSwipe(isCancelled: Boolean = false) {
@@ -80,6 +91,22 @@ class ClockScreenTest {
         tap()
 
         assertEquals(PlayerState.BLACK, clockViewModel.playerState.value)
+    }
+
+    @Test
+    fun `tap-hover, playerState is WHITE`() {
+        tap()
+        hover()
+
+        assertEquals(PlayerState.WHITE, clockViewModel.playerState.value)
+    }
+
+    @Test
+    fun `tap-hover, blackTime does not change`() {
+        tap()
+        hover()
+
+        assertEquals(5.minutes + 3.seconds, clockViewModel.blackTime.value)
     }
 
     @Test

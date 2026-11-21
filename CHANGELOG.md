@@ -8,6 +8,7 @@
 - Fix the text size not updating when the window is resized
 - Fix the remaining time changing when pausing the clock
 - Fix moves counting after the time runs out
+- Fix mouse and stylus hovering switching players
 
 ### Improvements
 
